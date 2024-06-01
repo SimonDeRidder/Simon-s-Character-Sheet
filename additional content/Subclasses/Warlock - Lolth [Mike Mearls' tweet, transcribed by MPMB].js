@@ -71,8 +71,8 @@ AddSubClass("warlock", "lolth", {
 			calcChanges : {
 				atkAdd : [
 					function (fields, v) {
-						if (v.theWea.isSpiderFormBite && classes.known.warlock && classes.known.warlock.level) {
-							fields.Damage_Die = cantripDie[classes.known.warlock.level - 1] + "d10";
+						if (v.theWea.isSpiderFormBite && wasm_character.has_class('warlock')) {
+							fields.Damage_Die = cantripDie[wasm_character.get_class_level('warlock') - 1] + "d10";
 						}
 					}
 				]

@@ -267,9 +267,9 @@ MagicItemsList["staff of purple"] = {
 	Setting this to "" is the same as not including this attribute.
 */
 	prereqeval : function(v) {
-		return v.isSpellcaster && CurrentRace.known.indexOf('dwarf') !== -1;
+		return v.isSpellcaster && wasm_character.get_race_id().indexOf('dwarf') !== -1;
 	},
-	prereqeval : "CurrentSpells.toSource() !== '({})' && CurrentRace.known.indexOf('dwarf') !== -1",
+	prereqeval : "CurrentSpells.toSource() !== '({})' && wasm_character.get_race_id().indexOf('dwarf') !== -1",
 /*	prereqeval // OPTIONAL //
 	TYPE:	function or, for backwards-compatibility, string that is evaluated using eval()
 	USE:	this should return 'true' if the prerequisite is met or 'false' otherwise
@@ -308,8 +308,8 @@ MagicItemsList["staff of purple"] = {
 
 	Other than using the 'v' variable, this function can be any JavaScript you want.
 	Common usage examples:
-		"return CurrentRace.known.indexOf('dwarf') !== -1;" // Test if race is a dwarf
-		"return classes.known.cleric ? true : false;" // Test if character has any levels in the cleric class
+		"return wasm_character.get_race_id().indexOf('dwarf') !== -1;" // Test if race is a dwarf
+		"return wasm_character.has_class('cleric');" // Test if character has any levels in the cleric class
 		"return wasm_character.get_ability('Dex') >= 13;" // Test if character has a Dexterity score of 13 or more
 */
 	allowDuplicates : true,
@@ -365,7 +365,7 @@ MagicItemsList["staff of purple"] = {
 	There is no limit to how big this description can be,
 	but very long descriptions will not always display correctly.
 */
-	calculate : "event.value = 'I can spend 10 minutes inspiring up to 6 friendly creatures within 30 feet who can see or hear and can understand me. Each gains lvl (' + What('Character Level') + ') + Cha mod (' + wasm_character.get_ability_modifier('Cha') + \") temporary hit points. One can't gain temporary hit points from this item again until after a short rest.\";",
+	calculate : "event.value = 'I can spend 10 minutes inspiring up to 6 friendly creatures within 30 feet who can see or hear and can understand me. Each gains lvl (' + wasm_character.get_level() + ') + Cha mod (' + wasm_character.get_ability_modifier('Cha') + \") temporary hit points. One can't gain temporary hit points from this item again until after a short rest.\";",
 /*	calculate // OPTIONAL //
 	TYPE:	string
 	USE:	this string is set as the field calculation method for the description field of the magic item
@@ -598,7 +598,7 @@ MagicItemsList["staff of purple"] = {
 	See the below example "fire" for more information.
 */
 	selfChoosing : function () {
-		return classes.known.cleric ? "fire" : "";
+		return wasm_character.has_class('cleric') ? "fire" : "";
 	},
 /*	selfChoosing // OPTIONAL //
 	TYPE:	function

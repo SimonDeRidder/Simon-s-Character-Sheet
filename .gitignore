@@ -58,3 +58,4 @@ local
 .vscode
 target
 *_runner.sh
+static-web-server

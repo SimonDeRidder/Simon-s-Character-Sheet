@@ -181,10 +181,7 @@ var Base_CompanionList = {
 			joinString : ", "
 		}, {
 			name : "The beast adds my Proficiency Bonus",
-			description : typePF ? "to its AC, attack rolls, damage rolls, and saves/skills it is proficient with" : [
-				"to its AC, attack rolls, damage rolls,",
-				"as well as to any saving throws and skills it is proficient with."
-			].join("\n   "),
+			description : "to its AC, attack rolls, damage rolls, and saves/skills it is proficient with",
 			joinString : " "
 		}, {
 			name : "The beast's hit point maximum equals",
@@ -198,7 +195,7 @@ var Base_CompanionList = {
 				"As an action, I can have the beast do an Attack, Dash, Disengage, or Help action on its turn",
 				"If I don't command it to take an action, it takes the Dodge action instead"
 			].join("\n   "),
-			joinString : typePF ? ": " : ":\n   "
+			joinString : ": "
 		}, {
 			name : "Extra Attack (Ranger 5, PHB 89)",
 			description : "If the beast takes the Attack action, I can use my Extra Attack feature to attack once myself",
@@ -287,8 +284,8 @@ var Base_CompanionList = {
 				AddToModFld(sACfld, "oProf", false, sNameEntity, sExplanation);
 			}
 			// Add oProf to proficient Saving Throws / Skills and remove where no longer proficient
-			var processFld = function(sType, sFld, sModFld) {
-				var bIsProf = sType === "skill" && !typePF ? What(sFld) !== "nothing" : tDoc.getField(sFld).isBoxChecked(0);
+			var processFld = function(sFld, sModFld) {
+				var bIsProf = tDoc.getField(sFld).isBoxChecked(0);
 				var boProfMod = What(sModFld).indexOf("oProf") !== -1;
 				if ((!bIsProf && boProfMod) || (bIsProf && !boProfMod)) {
 					AddToModFld(sModFld, "oProf", !bIsProf, sNameEntity, sExplanation);
@@ -299,24 +296,24 @@ var Base_CompanionList = {
 				var sFld = prefix + "Comp.Use.Ability." + AbilityScores.abbreviations[i] + ".ST.Prof";
 				if (!tDoc.getField(sFld)) continue;
 				var sModFld = prefix + "BlueText.Comp.Use.Ability." + AbilityScores.abbreviations[i] + ".ST.Bonus";
-				processFld("save", sFld, sModFld);
+				processFld(sFld, sModFld);
 			}
 			// Loop through the skills and process them
 			for (var i = 0; i < SkillsList.abbreviations.length; i++) {
-				var sFld = prefix + (typePF ? "" : "Text.") + "Comp.Use.Skills." + SkillsList.abbreviations[i] + ".Prof";
+				var sFld = prefix + "Comp.Use.Skills." + SkillsList.abbreviations[i] + ".Prof";
 				if (!tDoc.getField(sFld)) continue;
 				var sModFld = prefix + "BlueText.Comp.Use.Skills." + SkillsList.abbreviations[i] + ".Bonus";
-				processFld("skill", sFld, sModFld);
+				processFld(sFld, sModFld);
 			}
 		},
 		calcChanges : {
 			hp : function (totalHD, HDobj, prefix) {
 				var classTxt = "", useLvl, totHP, strHp;
-				if (!classes.known.ranger && !classes.known["spell-less ranger"] && !classes.known["rangerua"]) {
-					useLvl = classes.totallevel;
+				if (!wasm_character.has_class('ranger') && !wasm_character.has_class('spell-less ranger') && !wasm_character.has_class('rangerua')) {
+					useLvl = wasm_character.get_level();
 				} else {
 					classTxt = "ranger ";
-					useLvl = (classes.known.ranger ? classes.known.ranger.level : 0) + (classes.known["spell-less ranger"] ? classes.known["spell-less ranger"].level : (classes.known.rangerua ? classes.known.rangerua.level : 0));
+					useLvl = wasm_character.get_class_level('ranger') + wasm_character.get_class_level('spell-less ranger') + wasm_character.get_class_level('rangerua');
 				}
 				var rngrCompHp = 4 * useLvl;
 				var rngrCompHpStr = " 4 \xD7 " + useLvl + " from four times my " + classTxt + "level (" + rngrCompHp + ")";

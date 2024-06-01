@@ -35,16 +35,16 @@ function ReturnSpellFieldsArray(prefix, suffix, fullFldNm) {
 function ReturnSpellFieldsContentArray(underscores, psionic) {
 	return [
 		"",
-		underscores ? Array(21 + (typePF ? 6 : 0)).join("_") : psionic ? "PSIONIC POWER" : "SPELL",
-		underscores ? Array(84 + (typePF ? 25: 0)).join("_") : "DESCRIPTION",
-		underscores ? Array( 5).join("_") : "SAVE",
-		underscores ? Array( 7 + (typePF ? 1 : 0)).join("_") : psionic ? " ORDER" : "SCHOOL",
-		underscores ? Array( 7 + (typePF ? 1 : 0)).join("_") : "TIME",
-		underscores ? Array(10 + (typePF ? 2 : 0)).join("_") : "RANGE",
-		underscores ? Array( 7).join("_") : "COMP",
-		underscores ? Array(12 + (typePF ? 3 : 0)).join("_") : "DURATION",
-		underscores ? Array( 3).join("_") : "B",
-		underscores ? Array( 4).join("_") : "PG."
+		underscores ? Array( 27).join("_") : psionic ? "PSIONIC POWER" : "SPELL",
+		underscores ? Array(109).join("_") : "DESCRIPTION",
+		underscores ? Array(  5).join("_") : "SAVE",
+		underscores ? Array(  8).join("_") : psionic ? " ORDER" : "SCHOOL",
+		underscores ? Array(  8).join("_") : "TIME",
+		underscores ? Array( 12).join("_") : "RANGE",
+		underscores ? Array(  7).join("_") : "COMP",
+		underscores ? Array( 15).join("_") : "DURATION",
+		underscores ? Array(  3).join("_") : "B",
+		underscores ? Array(  4).join("_") : "PG."
 	];
 };
 
@@ -272,11 +272,8 @@ function GetSpellObject(theSpl, theCast, firstCol, noOverrides, tipShortDescr) {
 function fixSpellRangeOverflow(rangeStr) {
 	rangeStr = rangeStr.trim();
 	if (What("Unit System") === "metric") {
-		var testRx = typePF ? /S:\d+[,.]\d+[- /]?m (cone|cube)/i : /S:\d+[,.]?\d+[- /]?m (cone|cube|line)|S:\d+[,.]\d+[- /]?m rad/i;
+		var testRx = /S:\d+[,.]\d+[- /]?m (cone|cube)/i;
 		if (testRx.test(rangeStr)) rangeStr = rangeStr.replace(/[- /]?m ((con|cub)e|line)/i, "m $1").replace(/[- /]?m rad/i, "m rad");
-	} else if (!typePF) {
-		var testRx = /S:\d+[,.]?\d+[- /]?ft (cone|cube|line)|S:\d+[- /]?miles? rad/i;
-		if (testRx.test(rangeStr)) rangeStr = rangeStr.replace(/[- /]?ft (cone|cube|line)/i, "ft $1").replace(/[- /]?miles? rad/i, "mile rad");
 	}
 	return rangeStr;
 }
@@ -331,34 +328,15 @@ function ApplySpell(FldValue, base) {
 
 	//make this a header line if the input is "setcaptions"
 	if ((/setcaptions/i).test(input[0])) {
-		//have a function to create rich text span
-		var createSpan = function(inTxt) {
-			var toCap = inTxt.substring(0, inTxt.indexOf(" ") === 0 ? 2 : 1)
-			// First build up an array of Span objects
-			var spans = [{
-				text : toCap,
-				textSize : 7
-			}, {
-				text : inTxt.replace(toCap, ""),
-				textSize : 5.6
-			}];
-			return spans;
-		}
-
 		//set the headers values
 		var HeaderList = ReturnSpellFieldsContentArray(false, (/psionic/i).test(input[0]));
 		if (input[1]) HeaderList[0] = input[1].substring(0, (/\(.\)|\d-\d/).test(input[1]) ? 3 : 2).toUpperCase();
 		for (var i = 0; i < HeaderList.length; i++) {
 			var theFld = tDoc.getField(spFlds[i]);
-			if (!typePF) {
-				theFld.richText = true;
-				theFld.richValue = createSpan(HeaderList[i]);
-			} else {
-				theFld.value = HeaderList[i];
-				//change the font and font size
-				theFld.textFont = "ScalaSans-BoldLF";
-				theFld.textSize = 5.75;
-			}
+			theFld.value = HeaderList[i];
+			//change the font and font size
+			theFld.textFont = "ScalaSans-BoldLF";
+			theFld.textSize = 5.75;
 			theFld.readonly = true;
 			theFld.display = display.visible;
 		}
@@ -372,10 +350,8 @@ function ApplySpell(FldValue, base) {
 				theFld.richText = false;
 			}
 			if (i !== 0) theFld.readonly = false;
-			if (typePF) { //reset the font and font size
-				theFld.textFont = tDoc.getField("Template.extras.SSfront").textFont;
-				theFld.textSize = 6.25;
-			}
+			theFld.textFont = tDoc.getField("Template.extras.SSfront").textFont;
+			theFld.textSize = 6.25;
 		}
 	}
 
@@ -519,20 +495,7 @@ function SetSpell(input, base) {
 //set the text on the spell divider (the level of the spell)
 function SetSpellDividerName(field, level) {
 	var dName = level > 11 ? "Spells (1-9th Level)" : spellLevelList[level].replace('-l', ' L');
-	if (!typePF) {
-		var txts = dName.split(/\d+/);
-		var nums = !/\d/.test(dName) ? [] : dName.match(/\d+/g);
-		var spans = [];
-		for (var i = 0; i < txts.length; i++) {
-			spans.push({ text : txts[i]});
-			if (i < nums.length) {
-				spans.push({ text : nums[i], fontFamily : ["Pterra"], textSize : 13 });
-			}
-		}
-		tDoc.getField(field).richValue = spans;
-	} else {
-		Value(field, dName);
-	}
+	Value(field, dName);
 }
 
 //move a set of fields (type) to the y-coordinate of a given field (target)
@@ -560,34 +523,13 @@ function SetSpellSheetElement(target, type, suffix, caster, hidePrepared, forceT
 		prefix + "BlueText.spellshead.attack." + suffix, //8
 		prefix + "BlueText.spellshead.dc." + suffix, //9
 	];
-	if (!typePF) {
-		headerArray = headerArray.concat([
-			prefix + "spellshead.Image.Dragonheadshadow." + suffix, //10
-			prefix + "spellshead.Image.Dragonhead." + suffix, //11
-			prefix + "spellshead.Text.prepare." + suffix, //12
-			prefix + "spellshead.Box.prepare." + suffix, //13
-			prefix + "spellshead.Text.attack." + suffix, //14
-			prefix + "spellshead.Box.attack." + suffix, //15
-			prefix + "spellshead.Text.dc." + suffix, //16
-			prefix + "spellshead.Box.dc." + suffix, //17
-			prefix + "spellshead.Text.ability." + suffix, //18
-			prefix + "spellshead.Box.ability." + suffix, //19
-		]);
-		var dividerArray = [
-			prefix + "spellsdiv.Text." + suffix, //0
-			prefix + "spellsdiv.Image.Dragonhead." + suffix, //1
-			prefix + "spellsdiv.Image.Divider." + suffix, //2
-			prefix + "spellsdiv.Image.DividerFlip." + suffix, //3
-		];
-	} else {
-		headerArray = headerArray.concat([
-			prefix + "spellshead.Image.prepare." + suffix, //10
-		]);
-		var dividerArray = [
-			prefix + "spellsdiv.Image." + suffix, //0
-			prefix + "spellsdiv.Text." + suffix, //1
-		];
-	}
+	headerArray = headerArray.concat([
+		prefix + "spellshead.Image.prepare." + suffix, //10
+	]);
+	var dividerArray = [
+		prefix + "spellsdiv.Image." + suffix, //0
+		prefix + "spellsdiv.Text." + suffix, //1
+	];
 	var glossaryArray = [
 		prefix + "spellsgloss.Image" + suffix, //0
 	];
@@ -652,14 +594,14 @@ function SetSpellSheetElement(target, type, suffix, caster, hidePrepared, forceT
 
 	//now set the values of the fields
 	if (type === "divider") {
-		var divTextFld = dividerArray[!typePF ? 0 : 1]
+		var divTextFld = dividerArray[1]
 		//set the name of the divider
 		SetSpellDividerName(divTextFld, caster);
 		if (forceTxt) Value(divTextFld, forceTxt); // override the text of the divider
 		//set the submitName to remember the line where this divider is at
 		var submitNameFld = divTextFld;
 	} else if (type === "header") {
-		var testLength = !typePF ? 10 : 36;
+		var testLength = 36;
 
 		if (caster && CurrentSpells[caster]) {
 			var spCast = CurrentSpells[caster];
@@ -709,14 +651,7 @@ function SetSpellSheetElement(target, type, suffix, caster, hidePrepared, forceT
 		if (hidePrepared) {
 			Hide(headerArray[4]);
 			Hide(headerArray[7]);
-			if (!typePF) {
-				Hide(headerArray[4]);
-				Hide(headerArray[7]);
-				Hide(headerArray[12]);
-				Hide(headerArray[13]);
-			} else {
-				Hide(headerArray[10]);
-			}
+			Hide(headerArray[10]);
 		}
 
 		//make the ability score drop-down box editable if this is a complete spell sheet; also add a tooltip
@@ -775,7 +710,7 @@ function CalcSpellScores(fldName) {
 					if (modIpvDC) {
 						theR -= 8;
 					} else {
-						if (typePF) theR = "DC " + theR;
+						theR = "DC " + theR;
 						break;
 					}
 				  case "attack":
@@ -961,10 +896,10 @@ async function SetSpellCheckbox(field, modifier) {
 			showThis = "Hide";
 			break;
 		 case "" : //make it a button that we can use to call a menu
-			insideColor = !typePF ? ColorList[What("Color.Theme")].CMYK : ["RGB", 0.659, 0.659, 0.659];
+			insideColor = ["RGB", 0.659, 0.659, 0.659];
 			borderColor = color.white;
 			theCaption = ">";
-			borderWidth = !typePF ? 2 : 1;
+			borderWidth = 1;
 			borderType = border.b;
 		 default :
 			theIcon = tDoc.getField("SaveIMG.EmptyIcon").buttonGetIcon();
@@ -977,13 +912,11 @@ async function SetSpellCheckbox(field, modifier) {
 		if (theIcon) tDoc.getField(theCheckBox).buttonSetIcon(theIcon);
 		tDoc.getField(theCheckBox).fillColor = insideColor;
 		tDoc.getField(theCheckBox).lineWidth = borderWidth;
-		if (typePF) {
-			tDoc.getField(theCheckBox).strokeColor = borderColor;
-			for (var L = 0; L <= 2; L++) {
-				tDoc.getField(theCheckBox).buttonSetCaption(theCaption, L);
-			}
-			tDoc.getField(theCheckBox).borderStyle = borderType;
+		tDoc.getField(theCheckBox).strokeColor = borderColor;
+		for (var L = 0; L <= 2; L++) {
+			tDoc.getField(theCheckBox).buttonSetCaption(theCaption, L);
 		}
+		tDoc.getField(theCheckBox).borderStyle = borderType;
 	} else if (type === "checkbox") {
 		if (modifier) { //if Shift/Ctrl/Cmd was pressed while clicking
 			await MakeSpellLineMenu_SpellLineOptions(field.name);
@@ -2825,16 +2758,11 @@ function DefineSpellSheetDialogs(force, formHeight) {
 		for (var dType in makeFunc[diaName]) {
 			for (var a = 1; a <= makeFunc[diaName][dType]; a++) {
 				var boxID = dType + ("0" + a).slice(-2);
-				if (app.viewerVersion < 15) {
-					// Doesn't support ES5, so do this with eval()
-					eval("spDias[" + diaName + "][" + boxID + "] = function (dialog) { this.search(dialog, '" + boxID + "'); };");
-				} else {
-					var doThisInFunction = function(thisID) {
-						spDias[diaName][thisID] = async function(dialog) {
-							await this.search(dialog, id = thisID);
-						}
-					}(boxID);
-				}
+				var doThisInFunction = function(thisID) {
+					spDias[diaName][thisID] = async function(dialog) {
+						await this.search(dialog, id = thisID);
+					}
+				}(boxID);
 			}
 		}
 	}
@@ -2866,11 +2794,11 @@ async function AskUserSpellSheet() {
 		// get the ability score to use for save DCs/spell attacks/prepared
 		spCast.abilityToUse = getSpellcastingAbility(aCast);
 		if (spCast.level !== undefined) {
-			if (classes.known[aCast]) {
-				spCast.level = classes.known[aCast].level;
+			if (wasm_character.has_class(aCast)) {
+				spCast.level = wasm_character.get_class_level(aCast);
 			} else if (/feat|item/i.test(spCast.refType)) {
 				//set the level if concerning a feat/item/race
-				spCast.level = Math.max(1, Number(What("Character Level")));
+				spCast.level = Math.max(1, wasm_character.get_level());
 			}
 		}
 
@@ -3768,19 +3696,12 @@ function MakeSpellMenu() {
 		bEnabled : !tDoc.info.SpellsOnly ? SSvisible : SSmultiple
 	}, {
 		cName : "-"
-	}, {
-		cName : "Spell sources to use (set before generating)",
-		cReturn : "ssheet#source"
-	}, {
-		cName : "-"
 	}]);
 
 	//get the current state of where to show the Spell Slots
 	var RememberSlots = What("SpellSlotsRemember");
 
-	if (!typePF && !tDoc.info.SpellsOnly) {
-		menuLVL2(spellsMenu, ["Where to show Spell Slots (Spell Points)", "slots"], [["On Spell Sheet", "[false,true]"], ["On first page (in Limited Features)", "[true,false]"], ["On both Spell Sheet and first page", "[true,true]"], ["-", "-"], ["Use Spell Points instead of Spell Slots", "[false,false]"]]);
-	} else if (tDoc.info.SpellsOnly) {
+	if (tDoc.info.SpellsOnly) {
 		var slotsVisible = What("Template.extras.SSfront") ? isDisplay("P0.SSfront.SpellSlots.CheckboxesSet.lvl1") > 1 : false;
 		var spellPointsVis = What("Template.extras.SSfront") ? RememberSlots === "[false,false]" : false;
 
@@ -3792,11 +3713,11 @@ function MakeSpellMenu() {
 			bEnabled : !spellPointsVis
 		}, {
 			cName : "Use Spell Points instead of Spell Slots",
-			cReturn : "ssheet#" + (typePF ? "spellpoints" : "slots#" + (spellPointsVis ? "[false,true]" : "[false,false]") + "#false"),
+			cReturn : "ssheet#spellpoints",
 			bMarked : spellPointsVis,
 			bEnabled : What("Template.extras.SSfront") !== ""
 		}]);
-	} else if (typePF) {
+	} else {
 		//options to toggle the use of spell points
 		spellsMenu = spellsMenu.concat([{
 			cName : "Use Spell Points instead of Spell Slots",
@@ -3867,9 +3788,6 @@ async function MakeSpellMenu_SpellOptions(MenuSelection) {
 		break;
 	 case "deleteone" :
 		await DoTemplate("SSmore", "Remove");
-		break;
-	 case "source" :
-		await resourceDecisionDialog();
 		break;
 	 case "slots" :
 		if (MenuSelection[3] != "true") { //it wasn't marked, so something is about the change
@@ -3962,16 +3880,6 @@ function OrderSpells(inputArray, outputFormat, sepPsionics, bonusSp, maxLvl) {
 
 	return returnArray;
 };
-
-//return the value of a spellsheet's number (field calculation)
-// $$[note]$$ event.target.name -> fldName
-function CalcSpellsheetNumber(fldName) {
-	var prefix = fldName.substring(0, fldName.indexOf("SpellSheet"));
-	var SSmoreA = What("Template.extras.SSmore").split(",");
-	SSmoreA[0] = What("Template.extras.SSfront").split(",")[1];
-	if (!SSmoreA[0]) SSmoreA.shift();
-	return MakeDocName() + (tDoc.info.SpellsOnly ? "; page " : "; Spell Sheet ") + (SSmoreA.indexOf(prefix) + 1) + "/" + SSmoreA.length;
-}
 
 //make a menu of all the spells, sorted by caster
 function ParseSpellMenu() {
@@ -4846,34 +4754,13 @@ function HideSpellSheetElement(base, fromChange, value) {
 		prefix + "BlueText.spellshead.attack." + suffix, //8
 		prefix + "BlueText.spellshead.dc." + suffix, //9
 	];
-	if (!typePF) {
-		headerArray = headerArray.concat([
-			prefix + "spellshead.Image.Dragonheadshadow." + suffix, //10
-			prefix + "spellshead.Image.Dragonhead." + suffix, //11
-			prefix + "spellshead.Text.prepare." + suffix, //12
-			prefix + "spellshead.Box.prepare." + suffix, //13
-			prefix + "spellshead.Text.attack." + suffix, //14
-			prefix + "spellshead.Box.attack." + suffix, //15
-			prefix + "spellshead.Text.dc." + suffix, //16
-			prefix + "spellshead.Box.dc." + suffix, //17
-			prefix + "spellshead.Text.ability." + suffix, //18
-			prefix + "spellshead.Box.ability." + suffix, //19
-		]);
-		var dividerArray = [
-			prefix + "spellsdiv.Text." + suffix, //0
-			prefix + "spellsdiv.Image.Dragonhead." + suffix, //1
-			prefix + "spellsdiv.Image.Divider." + suffix, //2
-			prefix + "spellsdiv.Image.DividerFlip." + suffix, //3
-		];
-	} else {
-		headerArray = headerArray.concat([
-			prefix + "spellshead.Image.prepare." + suffix, //10
-		]);
-		var dividerArray = [
-			prefix + "spellsdiv.Image." + suffix, //0
-			prefix + "spellsdiv.Text." + suffix, //1
-		];
-	}
+	headerArray = headerArray.concat([
+		prefix + "spellshead.Image.prepare." + suffix, //10
+	]);
+	var dividerArray = [
+		prefix + "spellsdiv.Image." + suffix, //0
+		prefix + "spellsdiv.Text." + suffix, //1
+	];
 	var glossaryArray = [
 		prefix + "spellsgloss.Image"
 	];
@@ -4935,12 +4822,7 @@ function HideSpellSheetElement(base, fromChange, value) {
 		//show the prepared section or hide it, depending on the above
 		if (HideShow) {
 			tDoc[HideShow](headerArray[4]);
-			if (!typePF) {
-				tDoc[HideShow](headerArray[12]);
-				tDoc[HideShow](headerArray[13]);
-			} else {
-				tDoc[HideShow](headerArray[10]);
-			}
+			tDoc[HideShow](headerArray[10]);
 		}
 	}
 	// If the text changed, make sure to also edit the remember field so that the element can be recreated when inserting/deleting rows
@@ -5020,14 +4902,9 @@ function AddSpellSheetTextLines(prefix, boxes, maxLine) {
 //generate the spell sheet for all the different classes
 async function GenerateCompleteSpellSheet(thisClass, skipdoGoOn) {
 	if ((/alphabetical|grouped by level/i).test(thisClass)) {
-		GenerateSpellSheetWithAll((/alphabetical/i).test(thisClass), skipdoGoOn);
+		await GenerateSpellSheetWithAll((/alphabetical/i).test(thisClass), skipdoGoOn);
 		return;
 	};
-	if (app.viewerType !== "Reader" && tDoc.info.SpellsOnly) {
-		tDoc.info.SpellsOnly = thisClass;
-		tDoc.info.Title = MakeDocName();
-		Value("Opening Remember", "No");
-	}
 	var isSubClass = ClassList[thisClass] ? false : true;
 	var thisClassName = ClassList[thisClass] ? ClassList[thisClass].name : ClassSubList[thisClass] ? ClassSubList[thisClass].subname : thisClass.capitalize();
 	// Start progress bar so we know it will be visible if a dialog is made
@@ -5159,146 +5036,10 @@ async function MakePreparedMenu_PreparedOptions(theTarget, hide) {
 
 	Hide(theTarget);
 	Hide(theTarget.replace(".Text.", ".").replace(".Image.", "."));
-	if (!typePF) Hide(theTarget.replace("Text", "Box"));
-}
-
-//revamp the whole sheet to become a "Complete Spell Sheet"
-async function ChangeToCompleteSpellSheet(thisClass, FAQpath) {
-	if (minVer) return;
-	await ResetAll(true, true);
-	thisClass = thisClass ? thisClass : "cleric";
-	await tDoc.getTemplate("SSfront").spawn(0, true, false);
-	tDoc.deletePages({nStart: 1, nEnd: tDoc.numPages - 1});
-	tDoc.getTemplate("SSfront").hidden = false;
-	tDoc.getTemplate("SSmore").hidden = false;
-	tDoc.getTemplate("remember").hidden = false;
-	tDoc.getTemplate("blank").hidden = false;
-	Value("Template.extras.SSfront", ",P0.SSfront.");
-
-	//remove the saveIMG fields that are now useless
-	tDoc.removeField("SaveIMG.Faction");
-	tDoc.removeField("SaveIMG.ClassIcon");
-	tDoc.removeField("SaveIMG.ALicon");
-
-	for (var i = 0; i <= 3; i++) {
-		this.getField("spellshead.prepare." + i).readonly = false;
-		this.getField("spellshead.attack." + i).readonly = false;
-		this.getField("spellshead.dc." + i).readonly = false;
-		this.getField("P0.SSfront.spellshead.prepare." + i).readonly = false;
-		this.getField("P0.SSfront.spellshead.attack." + i).readonly = false;
-		this.getField("P0.SSfront.spellshead.dc." + i).readonly = false;
-	};
-
-	if (!typePF) { //if the Colorful version, remove some more useless fields
-		tDoc.removeField("SaveIMG.Level");
-		tDoc.removeField("SaveIMG.Attack");
-		tDoc.removeField("SaveIMG.Prof");
-		tDoc.removeField("SaveIMG.Stats");
-		tDoc.removeField("SaveIMG.Header.Right");
-		tDoc.removeField("SaveIMG.Arrow");
-		tDoc.removeField("SaveIMG.IntArrow");
-		tDoc.removeField("SaveIMG.HPdragonhead");
-		tDoc.removeField("SaveIMG.SaveDC");
-		tDoc.removeField("SaveIMG.DnDLogo");
-		tDoc.removeField("SaveIMG.Honor");
-		tDoc.removeField("SaveIMG.Sanity");
-	}
-
-	var keyPF = "This Spell Sheet is an extraction from MPMB's Character Record Sheet [Printer Friendly]. It follows the design and uses elements of the official D&D 5e character sheet by Wizards of the Coast, but has been heavily modified by Joost Wijnen [morepurplemorebetter] (mpmb@flapkan.com).\\n\\nOther credits:\\n- Gretkatillor on ENworld.org for the code in this sheet was inspired by Gretkatillor's brilliant 'Clean Sheet'.";
-
-	var keyPFR = "This Spell Sheet is an extraction from MPMB's Character Record Sheet [Printer Friendly - Redesign]. It follows the design idea of the official D&D 5e character sheet by Wizards of the Coast, but has been created from the ground up by Joost Wijnen [morepurplemorebetter] (mpmb@flapkan.com).\\n\\nOther credits:\\n- Gretkatillor on ENworld.org for the code in this sheet was inspired by Gretkatillor's brilliant 'Clean Sheet'.";
-
-	var keyCF = "This Spell Sheet is an extraction from MPMB's Character Record Sheet [" + tDoc.info.SheetType + "]. This sheet uses elements designed by Javier Aumente, but has been created from the ground up by Joost Wijnen [morepurplemorebetter] (mpmb@flapkan.com).\\n\\nOther credits:\\n- Gretkatillor on ENworld.org for the code in this sheet was inspired by Gretkatillor's brilliant 'Clean Sheet'."
-
-	//move the pages that we want to extract to a new instance, by running code from a console
-	var forConsole = [
-		"Execute the following:\n\tFirst:",
-		"tDoc.extractPages({nStart: 0, nEnd: 4});",
-		"\n\tAnd in the newly created document:",
-		"var toDelScripts = ['AbilityScores', 'ClassSelection', 'ListsBackgrounds', 'ListsCompanions', 'ListsCreatures', 'ListsFeats', 'ListsGear', 'ListsMagicItems', 'ListsRaces'];",
-		"for (var s = 0; s < toDelScripts.length; s++) {this.removeScript(toDelScripts[s]);};",
-		"this.createTemplate({cName:'SSfront', nPage:1 });",
-		"this.createTemplate({cName:'SSmore', nPage:2 });",
-		"this.createTemplate({cName:'remember', nPage:3 });",
-		"this.createTemplate({cName:'blank', nPage:4 });",
-		"this.getTemplate('SSfront').hidden = true;",
-		"this.getTemplate('SSmore').hidden = true;",
-		"this.getTemplate('remember').hidden = true;",
-		"this.getTemplate('blank').hidden = true;",
-		"this.info.SpellsOnly = '" + thisClass + "';",
-		'this.info.SheetVersion = "' + tDoc.info.SheetVersion + '";',
-		tDoc.info.SheetVersionType ? 'this.info.SheetVersionType = "' + tDoc.info.SheetVersionType + '";' : '',
-		tDoc.info.SheetVersionBuild ? 'this.info.SheetVersionBuild = "' + tDoc.info.SheetVersionBuild + '";' : '',
-		'this.info.SheetType = "' + tDoc.info.SheetType + '";',
-		'this.info.Keywords = "' + (!typePF ? keyCF : (tDoc.info.SheetType === "Printer Friendly" ? keyPF : keyPFR)) + '";',
-		'this.info.ContactEmail = "' + tDoc.info.ContactEmail + '";',
-		'this.info.Subject = "D&D 5e; Character Sheet; Spell Sheet; Spell Sheet Generator";',
-		"setGlobalVars();",
-		"this.info.Title = MakeDocName();",
-		"CreateBkmrksCompleteSpellSheet();",
-		"this.calculateNow();",
-		FAQpath ? 'this.importDataObject({cName: "FAQ.pdf", cDIPath: "' + FAQpath + '"});' : '',
-		"Value('Opening Remember', 'Yes');",
-		"app.execMenuItem('GeneralInfo');"
-	];
-	console.clear();
-	console.println(forConsole.join("\n").replace(/\n{2,}/g, "\n"));
-	console.show();
-	tDoc.dirty = false;
-}
-
-//create the bookmarks of a Adventure Logsheet
-function CreateBkmrksCompleteSpellSheet() {
-	var bkmrks = {
-		"Functions" : {
-			cExpr : "MakeButtons(); tDoc.bookmarkRoot.children[0].open = !tDoc.bookmarkRoot.children[0].open;",
-			children : {
-				"Spell Sources" : {
-					cExpr : "resourceDecisionDialog();",
-					color : ["RGB", 0.93, 0.49, 0.098]
-				},
-				"Spell Options" : {
-					cExpr : "await MakeSpellMenu_SpellOptions();",
-					color : ["RGB", 0.2509765625, 0.5176544189453125, 0.67059326171875]
-				},
-				"Unit System" : {
-					cExpr : "SetUnitDecimals_Button();",
-					color : ["RGB", 0.463, 0.192, 0.467]
-				},
-				"Set Color Theme" : {
-					cName : typePF ? "Set Highlight Color" : "Set Color Theme",
-					cExpr : "MakeColorMenu(); ColoryOptions();",
-					color : ["RGB", 0.5, 0.5, 0.5]
-				},
-				"Add Extra Materials" : {
-					cExpr : "ImportScriptOptions();"
-				}
-			}
-		},
-		"FAQ" : {
-			cExpr : "await getFAQ();"
-		},
-		"Get Latest Version" : {
-			cName : "Get Latest Version (current: v" + semVers + ")",
-			cExpr : "contactMPMB('spell sheets');"
-		},
-		"Get Full Character Sheet" : {
-			cExpr : "contactMPMB('character sheet');"
-		},
-		"Get More Content" : {
-			cExpr : "contactMPMB('community content');"
-		},
-		"Contact MPMB" : {
-			cExpr : "contactMpmbMenu();",
-			color : ["CMYK", 0.76, 1, 0.03, 0.5] // DarkColorList.purple
-		}
-	};
-	createBookmarks(tDoc.bookmarkRoot, bkmrks);
 }
 
 // a function to enforce the Spell Points of the printer friendly sheets
 function ToggleSpellPoints() {
-	if (!typePF) return; //only do this function for Printer Friendly versions
 	var SPactive = What("SpellSlotsRemember") !== "[false,false]"; //true if we are going to set it to using spell points
 
 	calcStop();
@@ -5482,11 +5223,6 @@ function setSpellVariables(reDoAll) {
 
 //a way to generate a spell sheet that has all spells on it (alphabetical = true for an alphabetical list, and false for a list grouped by level)
 async function GenerateSpellSheetWithAll(alphabetical, skipdoGoOn) {
-	if (app.viewerType !== "Reader" && tDoc.info.SpellsOnly) {
-		tDoc.info.SpellsOnly = alphabetical ? "alphabetical" : "grouped by level";
-		tDoc.info.Title = MakeDocName();
-		Value("Opening Remember", "No");
-	};
 	// Start progress bar so we know it will be visible if a dialog is made
 	var thermoTxt = thermoM("Generating Spell Sheets with all spells, Acrobat will be unresponsive for a long time...", false);
 	//first ask the user if he really wants to wait for an hour
@@ -5644,7 +5380,7 @@ function getSpellcastingAbility(theCast) {
 		var abiModArr = ["", "Str", "Dex", "Con", "Int", "Wis", "Cha", "HoS"];
 		for (aCast in CurrentSpells) {
 			// Test if this CurrentSpells entry is a class with spellcasting abilities
-			if (aCast == theCast || !CurrentSpells[aCast].ability || isNaN(CurrentSpells[aCast].ability) || !CurrentClasses[aCast] || !CurrentClasses[aCast].spellcastingFactor) continue;
+			if (aCast == theCast || !CurrentSpells[aCast].ability || isNaN(CurrentSpells[aCast].ability) || !wasm_character.has_class(aCast) || !adapter_helper_get_class_property(aCast, "spellcastingFactor")) continue;
 			var aCastAbility = Number(CurrentSpells[aCast].ability);
 			if (spAbility == aCastAbility) {
 				casterArray.push(aCast);
@@ -5659,9 +5395,10 @@ function getSpellcastingAbility(theCast) {
 		}
 		testFixedDC = true;
 	} else if (spObj && spObj.ability == "race") {
-		if (CurrentRace.known && CurrentSpells[CurrentRace.known] && CurrentSpells[CurrentRace.known].ability && !isNaN(CurrentSpells[CurrentRace.known].ability)) {
-			spAbility = Number(CurrentSpells[CurrentRace.known].ability);
-			casterArray = [CurrentRace.known];
+		let raceId = wasm_character.get_race_id();
+		if (raceId && CurrentSpells[raceId] && CurrentSpells[raceId].ability && !isNaN(CurrentSpells[raceId].ability)) {
+			spAbility = Number(CurrentSpells[raceId].ability);
+			casterArray = [raceId];
 		}
 		testFixedDC = true;
 	}

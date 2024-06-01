@@ -4,14 +4,6 @@
 		<img class="pane-bg" alt="" src="img/bg_splashy_stripes.svg" style="top: 4px;width: var(--page-width);height: 174.2px">
 		<img class="pane-bg" alt="" src="img/page_spells/backgrounds/header.svg" style="top: 40px;left: 23.5px;width: 847.5px;height: 122.3px;">
 
-		<img
-			id="Image.DnDLogo.short"
-			class="field"
-			alt="D&amp;D®"
-			src="img/dnd/5ednd.svg"
-			style="position: absolute;top: 2px;left: 370px;width: 75px;height: 75px;visibility: hidden"
-		/>
-
 		<div class="textlabel-bold" style="top: 131.6px;left: 360.4px;width: 469.3px">SPELL SLOTS</div>
 		<span class="textlabel" style="top: 143px;left: 101.5px">CHARACTER NAME</span>
 		<span class="textlabel" style="top: 83.1px;left: 365.34px;font-size: 9px"><b>1</b>ST LEVEL</span>
@@ -706,12 +698,12 @@
 
 		<script type="text/javascript">
 			{
-				let prefix = adapter_helper_get_prefix_from_script('Image.DnDLogo.short');
+				let prefix = adapter_helper_get_prefix_from_script("zAdvLog.PC_Name");
 				// zAdvLog.PC_Name
 				eventManager.add_listener(
 					EventType.PC_Name_change,
 					function () {
-						let newValue = CalcAdvLogInfo(prefix + 'zAdvLog.PC Name');
+						let newValue = wasm_character.get_name();
 						if (newValue !== undefined) {
 							let nameElement = document.getElementById(prefix + 'zAdvLog.PC_Name');
 							if (nameElement.value != newValue) {

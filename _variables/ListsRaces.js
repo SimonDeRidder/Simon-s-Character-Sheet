@@ -47,12 +47,16 @@ var Base_RaceList = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (v.theWea.dbBreathWeapon && CurrentRace.known === 'dragonborn') {
-								fields.Damage_Die = (CurrentRace.level < 6 ? 2 : CurrentRace.level < 11 ? 3 : CurrentRace.level < 16 ? 4 : 5) + 'd6';
-								if (CurrentRace.variant) {
-									fields.Damage_Type = CurrentRace.dmgres[0];
-									fields.Description = fields.Description.replace(/(dex|con) save/i, ((/cold|poison/i).test(CurrentRace.dmgres[0]) ? 'Con' : 'Dex') + ' save');
-									fields.Range = (/black|blue|brass|bronze|copper/i).test(CurrentRace.variant) ? '5-ft \xD7 30-ft line' : '15-ft cone';
+							let raceID = wasm_character.get_race_id();
+							if (v.theWea.dbBreathWeapon && raceID === 'dragonborn') {
+								let level = wasm_character.get_level();
+								fields.Damage_Die = (level < 6 ? 2 : level < 11 ? 3 : level < 16 ? 4 : 5) + 'd6';
+								let raceVariant = adapter_helper_get_race_property("variant", raceID);
+								if (raceVariant) {
+									let raceDmgres = adapter_helper_get_race_property("dmgres", raceID);
+									fields.Damage_Type = raceDmgres[0];
+									fields.Description = fields.Description.replace(/(dex|con) save/i, ((/cold|poison/i).test(raceDmgres[0]) ? 'Con' : 'Dex') + ' save');
+									fields.Range = (/black|blue|brass|bronze|copper/i).test(raceVariant) ? '5-ft \xD7 30-ft line' : '15-ft cone';
 								}
 							};
 						},
@@ -153,7 +157,7 @@ var Base_RaceList = {
 		scorestxt: "+1 Constitution, +2 Intelligence",
 		abilityChecksum: 3,
 		abilitySubset: [],
-		trait : "Rock Gnome (+1 Constitution, +2 Intelligence)" + (typePF ? "\n" : " ") + "Artificer's Lore: Add twice my proficiency bonus to Intelligence (History) checks with magic, alchemical, and technological items.\nTinker: Construct a Tiny clockwork device (AC 5, 1 HP) using tinker's tools, 1 hour, and 10 gp of material components, that functions for 24 hours. I can have up to 3 active." + (typePF ? "\n - " : " -") + "Clockwork Toy: animal, monster, or person that can move 5 ft per turn in a random direction, making appropriate noises;" + (typePF ? "\n - " : " -") + "Fire Starter: 1 action to produce miniature flame to light things;" + (typePF ? "\n - " : " -") + "Music Box: plays single song at a moderate volume."
+		trait : "Rock Gnome (+1 Constitution, +2 Intelligence)\nArtificer's Lore: Add twice my proficiency bonus to Intelligence (History) checks with magic, alchemical, and technological items.\nTinker: Construct a Tiny clockwork device (AC 5, 1 HP) using tinker's tools, 1 hour, and 10 gp of material components, that functions for 24 hours. I can have up to 3 active.\n - Clockwork Toy: animal, monster, or person that can move 5 ft per turn in a random direction, making appropriate noises;\n - Fire Starter: 1 action to produce miniature flame to light things;\n - Music Box: plays single song at a moderate volume."
 	},
 	"lightfoot halfling" : {
 		regExpSearch : /^((?=.*(hairfoot|tallfellow))|((?=.*\b(halflings?|hobbits?)\b)(?=.*lightfoot))).*$/i,
@@ -176,7 +180,7 @@ var Base_RaceList = {
 		scorestxt: "+2 Dexterity, +1 Charisma",
 		abilityChecksum: 3,
 		abilitySubset: [],
-		trait : "Lightfoot Halfling (+2 Dexterity, +1 Charisma)" + (typePF ? "\n" : "") + "\nLucky: When I roll a 1 on an attack roll, ability check, or saving throw, I can reroll the die and must use the new roll." + (typePF ? "\n" : "") + "\nHalfling Nimbleness: I can move through the space of any creature that is of a size larger than me." + (typePF ? "\n" : "") + "\nNaturally Stealthy: I can attempt to hide even when I am obscured only by a creature that is at least one size larger than me."
+		trait : "Lightfoot Halfling (+2 Dexterity, +1 Charisma)\n\nLucky: When I roll a 1 on an attack roll, ability check, or saving throw, I can reroll the die and must use the new roll.\n\nHalfling Nimbleness: I can move through the space of any creature that is of a size larger than me.\n\nNaturally Stealthy: I can attempt to hide even when I am obscured only by a creature that is at least one size larger than me."
 	},
 	"half-elf" : {
 		regExpSearch : /^(?=.*half)(?=.*(elf|elv|drow|silvanesti|qualinesti|grugach|kagonesti)).*$/i,
@@ -256,7 +260,7 @@ var Base_RaceList = {
 				}
 			}
 		},
-		trait : "Half-Orc (+2 Strength, +1 Constitution)" + (typePF ? "\n" : " ") + "\nRelentless Endurance: When I am reduced to 0 hit points but not killed outright, I can drop to 1 hit point instead. I can't use this feature again until I finish a long rest.\n\nSavage Attacks: When I score a critical hit with a melee weapon attack, I can roll one of the weapon's damage dice one additional time and add it to the extra damage of the critical hit."
+		trait : "Half-Orc (+2 Strength, +1 Constitution)\n\nRelentless Endurance: When I am reduced to 0 hit points but not killed outright, I can drop to 1 hit point instead. I can't use this feature again until I finish a long rest.\n\nSavage Attacks: When I score a critical hit with a melee weapon attack, I can roll one of the weapon's damage dice one additional time and add it to the extra damage of the critical hit."
 	},
 	"human" : {
 		regExpSearch : /human/i,

@@ -204,7 +204,7 @@ ClassList["furycrafter"] = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (v.isMeleeWeapon) fields.Description += (fields.Description ? '; ' : '') + '+1d8' + (classes.known.furycrafter.subclass.indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' force damage';
+							if (v.isMeleeWeapon) fields.Description += (fields.Description ? '; ' : '') + '+1d8' + (wasm_character.get_subclass('furycrafter').indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' force damage';
 						},
 						"With my melee weapon attacks I deal an extra 1d8 force damage."
 					]
@@ -216,7 +216,7 @@ ClassList["furycrafter"] = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (!v.isSpell) fields.Description += (fields.Description ? '; ' : '') + '+1d8 fire' + (classes.known.furycrafter.subclass.indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' damage';
+							if (!v.isSpell) fields.Description += (fields.Description ? '; ' : '') + '+1d8 fire' + (wasm_character.get_subclass('furycrafter').indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' damage';
 						},
 						"With my weapon attacks I deal an extra 1d8 fire damage."
 					]
@@ -228,7 +228,7 @@ ClassList["furycrafter"] = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (v.isMeleeWeapon) fields.Description += (fields.Description ? '; ' : '') + '+1d8' + (classes.known.furycrafter.subclass.indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' damage';
+							if (v.isMeleeWeapon) fields.Description += (fields.Description ? '; ' : '') + '+1d8' + (wasm_character.get_subclass('furycrafter').indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' damage';
 						},
 						"With my melee weapon attacks I deal an extra 1d8 damage."
 					]
@@ -240,7 +240,7 @@ ClassList["furycrafter"] = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (!v.isSpell) fields.Description += (fields.Description ? '; ' : '') + '+1d8' + (classes.known.furycrafter.subclass.indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' cold damage';
+							if (!v.isSpell) fields.Description += (fields.Description ? '; ' : '') + '+1d8' + (wasm_character.get_subclass('furycrafter').indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' cold damage';
 						},
 						"With my weapon attacks I deal an extra 1d8 cold damage."
 					]
@@ -252,7 +252,7 @@ ClassList["furycrafter"] = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (!v.isSpell) fields.Description += (fields.Description ? '; ' : '') + '+1d8' + (classes.known.furycrafter.subclass.indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' thunder damage';
+							if (!v.isSpell) fields.Description += (fields.Description ? '; ' : '') + '+1d8' + (wasm_character.get_subclass('furycrafter').indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' thunder damage';
 						},
 						"With my weapon attacks I deal an extra 1d8 thunder damage."
 					]
@@ -264,7 +264,7 @@ ClassList["furycrafter"] = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (v.isRangedWeapon) fields.Description += (fields.Description ? '; ' : '') + '+1d8' + (classes.known.furycrafter.subclass.indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' piercing damage';
+							if (v.isRangedWeapon) fields.Description += (fields.Description ? '; ' : '') + '+1d8' + (wasm_character.get_subclass('furycrafter').indexOf("innate force") != -1 ? "(+Wis mod)" : "") + ' piercing damage';
 						},
 						"With my ranged weapon attacks I deal an extra 1d8 piercing damage."
 					]
@@ -348,7 +348,6 @@ AddSubClass("furycrafter", "manifestation", {
 				Value(prefix + 'Comp.Race', selBeast);
 				var theType = tDoc.getField(prefix + 'Comp.Type');
 				theType.readonly = true;
-				if (!typePF) theType.textSize = 0;
 				theType.value = 'Fury';
 				for (var a = 1; a <= 3; a++) {
 					AddToModFld(prefix + 'BlueText.Comp.Use.Attack.' + a + '.To Hit Bonus', "oProf", false, "Fury Companion", "The Fury Companion adds the furycrafter's proficiency bonus (oProf) to the to hit bonus of its attacks.");
@@ -362,7 +361,7 @@ AddSubClass("furycrafter", "manifestation", {
 				}
 				for (var i = 0; i < SkillsList.abbreviations.length - 2; i++) {
 					var skill = SkillsList.abbreviations[i];
-					if ((typePF && tDoc.getField(prefix + "Comp.Use.Skills." + skill + ".Prof").isBoxChecked(0)) || (!typePF && What(prefix + "Text.Comp.Use.Skills." + skill + ".Prof") !== "nothing")) {
+					if (tDoc.getField(prefix + "Comp.Use.Skills." + skill + ".Prof").isBoxChecked(0)) {
 						AddToModFld(prefix + "BlueText.Comp.Use.Skills." + skill + ".Bonus", "oProf");
 					}
 				}
@@ -387,7 +386,7 @@ AddSubClass("furycrafter", "manifestation", {
 					var theType = tDoc.getField(prefix + 'Comp.Type');
 					if (theType.readonly && theType.value == "Fury") {
 						Value(prefix + 'Comp.Use.AC', Number(How(prefix + 'Comp.Use.AC')) + Number(How('Proficiency Bonus')));
-						Value(prefix + "Comp.Use.HP.Max", Math.round(classes.known.furycrafter.level * 4));
+						Value(prefix + "Comp.Use.HP.Max", Math.round(wasm_character.get_class_level('furycrafter') * 4));
 					}
 				}
 			}

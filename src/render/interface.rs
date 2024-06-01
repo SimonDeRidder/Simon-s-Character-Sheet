@@ -1,37 +1,184 @@
-// Interface with the JS code, both affects and callbacks
+// Interface with the JS code, both effects and callbacks
 
 use std::collections::HashMap;
 
+use gloo_utils::format::JsValueSerdeExt as _;
+use leptos::{
+	leptos_dom::logging::console_error,
+	prelude::{Get as _, GetUntracked as _, ReadUntracked as _, Set as _, Update as _, Write as _},
+};
+use wasm_bindgen::UnwrapThrowExt;
 use wasm_bindgen::prelude::wasm_bindgen;
+
+#[allow(unused_imports)]
 use wasm_bindgen::JsValue;
 
 use crate::{
+	Character,
 	config::CONFIG,
 	domain::{
+		general_info::ClassLevel,
 		stats::abilities::{
 			AbilityImprovementValue, AbilityLimitSource, AbilitySource, ImprovementAbilitySource,
 			RegularAbilitySource,
 		},
 		types::{AbilityPart, AbilityValue, Modifier},
 	},
-	render::{stats::abilities::show_ability_modal, utils::SignalFuture},
-	Character,
+	render::{
+		stats::{abilities::show_ability_modal, header::show_class_selection_modal},
+		utils::SignalFuture,
+	},
 };
-use gloo_utils::format::JsValueSerdeExt;
-use leptos::{
-	leptos_dom::logging::console_error,
-	prelude::{Get as _, GetUntracked as _, ReadUntracked as _, Update as _, Write as _},
-};
+
+#[wasm_bindgen]
+pub struct ClassForExport {
+	id: String,
+	pub level: u8,
+	subclass_id: Option<String>,
+	name: String,
+}
+#[wasm_bindgen]
+impl ClassForExport {
+	#[wasm_bindgen(getter)]
+	pub fn id(&self) -> String {
+		self.id.clone()
+	}
+	#[wasm_bindgen(getter)]
+	pub fn subclass_id(&self) -> Option<String> {
+		self.subclass_id.clone()
+	}
+	#[wasm_bindgen(getter)]
+	pub fn name(&self) -> String {
+		self.name.clone()
+	}
+}
+
+impl From<&ClassLevel> for ClassForExport {
+	fn from(class_level: &ClassLevel) -> Self {
+		ClassForExport {
+			id: class_level.id.clone(),
+			level: class_level.level,
+			subclass_id: class_level.subclass_id.clone(),
+			name: class_level.name.clone(),
+		}
+	}
+}
 
 #[wasm_bindgen]
 extern "C" {
 	#[wasm_bindgen(js_namespace = eventManager)]
 	fn handle_event(event_type: String);
+
+	pub fn adapter_helper_get_all_class_ids() -> Vec<String>;
+	pub fn adapter_helper_get_class(class_id: String) -> Vec<String>;
+	pub fn adapter_helper_get_all_subclasses(class_id: String) -> Vec<String>;
+	pub fn adapter_helper_get_subclass(class_id: String, subclass_id: String) -> Vec<String>;
+	pub fn adapter_helper_get_available_subclasses_for_class(class_id: String, class_level: u8)
+	-> Vec<String>;
+	pub fn adapter_helper_get_subclass_type_name(class_id: String) -> String;
+	pub fn adapter_helper_get_subclass_names(subclass_ids: Vec<String>) -> Vec<String>;
+	pub fn adapter_helper_get_backgrounds() -> Vec<String>;
+	pub fn adapter_helper_get_background_names() -> Vec<String>;
+	pub fn adapter_helper_get_background_option_title(background_id: Option<String>) -> Option<String>;
+	pub fn adapter_helper_get_background_options(background_id: Option<String>) -> Option<Vec<String>>;
+	pub fn adapter_helper_get_races() -> Vec<String>;
+	pub fn adapter_helper_get_race_names() -> Vec<String>;
+	pub fn adapter_helper_get_race_variants(race_id: String) -> Vec<String>;
+	pub fn adapter_helper_get_race_variant_names(race_id: String) -> Vec<String>;
+	pub fn adapter_helper_race_needs_previous_race(race_id: Option<String>) -> bool;
+
+	#[wasm_bindgen(js_name = ApplyClasses, catch)]
+	pub async fn apply_classes(
+		oldClasses: Vec<ClassForExport>,
+		newClasses: Vec<ClassForExport>,
+	) -> Result<(), JsValue>;
+
+	#[wasm_bindgen(js_name = UpdateLevelFeatures, catch)]
+	pub async fn update_level_features(
+		type_: String,
+		level: u8,
+		classes_to_update: Option<String>,
+		old_level: Option<u8>,
+		race_id: Option<String>,
+	) -> Result<(), JsValue>;
+
+	#[wasm_bindgen(js_name = ApplyBackground)]
+	pub async fn apply_background(background_id: Option<String>, old_background_id: Option<String>);
+
+	#[wasm_bindgen(js_name = ApplyRace)]
+	pub async fn apply_race(race_id: Option<String>, old_race_id: Option<String>);
 }
 
 // === EFFECTS ===
 pub fn create_all_effects(character: &Character) {
 	// > Stats
+	// >> Header
+	let character_name = character.general_info.name;
+	leptos::prelude::Effect::new(move |_| {
+		character_name.get();
+		handle_event(String::from("PC_Name_change"));
+	});
+	let gen_info_clone = character.general_info.clone();
+	let startup = character.startup;
+	leptos::reactive::effect::Effect::new(move |prev_value: Option<Option<u8>>| {
+		let current_value = gen_info_clone.level.get();
+		if startup.get() {
+			return None;
+		}
+		let flat_prev = prev_value.unwrap_or_default();
+		if flat_prev.is_none_or(|prev_val| current_value != prev_val) {
+			leptos::reactive::spawn_local(async move {
+				handle_event(String::from("Character_Level_change"));
+			});
+			if !(flat_prev.is_none() && current_value == 0) {
+				leptos::reactive::spawn_local(async move {
+					let _ = update_level_features(
+						String::from("notclass"),
+						std::cmp::max(1, current_value),
+						None,
+						flat_prev,
+						None,
+					)
+					.await
+					.inspect_err(|error| {
+						console_error(
+							format!("error in update_level_features from level change: {:?}", error).as_str(),
+						)
+					});
+				});
+				let old_classes = gen_info_clone.classes.get_untracked();
+				if old_classes
+					.iter()
+					.map(|class_level| class_level.level)
+					.sum::<u8>() != current_value
+				{
+					if current_value > 0 {
+						show_class_selection_modal(
+							gen_info_clone.classes,
+							gen_info_clone.level,
+							gen_info_clone.experience,
+							i16::from(current_value) - i16::from(flat_prev.unwrap_or_default()),
+						);
+					} else {
+						gen_info_clone.classes.set(Vec::new());
+						leptos::reactive::spawn_local(async move {
+							let _ = apply_classes(
+								old_classes.iter().map(|class_level| class_level.into()).collect(),
+								vec![],
+							)
+							.await
+							.inspect_err(|error| {
+								console_error(
+									format!("error in apply_classes from level change: {:?}", error).as_str(),
+								)
+							});
+						});
+					}
+				}
+			}
+		}
+		Some(current_value)
+	});
 	// >> Abilities
 	for (abbreviation, ability) in character.stats.abilities.abilities.iter() {
 		let abi_value = ability.value;
@@ -53,8 +200,72 @@ pub fn create_all_effects(character: &Character) {
 
 #[wasm_bindgen]
 impl Character {
+	pub fn stop_startup(&self) {
+		self.startup.set(false);
+	}
+
 	// > Stats
+
+	// >> Header
+
+	pub fn get_name(&self) -> String {
+		self.general_info.name.get_untracked()
+	}
+
+	pub fn get_level(&self) -> u8 {
+		self.general_info.level.get_untracked()
+	}
+
+	pub fn get_class_level(&self, class_id: String) -> u8 {
+		self.general_info.get_class_level(class_id)
+	}
+
+	pub fn has_class(&self, class_id: String) -> bool {
+		self.general_info.has_class(class_id)
+	}
+
+	pub fn get_subclass(&self, class_id: String) -> Option<String> {
+		self.general_info.get_subclass(class_id)
+	}
+
+	pub fn list_classes(&self) -> Vec<String> {
+		self.general_info.list_classes()
+	}
+
+	pub fn set_class(&self, class_id: String, name: String, subclass: Option<String>, level: u8) {
+		self.general_info.set_class(class_id, name, subclass, level);
+	}
+
+	pub fn remove_class(&self, class_id: String) {
+		self.general_info.remove_class(class_id);
+	}
+
+	pub fn set_subclass(&self, class_id: String, subclass: Option<String>) {
+		self.general_info.set_subclass(class_id, subclass);
+	}
+
+	pub fn get_primary_class(&self) -> Option<String> {
+		self.general_info.get_primary_class()
+	}
+
+	pub fn get_background_id(&self) -> Option<String> {
+		self.general_info.background.get_untracked()
+	}
+
+	pub fn get_background_option(&self) -> Option<String> {
+		self.general_info.background_option.get_untracked()
+	}
+
+	pub fn get_race_id(&self) -> Option<String> {
+		self.general_info.race.get_untracked()
+	}
+
+	pub fn get_race_previous(&self) -> Option<String> {
+		self.general_info.race_previous.get_untracked()
+	}
+
 	// >> Abilities
+
 	pub fn get_ability(&self, abbreviation: String) -> Option<u8> {
 		self.stats
 			.abilities
@@ -312,17 +523,16 @@ impl Character {
 			self.stats.abilities.max_sources,
 			Some(finished_signal_w),
 		);
-		SignalFuture {
-			signal: finished_signal_r,
-		}
-		.await;
+		SignalFuture { signal: finished_signal_r }.await;
 	}
 
-	pub fn get_character_json(&self) -> JsValue {
-		JsValue::from_serde(self).unwrap()
+	// > Serialisation
+
+	pub fn get_character_json(&self) -> wasm_bindgen::JsValue {
+		wasm_bindgen::JsValue::from_serde(self).unwrap()
 	}
 
-	pub fn get_character_from_json(json: JsValue) -> Self {
-		json.into_serde().unwrap()
+	pub fn get_character_from_json(json: wasm_bindgen::JsValue) -> Self {
+		json.into_serde().unwrap_throw()
 	}
 }

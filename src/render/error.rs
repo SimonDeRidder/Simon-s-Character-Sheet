@@ -1,6 +1,3 @@
-use wasm_bindgen::JsValue;
-use web_sys::Element;
-
 #[derive(Clone, Debug)]
 pub struct RenderError {
 	pub message: String,
@@ -8,14 +5,12 @@ pub struct RenderError {
 
 impl RenderError {
 	pub fn new(message: &str) -> Self {
-		Self {
-			message: String::from(message),
-		}
+		Self { message: String::from(message) }
 	}
 }
 
-impl From<JsValue> for RenderError {
-	fn from(value: JsValue) -> Self {
+impl From<wasm_bindgen::JsValue> for RenderError {
+	fn from(value: wasm_bindgen::JsValue) -> Self {
 		RenderError {
 			message: match value.as_string() {
 				Some(msg) => msg,
@@ -25,8 +20,8 @@ impl From<JsValue> for RenderError {
 	}
 }
 
-impl From<Element> for RenderError {
-	fn from(el: Element) -> Self {
+impl From<web_sys::Element> for RenderError {
+	fn from(el: web_sys::Element) -> Self {
 		RenderError {
 			message: format!("An error occured for element with id  '{}'!", el.id()),
 		}

@@ -107,10 +107,10 @@ ClassList["elementalist"] = {
 							CurrentSpells.elementalist.timeout = app.setTimeOut("ClassList.elementalist.changeSpellHeaders();", 10000);
 						}
 						// Set the dependencies of the elemental shapes to match subclass, if not done so already
-						if ( spName !== 'elementalist' || !classes.known.elementalist || !classes.known.elementalist.subclass || classes.known.elementalist.spellsDepSet === classes.known.elementalist.subclass ) return;
+						if ( spName !== 'elementalist' || !wasm_character.has_class('elementalist') || !wasm_character.get_subclass('elementalist') || CurrentSpells.elementalist.spellsDepSet === wasm_character.get_subclass('elementalist') ) return;
 						// Loop through all spells and add any found dependencies
-						var elType = classes.known.elementalist.subclass.replace("elementalist", "");
-						var elName = "\n \u2022 " + toUni(ClassSubList[classes.known.elementalist.subclass].subname) + ": ";
+						var elType = wasm_character.get_subclass('elementalist').replace("elementalist", "");
+						var elName = "\n \u2022 " + toUni(ClassSubList[wasm_character.get_subclass('elementalist')].subname) + ": ";
 						for ( sSpell in SpellsList ) {
 							var oSpell = SpellsList[sSpell];
 							var oSpellDep = SpellsList[sSpell + elType];
@@ -123,21 +123,21 @@ ClassList["elementalist"] = {
 							}
 						}
 						// Store the fact that this is done so it is not run until needed
-						classes.known.elementalist.spellsDepSet = classes.known.elementalist.subclass;
+						CurrentSpells.elementalist.spellsDepSet = wasm_character.get_subclass('elementalist');
 					},
 					"Wait a bit after spell sheet generation, as the spell level headers will be replaced with the elemental shape tier names."
 				],
 				spellAdd : [
 					function (spellKey, spellObj, spName, isDuplicate) {
-						if (spellObj.rangeInfluence && classes.known.elementalist) {
+						if (spellObj.rangeInfluence && wasm_character.has_class('elementalist')) {
 							// Set the range of a shape (unless it is a sub-shape)
 							var conMod = Number(wasm_character.get_ability_modifier('Con'));
-							var elemLvl = classes.known.elementalist.level;
+							var elemLvl = wasm_character.get_class_level('elementalist');
 							var bonusRange = Math.floor(elemLvl * 2 / 10) * 10 + 10;
 							var shapeRange = (30 + bonusRange * conMod) + " ft";
 							spellObj.range = What("Unit System") != "metric" ? shapeRange : ConvertToMetric(shapeRange, 0.5);
 							if (spellObj.rangeInfluenceFormat) {
-								spellObj.range = spellObj.rangeInfluenceFormat.replace("RANGELINE", spellObj.range.replace(" ", typePF ? "-" : "")).replace("RANGEHYPHEN", spellObj.range.replace(" ", "-")).replace("RANGE", spellObj.range);
+								spellObj.range = spellObj.rangeInfluenceFormat.replace("RANGELINE", spellObj.range.replace(" ", "-")).replace("RANGEHYPHEN", spellObj.range.replace(" ", "-")).replace("RANGE", spellObj.range);
 							}
 							return true;
 						}
@@ -425,8 +425,8 @@ AddSubClass("elementalist", "air", {
 			calcChanges : {
 				atkAdd : [
 					function (fields, v) {
-						if (v.theWea.isGuidingWindBlast && classes.known.elementalist) {
-							var lvl = classes.known.elementalist.level;
+						if (v.theWea.isGuidingWindBlast && wasm_character.has_class('elementalist')) {
+							var lvl = wasm_character.get_class_level('elementalist');
 							fields.Damage_Die = (lvl < 6 ? 1 : lvl < 10 ? 2 : lvl < 14 ? 3 : lvl < 18 ? 4 : 5) + 'd6';
 							var conMod = Number(wasm_character.get_ability_modifier('Con'));
 							var bonusRange = Math.floor(lvl * 2 / 10) * 10 + 10;
@@ -821,8 +821,8 @@ AddSubClass("elementalist", "water", {
 			calcChanges : {
 				atkAdd : [
 					function (fields, v) {
-						if (v.theWea.isSiphoningStrike && classes.known.elementalist) {
-							var lvl = classes.known.elementalist.level;
+						if (v.theWea.isSiphoningStrike && wasm_character.has_class('elementalist')) {
+							var lvl = wasm_character.get_class_level('elementalist');
 							fields.Damage_Die = (lvl < 6 ? 1 : lvl < 10 ? 2 : lvl < 14 ? 3 : lvl < 18 ? 4 : 5) + 'd4';
 						};
 					},
@@ -1049,7 +1049,7 @@ SpellsList["blast-es"] = {
 	level : 2,
 	school : "",
 	time : "1 a",
-	range : "S:15" + (typePF ? "-" : "") + "ft cone",
+	range : "S:15-ft cone",
 	components : "S",
 	duration : "Instantaneous",
 	save : "Dex",
@@ -1313,7 +1313,7 @@ SpellsList["trail-es"] = {
 	level : 2,
 	school : "",
 	time : "1 a",
-	range : "S:60" + (typePF ? "-" : "") + "ft line",
+	range : "S:60-ft line",
 	components : "S",
 	duration : "1 min (D)",
 	description : "60-ft long, 5-ft wide, 1 inch tall pathway from my feet; Per extra 2PP: +30 ft long or +10 ft wide",

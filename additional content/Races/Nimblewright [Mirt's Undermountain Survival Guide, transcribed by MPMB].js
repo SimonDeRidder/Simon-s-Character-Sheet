@@ -44,7 +44,7 @@ RaceList["nimblewright"] = {
 		"Nimblewright (+2 Dexterity, +1 Constitution) [construct type]\nConstruct Resilience: Adv. on saves vs. being poisoned and resistance to poison damage. I'm immune to disease and don't need to eat, drink, breathe or sleep. I don't suffer the effects of exhaustion due to lack of rest. Magic can't put me to sleep.",
 		"Sentry's Rest: To benefit from a long rest, I need to be motionless for 6 hours, during which I can see and hear as normal.",
 		"Repairable: The Mending cantrip can be used to stabilize me.",
-		"Sure-Footed: Adv. on Str/Dex saves to avoid being knocked prone. See the Notes page for my 'Components'."].join(typePF ? "\n" : " "),
+		"Sure-Footed: Adv. on Str/Dex saves to avoid being knocked prone. See the Notes page for my 'Components'."].join("\n"),
 	dmgres : ["Poison"],
 	savetxt : {
 		text : ["Magic can't put me to sleep"],

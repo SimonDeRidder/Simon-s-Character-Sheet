@@ -185,9 +185,9 @@ ClassList["improved artificer"] = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (v.theWea.artAlcAcid && classes.known['improved artificer'] && classes.known['improved artificer'].level) {
+							if (v.theWea.artAlcAcid && wasm_character.has_class('improved artificer')) {
 								fields.Proficiency = true;
-								fields.Damage_Die = Math.ceil(classes.known['improved artificer'].level / 2) + 'd6';
+								fields.Damage_Die = Math.ceil(wasm_character.get_class_level('improved artificer') / 2) + 'd6';
 							}
 						}, ""]
 				}
@@ -223,9 +223,9 @@ ClassList["improved artificer"] = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (v.theWea.artAlcFire && classes.known['improved artificer'] && classes.known['improved artificer'].level) {
+							if (v.theWea.artAlcFire && wasm_character.has_class('improved artificer')) {
 								fields.Proficiency = true;
-								fields.Damage_Die = Math.ceil(classes.known['improved artificer'].level / 3) + 'd6';
+								fields.Damage_Die = Math.ceil(wasm_character.get_class_level('improved artificer') / 3) + 'd6';
 							}
 						}, ""]
 				}
@@ -1312,7 +1312,7 @@ AmmoList["arcanic firearm rounds"] = {
 			if (!theItem || loc == -1) return;
 			MagicItemClear(loc + 1, true);
 		},
-		prereqeval : isNaN(minLevel) ? "" : "classes.known['improved artificer'].level >= " + minLevel
+		prereqeval : isNaN(minLevel) ? "" : "wasm_character.get_class_level('improved artificer') >= " + minLevel
 	};
 	theObj.extrachoices.push(theI);
 });

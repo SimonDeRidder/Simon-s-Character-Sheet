@@ -50,12 +50,12 @@ AddSubClass("fighter", "black lion knight", {
 				],
 				atkCalc : [
 					function (fields, v, output) {
-						if (!v.isSpell && !v.isDC && classes.known.fighter && classes.known.fighter.level) output.extraHit += classes.known.fighter.level < 8 ? 1 : classes.known.fighter.level < 20 ? 2 : 3;
+						if (!v.isSpell && !v.isDC && wasm_character.has_class('fighter')) output.extraHit += wasm_character.get_class_level('fighter') < 8 ? 1 : wasm_character.get_class_level('fighter') < 20 ? 2 : 3;
 					}
 				],
 				hp : function (totalHD) {
-					if (classes.known.fighter) {
-						var n = classes.known.fighter.level;
+					if (wasm_character.has_class('fighter')) {
+						var n = wasm_character.get_class_level('fighter');
 						var HPbonus = n * 2 + (n < 8 ? 0 : n < 20 ? 2 : 4);
 						return [HPbonus, "Lion's Blade (2 \u00D7 fighter level +2 HP at level 8 \u0026 20)"];
 					}
@@ -102,8 +102,8 @@ AddSubClass("fighter", "black lion knight", {
 			calcChanges : {
 				atkCalc : [
 					function (fields, v, output) {
-						if (!v.isSpell && !v.isDC && classes.known.fighter) {
-							var n = classes.known.fighter.level;
+						if (!v.isSpell && !v.isDC && wasm_character.has_class('fighter')) {
+							var n = wasm_character.get_class_level('fighter');
 							var DmgBonus = n < 17 ? 1 : n < 20 ? 2 : 3;
 							if ((/\d+d8\b/i).test(output.die)) {
 								var aMatch = output.die.match(/(\d+)d8\b/i);

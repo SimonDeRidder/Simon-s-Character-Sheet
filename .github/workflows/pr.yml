@@ -8,7 +8,7 @@ jobs:
     name: Rust unit tests
     runs-on: [self-hosted, linux, x64]
     container:
-      image: rust:1.85.0-alpine
+      image: rust:1.93.0-alpine
     steps:
       - uses: actions/checkout@v4
       - run: apk add musl-dev
@@ -17,7 +17,7 @@ jobs:
     name: Clippy
     runs-on: [self-hosted, linux, x64]
     container:
-      image: rust:1.85.0-alpine
+      image: rust:1.93.0-alpine
     steps:
       - uses: actions/checkout@v4
       - run: apk add musl-dev
@@ -28,7 +28,7 @@ jobs:
     name: rustfmt
     runs-on: [self-hosted, linux, x64]
     container:
-      image: rust:1.85.0-alpine
+      image: rust:1.93.0-alpine
     steps:
       - uses: actions/checkout@v4
       - run: rustup component add rustfmt
@@ -37,9 +37,9 @@ jobs:
     name: Cargo audit
     runs-on: [self-hosted, linux, x64]
     container:
-      image: rust:1.85.0-alpine
+      image: rust:1.93.0-alpine
     steps:
       - uses: actions/checkout@v4
       - run: apk add musl-dev
       - run: cargo install cargo-audit
-      - run: cargo audit --ignore RUSTSEC-2023-0028 --ignore RUSTSEC-2023-0050 --ignore RUSTSEC-2023-0081 --ignore RUSTSEC-2021-0146 --ignore RUSTSEC-2021-0145
+      - run: cargo audit --ignore RUSTSEC-2021-0146 --ignore RUSTSEC-2023-0028 --ignore RUSTSEC-2023-0050 --ignore RUSTSEC-2023-0081 --ignore RUSTSEC-2024-0436

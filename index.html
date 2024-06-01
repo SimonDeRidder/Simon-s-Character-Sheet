@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="style.css" />
 	<script type="module">
 		// ES module import for compiled WebAssembly
-		import init, { Character } from './wasm/wasm.js';
+		import init, { Character, get_minimum_experience_for_level } from './wasm/wasm.js';
 
 		async function run() {
 			// First load the wasm file
@@ -16,7 +16,7 @@
 
 			window.wasm_character_class = Character;
 			window.wasm_character = Character.new();
-			console.log("wasm_character", window.wasm_character);
+			window.get_minimum_experience_for_level = get_minimum_experience_for_level; // backwards compatibility to load saves from 0.2
 		}
 		run();
 	</script>
@@ -213,17 +213,12 @@
 
 	<!-- Data storage emulation fields. -->
 	<div style="visibility:hidden">
-		<div id="SaveIMG.Patreon" class="field"></div>
-		<div id="Opening_Remember" class="field" data-submit_name="9001"></div>
 		<div id="League_Remember" class="field"></div>
 		<div id="Class_Features_Remember" class="field"></div>
-		<div id="SubClass_Remember" class="field" value=""></div>
-		<div id="Race_Remember" class="field"></div>
 		<div id="Adventuring_Gear_Remember" class="field" value="false"></div>
 		<div id="Gear_Location_Remember" class="field" value="false,false"></div>
 		<div id="BoxesLinesRemember" class="field" value="calc_boxes"></div>
 		<div id="Companion.Remember" class="field"></div>
-		<div id="DateFormat_Remember" class="field"></div>
 		<div id="Proficiencies_Remember" class="field"></div>
 		<div id="WhiteoutRemember" class="field"></div>
 		<div id="Wildshapes.Remember" class="field" value="!#TheListSeparator#!"></div>
@@ -242,16 +237,13 @@
 		<div id="Delimiter" class="field" value=","></div>
 		<div id="Highlighting" class="field"></div>
 		<div id="UseUnicode" class="field" value="true"></div>
-		<div id="User_Script" class="field" value=""></div>
-		<div id="Image.DnDLogo.long" class="field"></div>
 
-		<div id="User_Imported_Files.Stringified" class="field" value="new UserImportedFilesAdapter({})"></div>
 		<div id="ChangesDialogSkip.Stringified" class="field" value="new ChangesDialogSkipAdapter()"></div>
 		<div id="CurrentSpells.Stringified" class="field" value="(Object({}))##########(Object({incl: [], excl: [], amendSPDescr: false, allowSpellAdd: true, emptyFields: false, glossary: true}))"></div>
 		<div id="CurrentSources.Stringified" class="field" value="new CurrentSourcesAdapter()"></div>
 		<div id="CurrentEvals.Stringified" class="field" value="Object()"></div>
 		<div id="CurrentProfs.Stringified" class="field" value="new CurrentProfsAdapter()"></div>
-		<div id="CurrentVars.Stringified" class="field" value="Object(CurrentVars={manual:{}, bluetxt: false})"></div> <!--new CurrentVarsAdapter()-->
+		<div id="CurrentVars.Stringified" class="field" value="Object(CurrentVars={bluetxt: false})"></div>
 		<div id="CurrentFeatureChoices.Stringified" class="field" value="new CurrentFeatureChoicesAdapter({})"></div>
 	</div>
 
@@ -304,7 +296,7 @@
 
 		function render() {
 			// render all wasm-created elements
-			if (window.wasm_character == undefined) {
+			if ((window.wasm_character == undefined) || !(app ? app.loaded : false)) {
 				setTimeout(render, 50);
 			} else {
 				console.log("starting render");

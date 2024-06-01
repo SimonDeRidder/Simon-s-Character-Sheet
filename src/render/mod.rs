@@ -1,9 +1,12 @@
-use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
-use web_sys::{console, Document};
+use wasm_bindgen::{JsValue, prelude::wasm_bindgen};
+use web_sys::{Document, console};
+
+mod stats;
+
+pub(crate) mod context_menu;
 
 mod error;
 mod interface;
-mod stats;
 mod utils;
 
 use crate::Character;

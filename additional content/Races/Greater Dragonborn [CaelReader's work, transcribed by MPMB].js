@@ -79,20 +79,26 @@ RaceList["greater dragonborn"] = {
 			calcChanges : {
 				atkAdd : [
 					function (fields, v) {
-						if (v.theWea.dbBreathWeapon && CurrentRace.known === 'greater dragonborn' && CurrentRace.variant) {
-							fields.Damage_Type = CurrentRace.dmgres[0];
-							fields.Description = fields.Description.replace(/(dex|con) save/i, ((/cold|poison/i).test(CurrentRace.dmgres[0]) ? 'Con' : 'Dex') + ' save');
-							fields.Range = (/black|blue|brass|bronze|copper/i).test(CurrentRace.variant) ? '5-ft \u00D7 30-ft line' : '15-ft cone';
+						let raceID = wasm_character.get_race_id();
+						let raceVariant = adapter_helper_get_race_property("variant", raceID);
+						if (v.theWea.dbBreathWeapon && raceID === 'greater dragonborn' && raceVariant) {
+							let raceDmgres = adapter_helper_get_race_property("dmgres", raceID);
+							fields.Damage_Type = raceDmgres[0];
+							fields.Description = fields.Description.replace(/(dex|con) save/i, ((/cold|poison/i).test(raceDmgres[0]) ? 'Con' : 'Dex') + ' save');
+							fields.Range = (/black|blue|brass|bronze|copper/i).test(raceVariant) ? '5-ft \u00D7 30-ft line' : '15-ft cone';
 						};
 					}
 				],
 				atkCalc : [
 					function (fields, v, output) {
-						if (v.theWea.dbBreathWeapon && CurrentRace.known === 'greater dragonborn' && CurrentRace.level > 4) {
-							var dbBreathWeaponDie = CurrentRace.level < 11 ? 3 : CurrentRace.level < 17 ? 4 : 5;
-							if (CurrentRace.variant && classes.known.sorcerer && classes.known.sorcerer.subclass == "sorcerer-draconic bloodline" && GetFeatureChoice('class', 'sorcerer', 'subclassfeature1').indexOf(CurrentRace.variant) != -1) dbBreathWeaponDie += 1;
+						let raceID = wasm_character.get_race_id();
+						let level = wasm_character.get_level();
+						if (v.theWea.dbBreathWeapon && raceID === 'greater dragonborn' && level > 4) {
+							var dbBreathWeaponDie = level < 11 ? 3 : level < 17 ? 4 : 5;
+							let raceVariant = adapter_helper_get_race_property("variant", raceID);
+							if (raceVariant && wasm_character.get_class_level('sorcerer') && wasm_character.get_subclass('sorcerer') == "sorcerer-draconic bloodline" && GetFeatureChoice('class', 'sorcerer', 'subclassfeature1').indexOf(raceVariant) != -1) dbBreathWeaponDie += 1;
 							output.die = output.die.replace('2d6', dbBreathWeaponDie + 'd6');
-							if (CurrentRace.variant == "black") output.extraDmg += wasm_character.get_ability_modifier('Con');
+							if (raceVariant == "black") output.extraDmg += wasm_character.get_ability_modifier('Con');
 						};
 					}
 				]
@@ -119,7 +125,7 @@ AddRacialVariant("greater dragonborn", "blue", {
 	name : "Greater blue dragonborn",
 	scores : [1, 1, 1, 0, 0, 0],
 	trait : [
-		"Greater Blue Dragonborn (+1 Str" + (typePF ? ", +1 Dex, +1 Con)" : "ength, +1 Dexterity, +1 Constitution)"),
+		"Greater Blue Dragonborn (+1 Strength, +1 Dexterity, +1 Constitution)",
 		"Lightning Breath Weapon: As an action once per short rest, I can deal 2d6 lightning damage to all in a 5 ft by 30 ft line, Dex save halves (DC 8 + Con mod + Prof Bonus). This damage increases with 1d6 at level 5, 11, and 17.",
 		"Desert Predator: As an action, I can burrow myself into loose soil, giving those that try to see me a -5 to their Wisdom (Perception) checks as long as I do not move or take actions.",
 		"Natural Armor: I have an AC of 13 + Dexterity modifier + shield."
@@ -145,7 +151,7 @@ AddRacialVariant("greater dragonborn", "bronze", {
 	name : "Greater bronze dragonborn",
 	scores : [1, 1, 0, 0, 0, 1],
 	trait : [
-		"Greater Bronze Dragonborn (+1 Str" + (typePF ? ", +1 Con, +1 Cha)" : "ength, +1 Constitution, +1 Charisma)"),
+		"Greater Bronze Dragonborn (+1 Strength, +1 Constitution, +1 Charisma)",
 		"Lightning Breath Weapon: As an action once per short rest, I can deal 2d6 lightning damage to all in a 5 ft by 30 ft line, Dex save halves (DC 8 + Con mod + Prof Bonus). This damage increases with 1d6 at level 5, 11, and 17.",
 		"Dragon of the Coast: I have a swim speed of 30 ft.",
 		"Natural Armor: I have an AC of 13 + Dexterity modifier + shield."

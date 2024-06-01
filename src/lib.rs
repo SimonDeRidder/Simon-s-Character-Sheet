@@ -3,23 +3,25 @@ mod domain;
 mod render;
 mod utils;
 
-use config::{Config, CONFIG};
+use config::{CONFIG, Config};
 use serde::ser::SerializeStruct as _;
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use domain::stats::Stats;
+use domain::{general_info::GeneralInfo, stats::Stats};
+// use render::context_menu::remove_all_context_menus;
 
 // Called when the wasm module is instantiated
 #[wasm_bindgen(start)]
 pub fn main() {
 	// First, set panic hook, this should happen once during initialisation
 	utils::set_panic_hook();
-	leptos::task::Executor::init_wasm_bindgen().expect("Failed to init_wasm_bindgen");
+	any_spawner::Executor::init_wasm_bindgen().expect("Failed to init_wasm_bindgen");
 }
 
 #[wasm_bindgen]
-// #[derive(serde::Deserialize)]
 pub struct Character {
+	startup: leptos::prelude::RwSignal<bool>, // Temporary, to delay effects until after JS global variables are initiated
+	general_info: GeneralInfo,
 	stats: Stats,
 }
 
@@ -28,7 +30,11 @@ pub struct Character {
 impl Character {
 	pub fn new() -> Self {
 		// build character
-		Character { stats: Stats::new() }
+		Character {
+			startup: leptos::prelude::RwSignal::new(true),
+			general_info: GeneralInfo::default(),
+			stats: Stats::default(),
+		}
 	}
 }
 
@@ -39,6 +45,7 @@ impl serde::Serialize for Character {
 	{
 		let mut serde_state = serializer.serialize_struct("Character", false as usize + 1)?;
 		serde_state.serialize_field("config", &CONFIG)?;
+		serde_state.serialize_field("general_info", &self.general_info)?;
 		serde_state.serialize_field("stats", &self.stats)?;
 		serde_state.end()
 	}
@@ -51,6 +58,7 @@ impl<'de> serde::Deserialize<'de> for Character {
 	{
 		enum Field {
 			ConfigFld,
+			GeneralInfoFld,
 			StatsFld,
 			Ignore,
 		}
@@ -62,33 +70,14 @@ impl<'de> serde::Deserialize<'de> for Character {
 				std::fmt::Formatter::write_str(formatter, "field identifier")
 			}
 
-			fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
-			where
-				E: serde::de::Error,
-			{
-				match value {
-					0u64 => Ok(Field::ConfigFld),
-					1u64 => Ok(Field::StatsFld),
-					_ => Ok(Field::Ignore),
-				}
-			}
 			fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
 			where
 				E: serde::de::Error,
 			{
 				match value {
 					"config" => Ok(Field::ConfigFld),
+					"general_info" => Ok(Field::GeneralInfoFld),
 					"stats" => Ok(Field::StatsFld),
-					_ => Ok(Field::Ignore),
-				}
-			}
-			fn visit_bytes<E>(self, value: &[u8]) -> Result<Self::Value, E>
-			where
-				E: serde::de::Error,
-			{
-				match value {
-					b"config" => Ok(Field::ConfigFld),
-					b"stats" => Ok(Field::StatsFld),
 					_ => Ok(Field::Ignore),
 				}
 			}
@@ -111,27 +100,12 @@ impl<'de> serde::Deserialize<'de> for Character {
 				std::fmt::Formatter::write_str(formatter, "struct Character")
 			}
 
-			fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
-			where
-				A: serde::de::SeqAccess<'de>,
-			{
-				let expected = "struct Character with 2 elements";
-				let _ = match serde::de::SeqAccess::next_element::<Config>(&mut seq)? {
-					Some(value) => value,
-					None => return Err(serde::de::Error::invalid_length(0, &expected)),
-				};
-				let stats_field = match serde::de::SeqAccess::next_element::<Stats>(&mut seq)? {
-					Some(value) => value,
-					None => return Err(serde::de::Error::invalid_length(1, &expected)),
-				};
-				Ok(Character { stats: stats_field })
-			}
-
 			fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
 			where
 				A: serde::de::MapAccess<'de>,
 			{
 				let mut config_field: Option<Config> = None;
+				let mut general_info_field: Option<GeneralInfo> = None;
 				let mut stats_field: Option<Stats> = None;
 				while let Some(key) = serde::de::MapAccess::next_key::<Field>(&mut map)? {
 					match key {
@@ -140,6 +114,13 @@ impl<'de> serde::Deserialize<'de> for Character {
 								return Err(<A::Error as serde::de::Error>::duplicate_field("config"));
 							}
 							config_field = Some(serde::de::MapAccess::next_value::<Config>(&mut map)?);
+						},
+						Field::GeneralInfoFld => {
+							if Option::is_some(&general_info_field) {
+								return Err(<A::Error as serde::de::Error>::duplicate_field("general_info"));
+							}
+							general_info_field =
+								Some(serde::de::MapAccess::next_value::<GeneralInfo>(&mut map)?);
 						},
 						Field::StatsFld => {
 							if Option::is_some(&stats_field) {
@@ -152,18 +133,27 @@ impl<'de> serde::Deserialize<'de> for Character {
 						},
 					}
 				}
-				let _ = match config_field {
-					Some(config) => config,
-					None => serde::__private::de::missing_field("config")?,
-				};
+				let general_info = match general_info_field {
+					Some(general_info) => Ok(general_info),
+					None => Err(serde::de::Error::missing_field("general_info")),
+				}?;
 				let stats = match stats_field {
-					Some(stats) => stats,
-					None => serde::__private::de::missing_field("stats")?,
-				};
-				Ok(Character { stats })
+					Some(stats) => Ok(stats),
+					None => Err(serde::de::Error::missing_field("stats")),
+				}?;
+				Ok(Character {
+					startup: leptos::prelude::RwSignal::new(true),
+					general_info,
+					stats,
+				})
 			}
 		}
 
-		serde::Deserializer::deserialize_struct(deserializer, "Character", &["stats"], Visitor {})
+		serde::Deserializer::deserialize_struct(
+			deserializer,
+			"Character",
+			&["general_info", "stats"],
+			Visitor {},
+		)
 	}
 }

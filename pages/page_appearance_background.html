@@ -2,13 +2,6 @@
 	<div id="background_general" class="pane" style="left: 0px;width: var(--page-width);height: 174px;">
 		<img class="pane-bg" alt="" src="img/bg_splashy_stripes.svg" style="left:0.5px;width: var(--page-width);height: 195px;">
 		<img class="pane-bg" alt="" src="img/page_appearance_background/backgrounds/header.svg" style="left:0.5px;width: var(--page-width);height: 174px;">
-		<img
-			id="Image.DnDLogo.short#3"
-			class="field"
-			alt="D&amp;D®"
-			src="img/dnd/5ednd.svg"
-			style="position: absolute;top: 28px;left: 145px;width: 75px;height: 75px;visibility: hidden"
-		/>
 
 		<span class="textlabel" style="top: 155.5px;left: 101.8px">CHARACTER NAME</span>
 		<span id="Background_Renown.Title" class="field textlabel" style="top: 155.5px;left: 300px;visibility: hidden">RENOWN</span>
@@ -24,7 +17,7 @@
 		<span class="textlabel" style="top: 145.4px;left: 732.3px">SKIN</span>
 
 		<input
-			id="PC_Name#2"
+			id="PC_Name_2"
 			class="field inputfield"
 			style="top: 108px;left: 55px;font-size: 16pt;width: 227px;height: 24px;text-align: center"
 			type="text"
@@ -135,14 +128,14 @@
 
 		<script type="text/javascript">
 			{
-				let prefix = adapter_helper_get_prefix_from_script('Image.DnDLogo.short');
-				// PC_Name#2
+				let prefix = adapter_helper_get_prefix_from_script('PC_Name_2');
+				// PC_Name_2
 				eventManager.add_listener(
 					EventType.PC_Name_change,
 					function () {
-						let newValue = document.getElementById('PC_Name').value;
+						let newValue = wasm_character.get_name();
 						if (newValue !== undefined) {
-							let nameElement = document.getElementById('PC_Name#2');
+							let nameElement = document.getElementById('PC_Name_2');
 							if (nameElement.value != newValue) {
 								nameElement.value = newValue;
 								nameElement.dispatchEvent(new Event('change'));

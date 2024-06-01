@@ -50,7 +50,7 @@ const dialogManager = {
 					} else if (elementType == 'image') {
 						theElement.style.width = thingsToLoad[elementID].width + 'px';
 						theElement.style.height = thingsToLoad[elementID].height + 'px';
-						theElement.setAttribute('src', 'img/icons/' + thingsToLoad[elementID].name + '.ico');
+						theElement.setAttribute('src', 'img/popup_icons/' + thingsToLoad[elementID].name + '.ico');
 					} else if (['button', 'static_text', 'link_text'].includes(elementType)) {
 						theElement.innerText = thingsToLoad[elementID];
 					} else if (

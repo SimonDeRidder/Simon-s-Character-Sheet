@@ -1,17 +1,11 @@
 
 // TODO: connect "Color.Theme"
 // TODO: "SaveIMG.Header.Left." + colour, "SaveIMG.Divider." + colour
-// TODO: find a way to show tooltips
 // TODO: connect "Extra.Layers Button", "Buttons"
-// TODO: rename adapter_helper_* and AdapterClass* to more reasonable things
-// TODO: switch to <select> for all non-customisable dropdowns
 // TODO: connect thermoM to floating fade-out status message
-// TODO: revamp number formatting (keystroke[12] and format[12])
 // TODO: make sure field getters in CurrentEvals.hp trigger calculation of (Comp.Use.)HP.Max
 // TODO: set default values up to P4.AScomp.Comp.Type
 // TODO: parse CurrentEvals stuff for proper event triggering
-// TODO: better context menu (with scroll for long options)
-// TODO: create conversion script for additional content
 
 // Load functions
 
@@ -78,7 +72,7 @@ function initialCalculationEvents() {
 	document.getElementById('Adventuring_Gear_Amount_1').dispatchEvent(new Event('change'));
 	document.getElementById('Adventuring_Gear_Amount_19').dispatchEvent(new Event('change'));
 	document.getElementById('Adventuring_Gear_Amount_37').dispatchEvent(new Event('change'));
-	document.getElementById('Extra.Gear_Amount_1#1').dispatchEvent(new Event('change'));
+	document.getElementById('Extra.Gear_Amount_1.1').dispatchEvent(new Event('change'));
 	document.getElementById('P4.AScomp.Comp.eqp.Gear_Amount_1').dispatchEvent(new Event('change'));
 }
 
@@ -95,6 +89,7 @@ async function fetchFixedAdditionalScripts() {
 	for (let item of []) {
 		let fileName = item[0];
 		let scriptName = item[1];
+		console.log("adding additional scripts from", scriptName);
 		let file_response = await fetch("additional content/" + fileName);
 		let file_content = await file_response.text();
 		CurrentScriptFiles[scriptName] = file_content;
@@ -103,8 +98,7 @@ async function fetchFixedAdditionalScripts() {
 
 
 async function loadAll() {
-	await loadScript('_functions/ClassSelection.js')
-		.then(script => loadScript('_functions/DomParser.js'))
+	await loadScript('_functions/DomParser.js')
 		.then(script => loadScript('_functions/Functions0.js'))
 		.then(script => loadScript('import_utils/overwrite_Functions0.js'))
 		.then(script => loadScript('_functions/Functions1.js'))

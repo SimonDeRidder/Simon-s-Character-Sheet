@@ -408,7 +408,18 @@ var Base_MagicItemsList = {
 		weight : 0.5,
 		toNotesPage : [{
 			name : "Planted bean effects",
-			note : "\nd100\tEFFECT\n01\t5d4 toadstools sprout. If a creature eats a toadstool, roll any die. On\n\tan odd roll, the eater must succeed on a DC 15 Constitution saving\n\tthrow or take 5d6 poison damage and become poisoned for 1 hour.\n\tOn an even roll, the eater gains 5d6 temporary hit points for 1 hour.\n02-10\tA geyser erupts and spouts water, beer, berry juice, tea, vinegar, wine,\n\tor oil (DM's choice) 30 feet into the air for 1d12 rounds.\n11-20\tA treant sprouts. There's a 50% chance that the treant is chaotic evil\n\tand attacks.\n21-30\tAn animate, immobile stone statue in your likeness rises. It makes" + (typePF ? "\n\t" : " ") + "verbal threats" + (!typePF ? "\n\t" : " ") + "against you. If you leave it and others come near, it" + (typePF ? "\n\t" : " ") + "describes you as the most" + (!typePF ? "\n\t" : " ") + "heinous of villains and directs the" + (typePF ? "\n\t" : " ") + "newcomers to find and attack you." + (!typePF ? "\n\t" : " ") + "If you are on the same plane of" + (typePF ? "\n\t" : " ") + "existence as the statue, it knows where you are." + (!typePF ? "\n\t" : " ") + "The statue" + (typePF ? "\n\t" : " ") + "becomes inanimate after 24 hours.\n31-40\tA campfire with blue flames springs forth and burns for 24 hours (or\n\tuntil it is extinguished).\n41-50\t1d6+6 shriekers sprout.\n51-60\t1d4+8 bright pink toads crawl forth. Whenever a toad is touched, it" + (typePF ? "\n\t" : " ") + "transforms" + (!typePF ? "\n\t" : " ") + "into a Large or smaller monster of the DM's choice." + (typePF ? "\n\t" : " ") + "The monster remains for" + (!typePF ? "\n\t" : " ") + "1 minute, then disappears in a puff of bright" + (typePF ? "\n\t" : " ") + "pink smoke.\n61-70\tA hungry bulette burrows up and attacks.\n71-80\tA fruit tree grows. It has 1d10+20 fruit, 1d8 of which act as randomly\n\tdetermined magic potions, while one acts as an ingested poison of\n\tthe DM's choice. The tree vanishes after 1 hour. Picked fruit remains,\n\tretaining any magic for 30 days.\n81-90\tA nest of 1d4+3 eggs springs up. Any creature that eats an egg must\n\tmake a DC 20 Constitution saving throw. On a successful save, a\n\tcreature permanently increases its lowest ability score by 1, randomly\n\tchoosing among equally low scores. On a failed save, the creature\n\ttakes 10d6 force damage from an internal magical explosion.\n91-99\tA pyramid with a 60-foot-square base bursts upward. Inside is a" + (typePF ? "\n\t" : " ") + "sarcophagus" + (!typePF ? "\n\t" : " ") + "containing a mummy lord. The pyramid is treated as" + (typePF ? "\n\t" : " ") + "the mummy lord's lair," + (!typePF ? "\n\t" : " ") + "and its sarcophagus contains treasure" + (typePF ? "\n\t" : " ") + "of the DM's choice.\n100\tA giant beanstalk sprouts, growing to a height of the DM's choice.\n\tThe top leads where the DM chooses, such as to a great view,\n\ta cloud giant's castle, or a different plane of existence."
+			note : "\nd100\tEFFECT"+
+			"\n01\t5d4 toadstools sprout. If a creature eats a toadstool, roll any die. On\n\tan odd roll, the eater must succeed on a DC 15 Constitution saving\n\tthrow or take 5d6 poison damage and become poisoned for 1 hour.\n\tOn an even roll, the eater gains 5d6 temporary hit points for 1 hour."+
+			"\n02-10\tA geyser erupts and spouts water, beer, berry juice, tea, vinegar, wine,\n\tor oil (DM's choice) 30 feet into the air for 1d12 rounds."+
+			"\n11-20\tA treant sprouts. There's a 50% chance that the treant is chaotic evil\n\tand attacks."+
+			"\n21-30\tAn animate, immobile stone statue in your likeness rises. It makes\n\tverbal threats against you. If you leave it and others come near, it\n\tdescribes you as the most heinous of villains and directs the\n\tnewcomers to find and attack you. If you are on the same plane of\n\texistence as the statue, it knows where you are.\n\tThe statue becomes inanimate after 24 hours."+
+			"\n31-40\tA campfire with blue flames springs forth and burns for 24 hours (or\n\tuntil it is extinguished).\n41-50\t1d6+6 shriekers sprout."+
+			"\n51-60\t1d4+8 bright pink toads crawl forth. Whenever a toad is touched, it\n\ttransforms into a Large or smaller monster of the DM's choice.\n\tThe monster remains for 1 minute, then disappears in a puff of bright\n\tpink smoke."+
+			"\n61-70\tA hungry bulette burrows up and attacks."+
+			"\n71-80\tA fruit tree grows. It has 1d10+20 fruit, 1d8 of which act as randomly\n\tdetermined magic potions, while one acts as an ingested poison of\n\tthe DM's choice. The tree vanishes after 1 hour. Picked fruit remains,\n\tretaining any magic for 30 days."+
+			"\n81-90\tA nest of 1d4+3 eggs springs up. Any creature that eats an egg must\n\tmake a DC 20 Constitution saving throw. On a successful save, a\n\tcreature permanently increases its lowest ability score by 1, randomly\n\tchoosing among equally low scores. On a failed save, the creature\n\ttakes 10d6 force damage from an internal magical explosion."+
+			"\n91-99\tA pyramid with a 60-foot-square base bursts upward. Inside is a\n\tsarcophagus containing a mummy lord. The pyramid is treated as\n\tthe mummy lord's lair, and its sarcophagus contains treasure\n\tof the DM's choice."+
+			"\n100\tA giant beanstalk sprouts, growing to a height of the DM's choice.\n\tThe top leads where the DM chooses, such as to a great view,\n\ta cloud giant's castle, or a different plane of existence."
 		}]
 	},
 	"bag of devouring" : {
@@ -1268,8 +1279,8 @@ var Base_MagicItemsList = {
 		rarity : "very rare",
 		magicItemTable : "H",
 		attunement : true,
-		description : "As a bonus action, I can toss this sword into the air and use the command to make it hover, fly up to 30 ft and attack a target of my choice (as if I'm using it)." + (typePF ? " " : "\n") + "I can command it to move/attack again as a bonus action while it hovers and is in 30 ft.\nAfter the 4th attack, it moves 30 ft to return to my hand.",
-		descriptionLong : "As a bonus action, I can toss this magic sword into the air and use the command word to make it hover, fly up to 30 ft and attack a target of my choice within 5 ft of it." + (typePF ? " " : "\n") + "The attack uses my attack roll and ability score for damage as if I would be using the sword.\nI can command it to move and attack again as a bonus action while it hovers.\nAfter the 4th attack, it moves 30 ft to try and return to my hand.\nIf it can't reach me or my hands are full, it falls to the ground after moving.\nIt also ceases to hover if I grasp it or move more than 30 ft away from it.",
+		description : "As a bonus action, I can toss this sword into the air and use the command to make it hover, fly up to 30 ft and attack a target of my choice (as if I'm using it). I can command it to move/attack again as a bonus action while it hovers and is in 30 ft.\nAfter the 4th attack, it moves 30 ft to return to my hand.",
+		descriptionLong : "As a bonus action, I can toss this magic sword into the air and use the command word to make it hover, fly up to 30 ft and attack a target of my choice within 5 ft of it. The attack uses my attack roll and ability score for damage as if I would be using the sword.\nI can command it to move and attack again as a bonus action while it hovers.\nAfter the 4th attack, it moves 30 ft to try and return to my hand.\nIf it can't reach me or my hands are full, it falls to the ground after moving.\nIt also ceases to hover if I grasp it or move more than 30 ft away from it.",
 		descriptionFull : "You can use a bonus action to toss this magic sword into the air and speak the command word. When you do so, the sword begins to hover, flies up to 30 feet, and attacks one creature of your choice within 5 feet of it. The sword uses your attack roll and ability score modifier to damage rolls.\n   While the sword hovers, you can use a bonus action to cause it to fly up to 30 feet to another spot within 30 feet of you. As part of the same bonus action, you can cause the sword to attack one creature within 5 feet of it.\n   After the hovering sword attacks for the fourth time, it flies up to 30 feet and tries to return to your hand. If you have no hand free, it falls to the ground at your feet. If the sword has no unobstructed path to you, it moves as close to you as it can and then falls to the ground. It also ceases to hover if you grasp it or move more than 30 feet away from it.",
 		action : [["bonus action", ""]],
 		chooseGear : {
@@ -1856,7 +1867,7 @@ var Base_MagicItemsList = {
 		attunement : true,
 		description : "This magical warhammer adds a +3 bonus to attack and damage rolls made with it. It has the thrown property with a normal range of 20 ft and a long range of 60 ft. It deals an extra 1d8 damage (or 2d8 if the target is a giant) when thrown. Immediately after the attack, the weapon flies back to my hand.",
 		prerequisite : "Requires attunement by a dwarf",
-		prereqeval : function(v) { return CurrentRace.known.indexOf('dwarf') !== -1; },
+		prereqeval : function(v) { return wasm_character.get_race_id().indexOf('dwarf') !== -1; },
 		weight : 2,
 		descriptionFull : "You gain a +3 bonus to attack and damage rolls made with this magic weapon. It has the thrown property with a normal range of 20 feet and a long range of 60 feet. When you hit with a ranged attack using this weapon, it deals an extra 1d8 damage or, if the target is a giant, 2d8 damage. Immediately after the attack, the weapon flies back to your hand.",
 		weaponOptions : [{
@@ -2618,7 +2629,7 @@ var Base_MagicItemsList = {
 		description : "I have a +3 bonus to attack and damage rolls made with this magic sword. It does +2d10 radiant damage against fiends and undead. While holding the drawn sword, I have a 10-ft radius aura (30-ft if level 17 paladin) that grants me and my allies adv. on saves against spells and magical effects.",
 		descriptionFull : "You gain a +3 bonus to attack and damage rolls made with this magic weapon. When you hit a fiend or an undead with it, that creature takes an extra 2d10 radiant damage.\n   While you hold the drawn sword, it creates an aura in a 10-foot radius around you. You and all creatures friendly to you in the aura have advantage on saving throws against spells and other magical effects. If you have 17 or more levels in the paladin class, the radius of the aura increases to 30 feet.",
 		prerequisite : "Requires attunement by a paladin",
-		prereqeval : function (v) { return classes.known.paladin ? true : false; },
+		prereqeval : function (v) { return wasm_character.has_class('paladin'); },
 		chooseGear : {
 			type : "weapon",
 			prefixOrSuffix : "brackets",
@@ -2651,7 +2662,7 @@ var Base_MagicItemsList = {
 		savetxt : { adv_vs : ["spells", "magical effects"] },
 		choices : ["Paladin level 1-16 (10-ft aura)", "Paladin level 17+ (30-ft aura)"],
 		selfChoosing : function () {
-			return !classes.known.paladin ? "" : classes.known.paladin.level < 17 ? "paladin level 1-16 (10-ft aura)" : "paladin level 17+ (30-ft aura)";
+			return !wasm_character.has_class('paladin') ? "" : wasm_character.get_class_level('paladin') < 17 ? "paladin level 1-16 (10-ft aura)" : "paladin level 17+ (30-ft aura)";
 		},
 		"paladin level 1-16 (10-ft aura)" : {
 			name : "Holy\u200A Avenger",
@@ -3363,7 +3374,7 @@ var Base_MagicItemsList = {
 		rarity : "rare",
 		attunement : true,
 		prerequisite : "Requires attunement by a cleric, druid, or paladin",
-		prereqeval : function (v) { return classes.known.cleric || classes.known.druid || classes.known.paladin ? true : false; },
+		prereqeval : function (v) { return wasm_character.has_class('cleric') || wasm_character.has_class('druid') || wasm_character.has_class('paladin'); },
 		magicItemTable : "G",
 		description : "This necklace has many beads, 1d4+2 are magical and can each be used to cast a spell once per dawn as a bonus action. The DM selects the spells from: Bless, Cure Wounds \u0026 Lesser Restoration, Greater Restoration, Branding Smite, Planar Ally, and Wind Walk. Multiple beads of the same type can be on one necklace.",
 		descriptionLong : "This necklace has many beads, 1d4+2 are magical aquamarine, black pearl, or topaz beads and can each be used to cast a spell once per dawn as a bonus action. The DM selects the bead from: blessing bead (Bless), curing bead (Cure Wounds \u0026 Lesser Restoration), favor bead (Greater Restoration), smiting bead (Branding Smite), summons bead (Planar Ally), and wind walking bead (Wind Walk). Multiple beads of the same type can be on one necklace.",
@@ -4770,17 +4781,17 @@ var Base_MagicItemsList = {
 		"good" : {
 			description : "While wearing this elegant robe made from exquisite white cloth adorned with silvery runes, I have advantage on saves against spells and magical effects and add +2 to both my spell save DC and spell attack rolls. Also, if I'm not wearing armor, it makes my base AC 15 + my Dexterity modifier.",
 			prerequisite : "Requires attunement by a good sorcerer, warlock, or wizard",
-			prereqeval : function(v) { return (classes.known.sorcerer || classes.known.warlock || classes.known.wizard) && /good/i.test(What("Alignment")); }
+			prereqeval : function(v) { return (wasm_character.has_class('sorcerer') || wasm_character.has_class('warlock') || wasm_character.has_class('wizard')) && /good/i.test(What("Alignment")); }
 		},
 		"neutral" : {
 			description : "While wearing this elegant robe made from exquisite gray cloth adorned with silvery runes, I have advantage on saves against spells and magical effects and add +2 to both my spell save DC and spell attack rolls. Also, if I'm not wearing armor, it makes my base AC 15 + my Dexterity modifier.",
 			prerequisite : "Requires attunement by a neutral sorcerer, warlock, or wizard",
-			prereqeval : function(v) { return (classes.known.sorcerer || classes.known.warlock || classes.known.wizard) && !/good|evil/i.test(What("Alignment")); }
+			prereqeval : function(v) { return (wasm_character.has_class('sorcerer') || wasm_character.has_class('warlock') || wasm_character.has_class('wizard')) && !/good|evil/i.test(What("Alignment")); }
 		},
 		"evil" : {
 			description : "While wearing this elegant robe made from exquisite black cloth adorned with silvery runes, I have advantage on saves against spells and magical effects and add +2 to both my spell save DC and spell attack rolls. Also, if I'm not wearing armor, it makes my base AC 15 + my Dexterity modifier.",
 			prerequisite : "Requires attunement by an evil sorcerer, warlock, or wizard",
-			prereqeval : function(v) { return (classes.known.sorcerer || classes.known.warlock || classes.known.wizard) && /evil/i.test(What("Alignment")); }
+			prereqeval : function(v) { return (wasm_character.has_class('sorcerer') || wasm_character.has_class('warlock') || wasm_character.has_class('wizard')) && /evil/i.test(What("Alignment")); }
 		}
 	},
 	"robe of useful items" : {
@@ -5349,7 +5360,7 @@ var Base_MagicItemsList = {
 		attunement : true,
 		weight : 4,
 		prerequisite : "Requires attunement by a bard, cleric, druid, sorcerer, warlock, or wizard",
-		prereqeval : function(v) { return classes.known.bard || classes.known.cleric || classes.known.druid || classes.known.sorcerer || classes.known.warlock || classes.known.wizard ? true : false; },
+		prereqeval : function(v) { return wasm_character.has_class('bard') || wasm_character.has_class('cleric') || wasm_character.has_class('druid') || wasm_character.has_class('sorcerer') || wasm_character.has_class('warlock') || wasm_character.has_class('wizard'); },
 		extraLimitedFeatures : [{
 			name : "Staff of Charming (pass enchantment save)",
 			usages : 1,
@@ -5380,7 +5391,7 @@ var Base_MagicItemsList = {
 		attunement : true,
 		weight : 4,
 		prerequisite : "Requires attunement by a druid, sorcerer, warlock, or wizard",
-		prereqeval : function(v) { return classes.known.druid || classes.known.sorcerer || classes.known.warlock || classes.known.wizard ? true : false; },
+		prereqeval : function(v) { return wasm_character.has_class('druid') || wasm_character.has_class('sorcerer') || wasm_character.has_class('warlock') || wasm_character.has_class('wizard'); },
 		usages : 10,
 		recovery : "dawn",
 		additional : "regains 1d6+4",
@@ -5415,7 +5426,7 @@ var Base_MagicItemsList = {
 		attunement : true,
 		weight : 4,
 		prerequisite : "Requires attunement by a druid, sorcerer, warlock, or wizard",
-		prereqeval : function(v) { return classes.known.druid || classes.known.sorcerer || classes.known.warlock || classes.known.wizard ? true : false; },
+		prereqeval : function(v) { return wasm_character.has_class('druid') || wasm_character.has_class('sorcerer') || wasm_character.has_class('warlock') || wasm_character.has_class('wizard'); },
 		usages : 10,
 		recovery : "dawn",
 		additional : "regains 1d6+4",
@@ -5451,7 +5462,7 @@ var Base_MagicItemsList = {
 		attunement : true,
 		weight : 4,
 		prerequisite : "Requires attunement by a bard, cleric, or druid",
-		prereqeval : function(v) { return classes.known.bard || classes.known.cleric || classes.known.druid ? true : false; },
+		prereqeval : function(v) { return wasm_character.has_class('bard') || wasm_character.has_class('cleric') || wasm_character.has_class('druid'); },
 		usages : 10,
 		recovery : "dawn",
 		additional : "regains 1d6+4",
@@ -5493,7 +5504,7 @@ var Base_MagicItemsList = {
 		attunement : true,
 		weight : 4,
 		prerequisite : "Requires attunement by a sorcerer, warlock, or wizard",
-		prereqeval : function(v) { return classes.known.sorcerer || classes.known.warlock || classes.known.wizard ? true : false; },
+		prereqeval : function(v) { return wasm_character.has_class('sorcerer') || wasm_character.has_class('warlock') || wasm_character.has_class('wizard'); },
 		usages : 20,
 		recovery : "dawn",
 		additional : "regains 2d8+4",
@@ -5595,7 +5606,7 @@ var Base_MagicItemsList = {
 		attunement : true,
 		weight : 4,
 		prerequisite : "Requires attunement by a bard, cleric, druid, sorcerer, warlock, or wizard",
-		prereqeval : function(v) { return classes.known.bard || classes.known.cleric || classes.known.druid || classes.known.sorcerer || classes.known.warlock || classes.known.wizard ? true : false; },
+		prereqeval : function(v) { return wasm_character.has_class('bard') || wasm_character.has_class('cleric') || wasm_character.has_class('druid') || wasm_character.has_class('sorcerer') || wasm_character.has_class('warlock') || wasm_character.has_class('wizard'); },
 		usages : 10,
 		recovery : "dawn",
 		additional : "regains 1d6+4",
@@ -5627,7 +5638,7 @@ var Base_MagicItemsList = {
 		weight : 4,
 		prerequisite : "Requires attunement by a sorcerer, warlock, or wizard",
 		prereqeval : function (v) {
-			return classes.known.sorcerer || classes.known.warlock || classes.known.wizard ? true : false;
+			return wasm_character.has_class('sorcerer') || wasm_character.has_class('warlock') || wasm_character.has_class('wizard');
 		},
 		weaponOptions : [{
 			baseWeapon : "quarterstaff",
@@ -5726,7 +5737,7 @@ var Base_MagicItemsList = {
 		attunement : true,
 		weight : 4,
 		prerequisite : "Requires attunement by a cleric, druid, or warlock",
-		prereqeval : function(v) { return classes.known.cleric || classes.known.druid || classes.known.warlock ? true : false; },
+		prereqeval : function(v) { return wasm_character.has_class('cleric') || wasm_character.has_class('druid') || wasm_character.has_class('warlock'); },
 		action : [["action", " (animate)"], ["bonus action", " (end)"]]
 	},
 	"staff of the woodlands" : {
@@ -5740,7 +5751,7 @@ var Base_MagicItemsList = {
 		attunement : true,
 		weight : 4,
 		prerequisite : "Requires attunement by a druid",
-		prereqeval : function(v) { return classes.known.druid ? true : false; },
+		prereqeval : function(v) { return wasm_character.has_class('druid'); },
 		action : [["action", ""]],
 		usages : 10,
 		recovery : "dawn",
@@ -5867,7 +5878,7 @@ var Base_MagicItemsList = {
 		attunement : true,
 		weight : 4,
 		prerequisite : "Requires attunement by a cleric, druid, or warlock",
-		prereqeval : function(v) { return classes.known.cleric || classes.known.druid || classes.known.warlock ? true : false; },
+		prereqeval : function(v) { return wasm_character.has_class('cleric') || wasm_character.has_class('druid') || wasm_character.has_class('warlock'); },
 		usages : 3,
 		recovery : "dawn",
 		additional : "regains 1d3",
@@ -5994,7 +6005,7 @@ var Base_MagicItemsList = {
 		rarity : "rare",
 		magicItemTable : "H",
 		attunement : true,
-		description : "When I roll a 20 to hit with this magic sword vs. a creature, it takes +14 slashing damage and I have a 5% chance of lopping off one of its limbs. It does maximum damage vs. objects. With the command word, the blade gives bright light in a 10-ft radius \u0026 dim light in another 10 ft. " + (typePF ? "This stops if sheathed." : "The light stops when commanded again or sheathed."),
+		description : "When I roll a 20 to hit with this magic sword vs. a creature, it takes +14 slashing damage and I have a 5% chance of lopping off one of its limbs. It does maximum damage vs. objects. With the command word, the blade gives bright light in a 10-ft radius \u0026 dim light in another 10 ft. The light stops when commanded again or sheathed.",
 		descriptionLong : "When I attack a creature with this magic sword and roll a 20 on the attack roll, that target takes an extra 14 slashing damage and I roll another d20. If that turns up a 20 as well, I lop off one of the target's limbs. If the creature has no limb to sever, I lop off a portion of its body instead. When used against an object, the damage dice are maximized. In addition, I can speak the sword's command word to cause the blade to shed bright light in a 10-ft radius and dim light for an additional 10 ft. Speaking the command word again or sheathing the sword puts out the light.",
 		descriptionFull : "When you attack an object with this magic sword and hit, maximize your weapon damage dice against the target.\n   When you attack a creature with this weapon and roll a 20 on the attack roll, that target takes an extra 14 slashing damage. Then roll another d20. If you roll a 20, you lop off one of the target's limbs, with the effect of such loss determined by the DM. If the creature has no limb to sever, you lop off a portion of its body instead.\n   In addition, you can speak the sword's command word to cause the blade to shed bright light in a 10-foot radius and dim light for an additional 10 feet. Speaking the command word again or sheathing the sword puts out the light.", // the SRD says 4d6 but that is incorrect
 		chooseGear : {
@@ -6027,7 +6038,7 @@ var Base_MagicItemsList = {
 		rarity : "rare",
 		magicItemTable : "G",
 		attunement : true,
-		description : "HP lost to this sword can be regained only by resting. Once per turn, I can wound a target hit with this sword. At the start of its turn, it takes 1d4 necrotic damage per such wound, and then makes a DC 15 Con save to stop all wounds on itself. " + (typePF ? "It or another can stop them as an action (DC 15 Medicine)." : "Alternatively, the target or another can stop them with an action (DC 15 Medicine check)."),
+		description : "HP lost to this sword can be regained only by resting. Once per turn, I can wound a target hit with this sword. At the start of its turn, it takes 1d4 necrotic damage per such wound, and then makes a DC 15 Con save to stop all wounds on itself. Alternatively, the target or another can stop them with an action (DC 15 Medicine check).",
 		descriptionLong : "Hit points lost to this magic sword can be regained only through a short or long rest, not by regeneration, magic, or other means. Once per turn, when I hit a creature with this sword, I can wound the target. At the start of each of the wounded creature's turns, it takes 1d4 necrotic damage for each time I've wounded it, and it can then make a DC 15 Constitution save to end the effect of all such wounds on itself. Alternatively, the wounded creature, or another within 5 feet of it, can use an action to make a DC 15 Wisdom (Medicine) check to end the effect of all such wounds on it.",
 		descriptionFull : "Hit points lost to this weapon's damage can be regained only through a short or long rest, rather than by regeneration, magic, or any other means.\n   Once per turn, when you hit a creature with an attack using this magic weapon, you can wound the target. At the start of each of the wounded creature's turns, it takes 1d4 necrotic damage for each time you've wounded it, and it can then make a DC 15 Constitution saving throw, ending the effect of all such wounds on itself on a success. Alternatively, the wounded creature, or a creature within 5 feet of it, can use an action to make a DC 15 Wisdom (Medicine) check, ending the effect of such wounds on it on a success.",
 		chooseGear : {
@@ -6071,7 +6082,7 @@ var Base_MagicItemsList = {
 		calcChanges : {
 			spellCalc : [
 				function (type, spellcasters, ability) {
-					if (type == "attack" && (classes.known.paladin || classes.known.cleric) && /good/i.test(What("Alignment"))) return 2;
+					if (type == "attack" && (wasm_character.has_class('paladin') || wasm_character.has_class('cleric')) && /good/i.test(What("Alignment"))) return 2;
 				},
 				"If I'm a good cleric or paladin, I gain a +2 bonus on my spell attack rolls while wearing or holding the Talisman of Pure Good."
 			]
@@ -6107,7 +6118,7 @@ var Base_MagicItemsList = {
 		calcChanges : {
 			spellCalc : [
 				function (type, spellcasters, ability) {
-					if (type == "attack" && (classes.known.paladin || classes.known.cleric) && /evil/i.test(What("Alignment"))) return 2;
+					if (type == "attack" && (wasm_character.has_class('paladin') || wasm_character.has_class('cleric')) && /evil/i.test(What("Alignment"))) return 2;
 				},
 				"If I'm an evil cleric or paladin, I gain a +2 bonus on my spell attack rolls while wearing or holding the Talisman of Ultimate Evil."
 			]
@@ -6231,7 +6242,7 @@ var Base_MagicItemsList = {
 		rarity : "legendary",
 		magicItemTable : "I",
 		attunement : true,
-		description : "I have a +3 bonus to attack and damage rolls with this magic sword. It ignores slashing damage resistance. On a roll of 20 to hit, it cuts off one head" + (typePF ? "" : ", possibly killing it instantly") + ". If the target has no head, is immune to slashing damage, has legendary actions, or its neck is too wide, it takes +6d8 slashing damage instead.",
+		description : "I have a +3 bonus to attack and damage rolls with this magic sword. It ignores slashing damage resistance. On a roll of 20 to hit, it cuts off one head, possibly killing it instantly. If the target has no head, is immune to slashing damage, has legendary actions, or its neck is too wide, it takes +6d8 slashing damage instead.",
 		descriptionFull : "You gain a +3 bonus to attack and damage rolls made with this magic weapon. In addition, the weapon ignores resistance to slashing damage.\n   When you attack a creature that has at least one head with this weapon and roll a 20 on the attack roll, you cut off one of the creature's heads. The creature dies if it can't survive without the lost head. A creature is immune to this effect if it is immune to slashing damage, doesn't have or need a head, has legendary actions, or the DM decides that the creature is too big for its head to be cut off with this weapon. Such a creature instead takes an extra 6d8 slashing damage from the hit.",
 		chooseGear : {
 			type : "weapon",

@@ -1619,11 +1619,11 @@ calcChanges : {
 */
 
 	hp : function (totalHD, HDobj, prefix) {
-		if (classes.known.sorcerer) {
-			return [classes.known.sorcerer.level, "Draconic Resilience (Sorcerer)"];
+		if (wasm_character.has_class('sorcerer')) {
+			return [wasm_character.get_class_level('sorcerer'), "Draconic Resilience (Sorcerer)"];
 		}
 	},
-	hp : "if (classes.known.sorcerer) {extrahp += classes.known.sorcerer.level; extrastring += '\\n + ' + classes.known.sorcerer.level + ' from Draconic Resilience (Sorcerer)'; }; ",
+	hp : "if (wasm_character.has_class('sorcerer')) {extrahp += wasm_character.get_class_level('sorcerer'); extrastring += '\\n + ' + wasm_character.get_class_level('sorcerer') + ' from Draconic Resilience (Sorcerer)'; }; ",
 	/*	hp // OPTIONAL //
 		TYPE:	function or, for backwards-compatibility, string that is evaluated using eval()
 		USE:	change how Hit Points are calculated and what the Hit Points tooltip says
@@ -1814,14 +1814,14 @@ calcChanges : {
 
 	atkCalc : [
 		function (fields, v, output) {
-			if (classes.known.sorcerer && classes.known.sorcerer.level > 5 && v.isSpell && (/acid/i).test(fields.Damage_Type)) {
+			if (wasm_character.get_class_level('sorcerer') > 5 && v.isSpell && (/acid/i).test(fields.Damage_Type)) {
 				output.extraDmg += wasm_character.get_ability_modifier('Cha');
 			};
 		},
 		"Cantrips and spell that deal acid damage get my Charisma modifier added to their Damage."
 	],
 	atkCalc : [
-		"if (classes.known.sorcerer && classes.known.sorcerer.level > 5 && isSpell && (/acid/i).test(fields.Damage_Type)) { output.extraDmg += wasm_character.get_ability_modifier('Cha'); };",
+		"if (wasm_character.get_class_level('sorcerer') > 5 && isSpell && (/acid/i).test(fields.Damage_Type)) { output.extraDmg += wasm_character.get_ability_modifier('Cha'); };",
 		"Cantrips and spell that deal acid damage get my Charisma modifier added to their Damage."
 	],
 	/*	atkCalc // OPTIONAL //
@@ -2791,7 +2791,7 @@ removeeval : function(lvl, chc) {
 	This attribute is processed first, before all other attributes are processed.
 */
 
-changeeval : "var monkSpd = function(n) {return '+' + (n < 2 ? 0 : n < 6 ? 10 : n < 10 ? 15 : n < 14 ? 20 : n < 18 ? 25 : 30);}(classes.known.monk.level); await SetProf('speed', monkSpd !== '+0', {allModes : monkSpd}, displName);", // string, deprecated
+changeeval : "var monkSpd = function(n) {return '+' + (n < 2 ? 0 : n < 6 ? 10 : n < 10 ? 15 : n < 14 ? 20 : n < 18 ? 25 : 30);}(wasm_character.get_class_level('monk')); await SetProf('speed', monkSpd !== '+0', {allModes : monkSpd}, displName);", // string, deprecated
 changeeval : async function(lvl, chc) {
 	var monkSpd = '+' + (lvl[1] < 2 ? 0 : lvl[1] < 6 ? 10 : lvl[1] < 10 ? 15 : lvl[1] < 14 ? 20 : lvl[1] < 18 ? 25 : 30);
 	await SetProf('speed', monkSpd !== '+0', {allModes : monkSpd}, "Monk: Unarmored Movement");

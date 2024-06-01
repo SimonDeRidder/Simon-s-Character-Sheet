@@ -348,7 +348,7 @@ CreatureList["purple crawler"] = {
 	The example above is for 3d4 hit dice.
 */
 	hdLinked : ["ranger", "rangerua"],
-	hdLinked : function(prefix) { return classes.known.ranger ? classes.known.ranger.level - 3 : 0; },
+	hdLinked : function(prefix) { return wasm_character.has_class('ranger') ? wasm_character.get_class_level('ranger') - 3 : 0; },
 /*	hdLinked // OPTIONAL //
 	TYPE:	array with ClassList object names (variable length) or function
 	USE:	dynamically set the number of HD to a class level (array) or anything you want (function)
@@ -713,7 +713,7 @@ CreatureList["purple crawler"] = {
 */
 
 	minlevelLinked : ["artificer", "wizard"],
-	minlevelLinked : function(prefix) { return classes.known.warlock ? classes.known.warlock.level + 1 : 0; },
+	minlevelLinked : function(prefix) { return wasm_character.has_class('warlock') ? wasm_character.get_class_level('warlock') + 1 : 0; },
 /*	minlevelLinked // OPTIONAL //
 	TYPE:	array with ClassList object names (variable length) or function
 	USE:	dynamically select which level to use for level-dependent features
@@ -784,10 +784,10 @@ CreatureList["purple crawler"] = {
 	but only its `hp` attribute is shared with the object here.
 */
 		hp : function (totalHD, HDobj, prefix) {
-			if (!classes.known.ranger) return;
+			if (!wasm_character.has_class('ranger')) return;
 			var creaHP = CurrentCompRace[prefix] && CurrentCompRace[prefix].hp ? CurrentCompRace[prefix].hp : 0;
 			var creaName = CurrentCompRace[prefix] && CurrentCompRace[prefix].name ? CurrentCompRace[prefix].name : "the creature";
-			var rngrLvl = classes.known.ranger.level;
+			var rngrLvl = wasm_character.get_class_level('ranger');
 			var rngrCompHp = 4 * rngrLvl;
 			HDobj.alt.push( Math.max(creaHP, rngrCompHp) );
 			HDobj.altStr.push(" = the highest of either\n \u2022 " + creaHp + " from " + creaName + "'s normal maximum HP, or\n \u2022 4 \xD7 " + rngrLvl + " from four times my ranger level (" + rngrCompHp + ")");

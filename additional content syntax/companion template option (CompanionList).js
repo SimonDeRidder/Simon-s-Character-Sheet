@@ -458,10 +458,10 @@ action : [
 	will be added.
 */
 		hp : function (totalHD, HDobj, prefix) {
-			if (!classes.known.ranger) return;
+			if (!wasm_character.has_class('ranger')) return;
 			var creaHP = CurrentCompRace[prefix] && CurrentCompRace[prefix].hp ? CurrentCompRace[prefix].hp : 0;
 			var creaName = CurrentCompRace[prefix] && CurrentCompRace[prefix].name ? CurrentCompRace[prefix].name : "the creature";
-			var rngrLvl = classes.known.ranger.level;
+			var rngrLvl = wasm_character.get_class_level('ranger');
 			var rngrCompHp = 4 * rngrLvl;
 			HDobj.alt.push( Math.max(creaHP, rngrCompHp) );
 			HDobj.altStr.push(" = the highest of either\n \u2022 " + creaHp + " from " + creaName + "'s normal maximum HP, or\n \u2022 4 \xD7 " + rngrLvl + " from four times my ranger level (" + rngrCompHp + ")");

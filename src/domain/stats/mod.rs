@@ -8,9 +8,7 @@ pub struct Stats {
 }
 
 impl Stats {
-	pub fn new() -> Self {
-		Self {
-			abilities: Abilities::new(),
-		}
+	pub fn default() -> Self {
+		Self { abilities: Abilities::default() }
 	}
 }

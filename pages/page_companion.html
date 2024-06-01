@@ -22,14 +22,6 @@
 		<span class="textlabel" style="top: 144px;left: 604.5px">GENDER</span>
 		<span class="textlabel" style="top: 144px;left: 715.5px">ALIGNMENT</span>
 
-		<img
-			id="Image.DnDLogo.short"
-			class="field"
-			alt="D&amp;D®"
-			src="img/dnd/5ednd.svg"
-			style="position: absolute;top: 28px;left: 185px;width: 75px;height: 75px;visibility: hidden"
-		/>
-
 		<input
 			id="Comp.Desc.Name"
 			class="field inputfield"
@@ -47,7 +39,7 @@
 			spellcheck="true"
 			onfocus="this.dataset.oldVal=this.value"
 			onclick="if (event.offsetX > Number(this.style.width.replace('px', ''))-16) {this.value='';}"
-			onchange="ApplyCompRace(this.value, this.id.slice(0, this.id.indexOf('Comp.Race')), '', true, this.dataset.oldVal).then(() => {this.dataset.oldVal=this.value})"
+			onchange="ApplyCompRace(this.value, this.id.slice(0, this.id.indexOf('Comp.Race')), '', true, this.dataset.oldVal?this.dataset.oldVal:'').then(() => {this.dataset.oldVal=this.value})"
 		/>
 		<datalist id="comp_race_options">
 			<option value=""> </option>
@@ -1049,15 +1041,6 @@
 				data-default=""
 				onchange="eventManager.handle_event(EventType.Comp_Use_Attack_1_Description_change)"
 			/>
-			<input
-				id="Comp.Use.Attack.1.Weapon"
-				class="field inputfield"
-				style="top: 0px;left: 0px;font-size: 12px;height: 15px;width: 250.5px;overflow-x: scroll;visibility: hidden"
-				spellcheck="true"
-				type="text"
-				data-default=""
-				onchange="CopyWeaponToSelection(adapter_helper_convert_id_to_fieldname(this.id), this.value)"
-			/>
 
 			<button
 				id="Comp.Use.Attack.Button.1"
@@ -1146,15 +1129,6 @@
 				data-default=""
 				onchange="eventManager.handle_event(EventType.Comp_Use_Attack_2_Description_change)"
 			/>
-			<input
-				id="Comp.Use.Attack.2.Weapon"
-				class="field inputfield"
-				style="top: 0px;left: 0px;font-size: 12px;height: 15px;width: 250.5px;overflow-x: scroll;visibility: hidden"
-				spellcheck="true"
-				type="text"
-				data-default=""
-				onchange="CopyWeaponToSelection(adapter_helper_convert_id_to_fieldname(this.id), this.value)"
-			/>
 
 			<button
 				id="Comp.Use.Attack.Button.2"
@@ -1242,15 +1216,6 @@
 				spellcheck="true"
 				data-default=""
 				onchange="eventManager.handle_event(EventType.Comp_Use_Attack_3_Description_change)"
-			/>
-			<input
-				id="Comp.Use.Attack.3.Weapon"
-				class="field inputfield"
-				style="top: 0px;left: 0px;font-size: 12px;height: 15px;width: 250.5px;overflow-x: scroll;visibility: hidden"
-				spellcheck="true"
-				type="text"
-				data-default=""
-				onchange="CopyWeaponToSelection(adapter_helper_convert_id_to_fieldname(this.id), this.value)"
 			/>
 
 			<button

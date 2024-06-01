@@ -14,5 +14,6 @@ newline_style = "Unix"
 # reorder_impl_items = true
 # group_imports = "StdExternalCrate"
 single_line_if_else_max_width = 0
+struct_lit_width = 40
 # where_single_line = true
 # wrap_comments = true

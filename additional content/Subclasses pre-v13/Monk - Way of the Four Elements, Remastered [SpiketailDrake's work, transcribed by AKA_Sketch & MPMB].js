@@ -214,7 +214,7 @@ var WotFEremastered = function() {
 				]),
 				eval : "RemoveAction('reaction', 'Slow Fall');",
 				removeeval : "AddAction('reaction', 'Slow Fall', 'Monk (Way of the Four Elements)');",
-				prereqeval : "classes.known.monk.level >= 6"
+				prereqeval : "wasm_character.get_class_level('monk') >= 6"
 			},
 			"burning ember flourish (prereq: level 6 monk)" : {
 				name : "Burning Ember Flourish",
@@ -227,7 +227,7 @@ var WotFEremastered = function() {
 					firstCol : 2
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 6"
+				prereqeval : "wasm_character.get_class_level('monk') >= 6"
 			},
 			"crushing hand of the mountain (prereq: level 6 monk)" : {
 				name : "Crushing Hand of the Mountain",
@@ -240,7 +240,7 @@ var WotFEremastered = function() {
 					firstCol : 2
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 6"
+				prereqeval : "wasm_character.get_class_level('monk') >= 6"
 			},
 			"curtain of unyielding wind (prereq: level 6 monk)" : {
 				name : "Curtain of Unyielding Wind",
@@ -253,7 +253,7 @@ var WotFEremastered = function() {
 					firstCol : 2
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 6"
+				prereqeval : "wasm_character.get_class_level('monk') >= 6"
 			},
 			"gong of the summit (prereq: level 6 monk)" : {
 				name : "Gong of the Summit",
@@ -266,7 +266,7 @@ var WotFEremastered = function() {
 					firstCol : 2
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 6"
+				prereqeval : "wasm_character.get_class_level('monk') >= 6"
 			},
 			"hatchling's flame (prereq: level 6 monk)" : {
 				name : "Hatchling's Flame",
@@ -279,7 +279,7 @@ var WotFEremastered = function() {
 					firstCol : 2
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 6"
+				prereqeval : "wasm_character.get_class_level('monk') >= 6"
 			},
 			"mote of the sun (prereq: level 6 monk)" : {
 				name : "Mote of the Sun",
@@ -292,7 +292,7 @@ var WotFEremastered = function() {
 					firstCol : 2
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 6"
+				prereqeval : "wasm_character.get_class_level('monk') >= 6"
 			},
 			"patient badger listens (prereq: level 6 monk)" : {
 				name : "Patient Badger Listens",
@@ -301,7 +301,7 @@ var WotFEremastered = function() {
 					"For 1 min, I gain tremorsense 30 ft and a burrow speed equal to half my walking speed",
 					"Burrowing like this leaves behind a tunnel that lasts for the duration"
 				]),
-				prereqeval : "classes.known.monk.level >= 6"
+				prereqeval : "wasm_character.get_class_level('monk') >= 6"
 			},
 			"red dragon's claws (prereq: level 6 monk)" : {
 				name : "Red Dragon's Claws",
@@ -314,7 +314,7 @@ var WotFEremastered = function() {
 					firstCol : 2
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 6"
+				prereqeval : "wasm_character.get_class_level('monk') >= 6"
 			},
 			"swarming ice rabbit (prereq: level 6 monk)" : {
 				name : "Swarming Ice Rabbit",
@@ -327,7 +327,7 @@ var WotFEremastered = function() {
 					firstCol : 2
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 6"
+				prereqeval : "wasm_character.get_class_level('monk') >= 6"
 			},
 			"dance of three ways (prereq: level 11 monk)" : {
 				name : "Dance of Three Ways",
@@ -340,7 +340,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"earth reaches for sky (prereq: level 11 monk)" : {
 				name : "Earth Reaches for Sky",
@@ -353,7 +353,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"eternal mountain defense (prereq: level 11 monk)" : {
 				name : "Eternal Mountain Defense",
@@ -366,7 +366,7 @@ var WotFEremastered = function() {
 					firstCol : 4
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"flames of the phoenix (prereq: level 11 monk)" : {
 				name : "Flames of the Phoenix",
@@ -379,7 +379,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"fist of the elements (prereq: level 11 monk)" : {
 				name : "Fist of the Elements",
@@ -392,7 +392,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"hua's water prison (prereq: level 11 monk)" : {
 				name : "Hua's Water Prison",
@@ -405,7 +405,7 @@ var WotFEremastered = function() {
 					firstCol : 4
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"mist stance (prereq: level 11 monk)" : {
 				name : "Mist Stance",
@@ -418,7 +418,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"one with the tides (prereq: level 11 monk)" : {
 				name : "One with the Tides",
@@ -427,7 +427,7 @@ var WotFEremastered = function() {
 					"As an action, I gain underwater adaptations that last for 8 hours: Breathe underwater,",
 					"Swim speed equal to my walking speed, and Blindsight 60 ft while underwater"
 				]),
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"rain of the frigid glacier (prereq: level 11 monk)" : {
 				name : "Rain of the Frigid Glacier",
@@ -440,7 +440,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"raise the troubled earth (prereq: level 11 monk)" : {
 				name : "Raise the Troubled Earth",
@@ -453,7 +453,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"raise the still waters (prereq: level 11 monk)" : {
 				name : "Raise the Still Waters",
@@ -466,7 +466,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"ride the wind (prereq: level 11 monk)" : {
 				name : "Ride the Wind",
@@ -479,7 +479,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"river of hungry flame (prereq: level 11 monk)" : {
 				name : "River of Hungry Flame",
@@ -492,7 +492,7 @@ var WotFEremastered = function() {
 					firstCol : 4
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"sweeping crosswind (prereq: level 11 monk)" : {
 				name : "Sweeping Crosswind",
@@ -505,7 +505,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"tears of the north wind (prereq: level 11 monk)" : {
 				name : "Tears of the North Wind",
@@ -518,7 +518,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"tsunami (prereq: level 11 monk)" : {
 				name : "Tsunami",
@@ -531,7 +531,7 @@ var WotFEremastered = function() {
 					firstCol : 3
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 11"
+				prereqeval : "wasm_character.get_class_level('monk') >= 11"
 			},
 			"avatar of flame (prereq: level 17 monk)" : {
 				name : "Avatar of Flame",
@@ -544,7 +544,7 @@ var WotFEremastered = function() {
 					firstCol : 6
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			},
 			"avatar of ice (prereq: level 17 monk)" : {
 				name : "Avatar of Ice",
@@ -557,7 +557,7 @@ var WotFEremastered = function() {
 					firstCol : 6
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			},
 			"avatar of stone (prereq: level 17 monk)" : {
 				name : "Avatar of Stone",
@@ -570,7 +570,7 @@ var WotFEremastered = function() {
 					firstCol : 6
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			},
 			"avatar of wind (prereq: level 17 monk)" : {
 				name : "Avatar of Wind",
@@ -583,7 +583,7 @@ var WotFEremastered = function() {
 					firstCol : 6
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			},
 			"avatar of the elements (prereq: level 17 monk; another avatar option)" : {
 				name : "Avatar of the Elements",
@@ -611,7 +611,7 @@ var WotFEremastered = function() {
 					firstCol : 6
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			},
 			"breath of winter (prereq: level 17 monk)" : {
 				name : "Breath of Winter",
@@ -624,7 +624,7 @@ var WotFEremastered = function() {
 					firstCol : 5
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			},
 			"eye of the hurricane (prereq: level 17 monk)" : {
 				name : "Eye of the Hurricane",
@@ -637,7 +637,7 @@ var WotFEremastered = function() {
 					firstCol : 5
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			},
 			"mold the mountain (prereq: level 17 monk)" : {
 				name : "Mold the Mountain",
@@ -650,7 +650,7 @@ var WotFEremastered = function() {
 					firstCol : 5
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			},
 			"moth's demise (prereq: level 17 monk)" : {
 				name : "Moth's Demise",
@@ -663,7 +663,7 @@ var WotFEremastered = function() {
 					firstCol : 5
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			},
 			"swirling crab's revenge (prereq: level 17 monk)" : {
 				name : "Swirling Crab's Revenge",
@@ -676,7 +676,7 @@ var WotFEremastered = function() {
 					firstCol : 5
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			},
 			"wave of rolling earth (prereq: level 17 monk)" : {
 				name : "Wave of Rolling Earth",
@@ -689,7 +689,7 @@ var WotFEremastered = function() {
 					firstCol : 5
 				}],
 				spellFirstColTitle : "Ki",
-				prereqeval : "classes.known.monk.level >= 17"
+				prereqeval : "wasm_character.get_class_level('monk') >= 17"
 			}
 		},
 		"subclassfeature6" : {

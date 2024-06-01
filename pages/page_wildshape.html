@@ -70,7 +70,7 @@
 				eventManager.add_listener(
 					EventType.PC_Name_change,
 					function () {
-						let newValue = CalcAdvLogInfo(prefix + 'AdvLog.PC Name');
+						let newValue = wasm_character.get_name();
 						if (newValue !== undefined) {
 							let nameElement = document.getElementById(prefix + 'AdvLog.PC_Name');
 							if (nameElement.value != newValue) {

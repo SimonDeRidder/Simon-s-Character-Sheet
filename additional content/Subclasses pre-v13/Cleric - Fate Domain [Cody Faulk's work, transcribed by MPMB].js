@@ -70,7 +70,7 @@ AddSubClass("cleric", "fate domain", {
 			minlevel : 8,
 			description : "\n   " + "I add my Wisdom modifier to the damage I deal with my cleric cantrips",
 			calcChanges : {
-				atkCalc : ["if (classes.known.cleric && classes.known.cleric.level > 7 && thisWeapon[4].indexOf('cleric') !== -1 && thisWeapon[3] && SpellsList[thisWeapon[3]].level === 0) { output.extraDmg += wasm_character.get_ability_modifier('Wis'); }; ", "My cleric cantrips get my Wisdom modifier added to their damage."]
+				atkCalc : ["if (wasm_character.get_class_level('cleric') > 7 && thisWeapon[4].indexOf('cleric') !== -1 && thisWeapon[3] && SpellsList[thisWeapon[3]].level === 0) { output.extraDmg += wasm_character.get_ability_modifier('Wis'); }; ", "My cleric cantrips get my Wisdom modifier added to their damage."]
 			}
 		},
 		"subclassfeature17" : {

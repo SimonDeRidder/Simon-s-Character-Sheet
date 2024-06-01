@@ -106,7 +106,7 @@ AddSubClass("cleric", "plague domain", {
 			calcChanges : {
 				atkCalc : [
 					function (fields, v, output) {
-						if (classes.known.cleric && classes.known.cleric.level > 7 && v.thisWeapon[3] && v.thisWeapon[4].indexOf('cleric') !== -1 && SpellsList[v.thisWeapon[3]].level === 0) {
+						if (wasm_character.get_class_level('cleric') > 7 && v.thisWeapon[3] && v.thisWeapon[4].indexOf('cleric') !== -1 && SpellsList[v.thisWeapon[3]].level === 0) {
 							output.extraDmg += wasm_character.get_ability_modifier('Wis');
 						};
 					},

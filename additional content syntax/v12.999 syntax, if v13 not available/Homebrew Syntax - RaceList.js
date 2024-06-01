@@ -153,7 +153,7 @@ RaceList["something catlike"] = { //Object name; Note the use of only lower case
 
 			calcChanges : { //optional; adds stuff to the calculation of attacks and/or HP
 
-				hp : "if (classes.known.sorcerer) {extrahp += classes.known.sorcerer.level; extrastring += \"\\n + \" + classes.known.sorcerer.level + \" from Draconic Resilience (Sorcerer)\";};", //optional; string to be run using eval() when calculating the number of HP in the HP tooltip and automation
+				hp : "if (wasm_character.has_class('sorcerer')) {extrahp += wasm_character.get_class_level('sorcerer'); extrastring += \"\\n + \" + wasm_character.get_class_level('sorcerer') + \" from Draconic Resilience (Sorcerer)\";};", //optional; string to be run using eval() when calculating the number of HP in the HP tooltip and automation
 
 				atkCalc : ["if (isOffHand) {output.modToDmg = true; }; ", "When engaging in two-weapon fighting, I can add my ability modifier to the damage of my off-hand attacks."], //optional; ["eval string", "explanation string"]; change something in the calculation of the Damage and To Hit of attacks; The first value in the array is stringified code that is run using eval(), the second entry is an explanation of what is being altered so that it can be displayed in a dialogue. This second entry can be left empty, as ""
 

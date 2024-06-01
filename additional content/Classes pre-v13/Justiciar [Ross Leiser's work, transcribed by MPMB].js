@@ -174,16 +174,17 @@ ClassList["justiciar"] = {
 				])
 			]],
 			fillExtraNotes : function() {
-				var jLvl = classes.known.justiciar ? classes.known.justiciar.level : 0;
+				var jLvl = wasm_character.get_class_level('justiciar');
 				var jLvlOld = classes.old.justiciar ? classes.old.justiciar.classlevel : 0;
 				if (jLvl == jLvlOld) return;
 				var theText = function (input, skipSubClass) {
 					var toReturn = "";
 					// create an array of all the entries
 					var notesArr = [];
-					for (var key in CurrentClasses.justiciar.features) {
+					let classFeatures = adapter_helper_get_class_property("justiciar", "features");
+					for (var key in classFeatures) {
 						if (skipSubClass && key.indexOf("subclassfeature") !== -1) continue;
-						if (CurrentClasses.justiciar.features[key].extraNotesTxt) notesArr = notesArr.concat(CurrentClasses.justiciar.features[key].extraNotesTxt);
+						if (classFeatures[key].extraNotesTxt) notesArr = notesArr.concat(classFeatures[key].extraNotesTxt);
 					}
 					if (notesArr.length) {
 						// sort this array by the first entry of each subarray
@@ -200,7 +201,7 @@ ClassList["justiciar"] = {
 				if (jTxt == jTxtOld) return;
 				ReplaceString("Extra.Notes", jTxt, false, jTxtOld);
 			},
-			eval : "AddAction('bonus action', 'Binding Cell (dismiss)', 'Justiciar'); if(sheetVersion < 13) { Value('Extra.Layers Remember', 'notes,' + What('Extra.Layers Remember').split(',')[1]); LayerVisibilityOptions(false); } else { show3rdPageNotes(); };",
+			eval : "AddAction('bonus action', 'Binding Cell (dismiss)', 'Justiciar'); if(sheetVersion < 13) { Value('Extra.Layers Remember', 'notes,' + What('Extra.Layers Remember').split(',')[1]);};",
 			removeeval : "RemoveAction('bonus action', 'Binding Cell (dismiss)', 'Justiciar');",
 			changeeval : "ClassList.justiciar.features['binding cell'].fillExtraNotes();"
 		},
@@ -273,7 +274,8 @@ ClassList["justiciar"] = {
 			spellcastingBonusForLevel : function(lvl) {
 				var reArr = [];
 				var jSpells = CreateSpellList({"class" : "justiciar", level : [lvl,lvl]});
-				if (CurrentClasses.justiciar.spellcastingExtra) jSpells = jSpells.concat(CurrentClasses.justiciar.spellcastingExtra);
+				let spellCastingExtra = adapter_helper_get_class_property("justiciar", "spellcastingExtra");
+				if (spellCastingExtra) jSpells = jSpells.concat(spellCastingExtra);
 				jSpells.sort();
 				for (var j = 0; j < jSpells.length; j++) {
 					var jSpl = jSpells[j];
@@ -289,7 +291,7 @@ ClassList["justiciar"] = {
 			},
 			eval : "CurrentSpells.justiciar.bonus['judicial arcanum'] = ClassList.justiciar.features['judicial arcanum'].spellcastingBonusForLevel(4);",
 			removeeval : "delete CurrentSpells.justiciar.bonus['judicial arcanum']",
-			changeeval : "if (classes.known.justiciar.level < 17) {delete CurrentSpells.justiciar.bonus['judicial arcanum (5)']} else {if (!CurrentSpells.justiciar.bonus['judicial arcanum (5)']) {CurrentSpells.justiciar.bonus['judicial arcanum (5)'] = ClassList.justiciar.features['judicial arcanum'].spellcastingBonusForLevel(5);}};"
+			changeeval : "if (wasm_character.get_class_level('justiciar') < 17) {delete CurrentSpells.justiciar.bonus['judicial arcanum (5)']} else {if (!CurrentSpells.justiciar.bonus['judicial arcanum (5)']) {CurrentSpells.justiciar.bonus['judicial arcanum (5)'] = ClassList.justiciar.features['judicial arcanum'].spellcastingBonusForLevel(5);}};"
 		},
 		"arcane safeguard" : {
 			name : "Arcane Safeguard",

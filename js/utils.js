@@ -88,5 +88,20 @@ function getAccessedFieldIds(code /*String*/) /*Set[String]*/ {
 			}
 		}
 	}
+	// converted fields
+	for (let abi of ['Cha', 'Str', 'Dex', 'Con', 'Wis', 'Int', 'HoS']) {
+		let abi_matches = [...code.matchAll(/wasm_character.get_ability\('([^']+)'\)/g)];
+		for (let match of abi_matches) {
+			all_matches.add(match[1]);
+		}
+		let abi_mod_matches = [...code.matchAll(/wasm_character.get_ability_modifier\('([^']+)'\)/g)];
+		for (let match of abi_mod_matches) {
+			all_matches.add(match[1] + "_Mod");
+		}
+		let level_matches = [...code.matchAll(/wasm_character.get_level\(\)/g)];
+		if (level_matches) {
+			all_matches.add("Character_Level")
+		}
+	}
 	return all_matches;
 }

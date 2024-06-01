@@ -140,7 +140,11 @@ ClassList["shadowcaster"] = {
 				return n < 2 ? "" : n < 11 ? "Darkvision 30 ft" : "Devil's Sight 30 ft";
 			}),
 			vision : [["Darkvision", "fixed 30"], ["Darkvision", "+30"]],
-			changeeval : "if (ClassLevelUp.shadowcaster[2] >= 11 && ClassLevelUp.shadowcaster[1] < 11) { await processVision(newClassLvl.shadowcaster >= 11, 'Shadowcaster: Umbral Sight', [[\"Devil's sight\", 30]]); }; "
+			changeeval : async function(levelChange, choice) {
+				if (levelChange[1] >= 11 && levelChange[0] < 11) {
+					await processVision(levelChange[1] >= 11, 'Shadowcaster: Umbral Sight', [["Devil's sight", 30]]);
+				};
+			}
 		},
 		"cloak of shadows" : {
 			name : "Cloak of Shadows",
@@ -178,7 +182,11 @@ ClassList["shadowcaster"] = {
 			additional : levels.map(function(n) {
 				return n < 11 ? "" : n < 17 ? "1 meal per week" + (n < 13 ? "" : ", 1 hour sleep per day") : "don't need to eat, sleep, or breathe";
 			}),
-			changeeval : "if (ClassLevelUp.shadowcaster[2] >= 15 && ClassLevelUp.shadowcaster[1] < 15) { await SetProf('savetxt', newClassLvl.shadowcaster >= 15, { immune : ['disease'] }, 'Shadowcaster: Sustaining Shadow'); }; "
+			changeeval : async function (levelChange, choice) {
+				if (levelChange[1] >= 15 && levelChange[0] < 15) {
+					await SetProf('savetxt', levelChange[1] >= 15, { immune : ['disease'] }, 'Shadowcaster: Sustaining Shadow');
+				};
+			}
 		},
 		"mastered mysteries" : {
 			name : "Mastered Mysteries",
@@ -281,8 +289,8 @@ AddSubClass("shadowcaster", "shadowmaster", {
 				"This companion serves me as best it can, obeying my commands",
 				"It gains several benefits, see the companion page for details"
 			]),
-			eval : "await shadowmasters_companion_functions.add(newClassLvl.shadowcaster);",
-			removeeval : "await shadowmasters_companion_functions.remove();",
+			eval : async function(levelChange, choice) {await shadowmasters_companion_functions.add(levelChange[1]);},
+			removeeval : async function() {await shadowmasters_companion_functions.remove();},
 			changeeval : "shadowmasters_companion_functions.update(oldClassLvl.shadowcaster, newClassLvl.shadowcaster);"
 		},
 		"subclassfeature6" : {
@@ -380,11 +388,11 @@ AddSubClass("shadowcaster", "shadowsmith", {
 			}),
 			calcChanges : {
 				atkAdd : [
-					"if ((/shadowcraft/i).test(WeaponText) && !isSpell && classes.known.shadowcaster && classes.known.shadowcaster.level) {fields.Description += (fields.Description ? '; ' : '') + '+' + (classes.known.shadowcaster.level < 18 ? 1 : 2) + 'd6 cold damage'; }; ",
+					"if ((/shadowcraft/i).test(WeaponText) && !isSpell && wasm_character.has_class('shadowcaster')) {fields.Description += (fields.Description ? '; ' : '') + '+' + (wasm_character.get_class_level('shadowcaster') < 18 ? 1 : 2) + 'd6 cold damage'; }; ",
 					"My shadowcraft weapons add a +1 bonus to their to hit roll (+2 from 14th level onwards) and do an extra +1d6 cold damage (+2d6 from 18th level onwards)."
 				],
 				atkCalc : [
-					"if ((/shadowcraft/i).test(WeaponText) && !isSpell && classes.known.shadowcaster && classes.known.shadowcaster.level) {output.extraHit += classes.known.shadowcaster.level < 14 ? 1 : 2; }; ",
+					"if ((/shadowcraft/i).test(WeaponText) && !isSpell && wasm_character.has_class('shadowcaster')) {output.extraHit += wasm_character.get_class_level('shadowcaster') < 14 ? 1 : 2; }; ",
 					""
 				]
 			}
@@ -552,8 +560,7 @@ shadowmasters_companion_functions = {
 		Uneditable(prefix + 'Comp.Race');
 		var theType = tDoc.getField(prefix + 'Comp.Type');
 		theType.readonly = true;
-		if (!typePF) theType.textSize = 0;
-		theType.value = 'Shadow Com' + (typePF ? "p." : ".");
+		theType.value = "Shadow Comp.";
 		for (var a = 1; a <= 3; a++) { // Add proficiency bonus to attacks
 			AddToModFld(prefix + 'BlueText.Comp.Use.Attack.' + a + '.Damage Bonus', "oProf", false, "Shadow Companion", "The companion adds the shadowcaster's proficiency bonus (oProf) to the damage of its attacks.");
 		}
@@ -635,7 +642,7 @@ shadowmasters_companion_functions = {
 			Value(prefix + "Comp.Use.HD.Die", 10);
 			Value(prefix + "Comp.Use.Speed", What("Unit System") === "imperial" ? "40 ft" : ConvertToMetric("40 ft", 0.5));
 			for (var i = 1; i <= 3; i++) {
-				if ((/touch/i).test(What(prefix + "Comp.Use.Attack." + i + ".Weapon"))) {
+				if ((/touch/i).test(What(prefix + "Comp.Use.Attack." + i + ".Weapon Selection"))) {
 					var theFld = prefix + "BlueText.Comp.Use.Attack." + i + ".Damage Die";
 					var theDmgDie = What(theFld);
 					Value(theFld, theDmgDie.replace(/1d6/i, "2d6"));
@@ -647,7 +654,7 @@ shadowmasters_companion_functions = {
 			Value(prefix + "Comp.Use.HD.Die", 6);
 			Value(prefix + "Comp.Use.Speed", What("Unit System") === "imperial" ? thisCrea.speed : ConvertToMetric(thisCrea.speed, 0.5));
 			for (var i = 1; i <= 3; i++) {
-				if ((/touch/i).test(What(prefix + "Comp.Use.Attack." + i + ".Weapon"))) {
+				if ((/touch/i).test(What(prefix + "Comp.Use.Attack." + i + ".Weapon Selection"))) {
 					var theFld = prefix + "BlueText.Comp.Use.Attack." + i + ".Damage Die";
 					var theDmgDie = What(theFld);
 					Value(theFld, theDmgDie.replace(/2d6/i, "1d6"));
@@ -665,9 +672,10 @@ shadowmasters_companion_functions = {
 		}
 		// calc new ASI
 		var ASIs = 0;
-		for (var aClass in classes.known) {
-			var classLvL = Math.min(CurrentClasses[aClass].improvements.length, classes.known[aClass].level);
-			ASIs += 2 * CurrentClasses[aClass].improvements[classLvL - 1];
+		for (var aClass in wasm_character.list_classes()) {
+			let classImprovements = adapter_helper_get_class_property(aClass, "improvements");
+			var classLvL = Math.min(classImprovements.length, wasm_character.get_class_level(aClass));
+			ASIs += 2 * classImprovements[classLvL - 1];
 		}
 		var ASIstring = function (aCreat) {
 			var toReturn = "whenever I gain an ASI\r   Currently, there are " + ASIs + " points ";
@@ -696,7 +704,7 @@ shadowmasters_companion_functions = {
 		// Update the traits
 		var spd = What("Unit System") === "imperial" ? "60 ft" : "20 m";
 		var trait14 = "\u25C6 Dark Wings: As an action, the shadow companion can manifest or dismiss a pair of wings that give it flying speed of " + spd + ".";
-		var flySpd = (typePF ? "\n" : ", ") + "fly " + spd;
+		var flySpd = "\nfly " + spd;
 		if (oldLvl < 14 && newLvl >= 14) {
 			AddString(prefix + "Comp.Use.Features", trait14, true);
 			AddString(prefix + "Comp.Use.Speed", flySpd, false);
@@ -708,14 +716,14 @@ shadowmasters_companion_functions = {
 		// Update the attacks
 		if (oldLvl < 18 && newLvl >= 18) {
 			for (var i = 1; i <= 3; i++) {
-				if (!What(prefix + "Comp.Use.Attack." + i + ".Weapon")) {
+				if (!What(prefix + "Comp.Use.Attack." + i + ".Weapon Selection")) {
 					Value(prefix + "Comp.Use.Attack." + i + ".Weapon Selection", "Shadow Breath Weapon");
 					break;
 				}
 			}
 		} else if (oldLvl >= 18 && newLvl < 18) {
 			for (var i = 1; i <= 3; i++) {
-				if ((/^(?=.*shadow)(?=.*breath)(?=.*weapon).*$/i).test(What(prefix + "Comp.Use.Attack." + i + ".Weapon"))) {
+				if ((/^(?=.*shadow)(?=.*breath)(?=.*weapon).*$/i).test(What(prefix + "Comp.Use.Attack." + i + ".Weapon Selection"))) {
 					Value(prefix + "Comp.Use.Attack." + i + ".Weapon Selection", "");
 				}
 			}

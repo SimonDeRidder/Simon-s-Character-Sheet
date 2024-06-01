@@ -1,7 +1,6 @@
 const minVer = false;
-const MPMBImportFunctions_isInstalled = true;
 const app = {
-	viewerVersion: 9001,
+	loaded: false,
 
 	setTimeOut: function (command /*str*/, millis /*int*/) /*Number*/ {
 		return setTimeout(command, millis);
@@ -11,8 +10,8 @@ const app = {
 		clearTimeout(timeout);
 	},
 
-	thermometer: {  // combined status bar and load animation (TODO)
-		_text: "",  // TODO: use a status bar in stead
+	thermometer: {  // combined status bar and load animation
+		_text: "",
 		get text() {
 			return this._text;
 		},
@@ -33,10 +32,7 @@ const app = {
 		nPos = -1 /*number*/,
 		cLabel = "" /*str*/,
 	}) {
-		// TODO: add a buttons to a decent tool bar
-		if (cName == 'ResetButton') {
-			return;
-		}
+		// TODO: add buttons to a decent tool bar
 		let container = document.getElementById('tempButtonRibbon');
 		let buttonParent = document.createElement('div');
 		buttonParent.style.width = '100%';
@@ -120,26 +116,8 @@ const app = {
 	) {
 		if (
 			![
-				"EXPERIENCE POINTS DIALOG",
 				"ASK USER DIALOG",
 				"SIMPLE TEXT DIALOG",
-				"CLASS SELECTION DIALOG",
-				"SOURCE SELECTION DIALOG",
-				"IMPORT CUSTOM SCRIPT DIALOG",
-				"MANUAL CUSTOM SCRIPT DIALOG",
-				"CLASSES OR ARCHETYPES SOURCE SELECTION DIALOG",
-				"BACKGROUNDS SOURCE SELECTION DIALOG",
-				"WEAPONS/ATTACKS SOURCE SELECTION DIALOG",
-				"MAGIC ITEMS SOURCE SELECTION DIALOG",
-				"SPELLS SOURCE SELECTION DIALOG",
-				"SPECIAL COMPANION OPTIONS SOURCE SELECTION DIALOG",
-				"PLAYER RACES SOURCE SELECTION DIALOG",
-				"BACKGROUND FEATURES SOURCE SELECTION DIALOG",
-				"AMMUNITION SOURCE SELECTION DIALOG",
-				"ARMORS SOURCE SELECTION DIALOG",
-				"FEATS SOURCE SELECTION DIALOG",
-				"CREATURES SOURCE SELECTION DIALOG",
-				"SUBCLASS SELECTION DIALOG",
 				"SET MODIFIER DIALOG",
 				"CHANGES ALERT DIALOG",
 				"COMPARE DIALOG",
@@ -152,9 +130,7 @@ const app = {
 				"CARRIED WEIGHT DIALOG",
 				"ADD FILE TO ACROBAT INSTALLATION DIALOG",
 				"IMPORT FROM PDF DIALOG",
-				"Set the Font, the Font Size, and Hide Text Lines",
 				"Choose the functions you want to set to manual",
-				"Choose the pages you want to print"
 			].includes(monitor.description.name)
 		) {
 			// TODO: remove this if all execDialogs are converted
@@ -302,7 +278,6 @@ AdapterParsePopUpMenu = function (aParams, resolve) {
 
 
 this.info = {
-	SheetType: "printer friendly",
 	SheetVersion: "v13.3.0",
 	SpellsOnly: false,
 };
@@ -328,14 +303,21 @@ this.getField = function (field /*str|AdapterClassFieldReference*/) /*AdapterCla
 				function (newVal) { window.wasm_character.set_ability(field, newVal) },
 			)
 		}
-	}
+	}  // 0.1.0
+	if (field == "PC Name") {
+		console.warn("getField called for 'PC Name', replace with direct call to wasm_character.get_name()");
+		return new AdapterClassWasmFieldReference(
+			function () {return wasm_character.get_name()},
+			function (newVal) { throw "Can't set character name"; }
+		)
+	}  // 0.2.0
 
-	if (field.startsWith('SaveIMG.') && (field != 'SaveIMG.Patreon')) {
+	if (field.startsWith('SaveIMG.')) {
 		return adapter_helper_get_saveimg_field(field.replace(/^SaveIMG\./, ''))
 	}
 	let field_id = adapter_helper_convert_fieldname_to_id(field);
 	if (field_id.endsWith('.alphabeta')) {
-		// for Stealth Disadv/Stealth_Disadv (see Functions2:7633), TODO find out what to do with this.
+		// for Stealth Disadv/Stealth_Disadv (see Functions2:SetProf), TODO find out what to do with this.
 		field_id = field_id.replace(/.alphabeta$/, '');
 	}
 	return adapter_helper_reference_factory(field_id);
@@ -481,40 +463,6 @@ function AFNumber_Format(nDec /*int*/, sepStyle /*int*/, negStyle /*int*/, currS
 
 
 const util = {
-	readFileIntoStream: async function (cDIPath /*String*/, bEncodeBase64 /*bool*/) /*AdapterClassReadStream*/ {
-		if (bEncodeBase64) {
-			throw "readFileIntoStream with bEncodeBase64 not implemented.";
-		}
-		if (cDIPath) {
-			throw "readFileIntoStream with cDIPath not implemented.";
-		}
-		return new Promise((resolve, reject) => {
-			let elm = document.createElement('input');
-			elm.style.visibility = 'hidden';
-			elm.setAttribute('type', 'file');
-			elm.addEventListener('change', function () {
-				if (elm.files && elm.files.length > 0) {
-					var file = elm.files[0];
-					var reader = new FileReader();
-					elm.value = '';
-					reader.onload = function (e) {
-						resolve(new AdapterClassReadStream(reader.result));
-						elm.remove();
-					};
-				}
-				reader.readAsText(file);
-			});
-			elm.click();
-		});
-	},
-
-	stringFromStream: async function (oStream /*AdapterClassReadStream*/) /*String*/ {
-		if (oStream.constructor.name != 'AdapterClassReadStream') {
-			throw "stringFromStream not implemented for type " + oStream.constructor.name;
-		}
-		return await oStream.read();
-	},
-
 	printd: function (cFormat /*String|Number*/, oDate /*Date*/, bXFAPicture /*boolean*/) /*String*/ {
 		if (typeof cFormat == 'Number') {
 			throw "printd with Number-type cFormat not implemented";
@@ -979,6 +927,7 @@ class AdapterClassFieldReference {
 			listElement.removeChild(listElement.lastElementChild);
 		}
 		let id_, name;
+		oArray = oArray ? oArray : [];
 		for (let i = 0; i < oArray.length; i++) {
 			if (oArray[i].constructor === Array) {
 				name = String(oArray[i][1]);
@@ -1048,6 +997,7 @@ class AdapterClassFieldReference {
 		for (let abi of ['Cha', 'Str', 'Dex', 'Con', 'Wis', 'Int', 'HoS']) {
 			for (let pattern of [
 				"event.value = Math.max(1,wasm_character.get_ability_modifier('$$ABI$$'));",
+				"event.value = Math.max(1, wasm_character.get_ability_modifier('$$ABI$$'));",
 				"event.value = wasm_character.get_ability_modifier('$$ABI$$');",
 				"event.value = 1 + wasm_character.get_ability_modifier('$$ABI$$');",
 				"event.value = Math.max(2, Number(wasm_character.get_ability_modifier('$$ABI$$')) * 2);",
@@ -1077,15 +1027,15 @@ class AdapterClassFieldReference {
 				"event.value = 'As a reaction when I take damage from a creature that is within 10 ft of me, I can have it take 2d8 force damage and push it up to 10 ft away from me. If it succeeds a Strength save DC ' + (8 + Number(How('Proficiency Bonus')) + Number(wasm_character.get_ability_modifier('Cha'))) + ' (8 + Prof Bonus + Cha mod), it halves the damage and isn't pushed. I can do this my Proficiency Bonus per long rest. [+1 Charisma]';",
 				"event.value = '0 m';",
 				"event.value = '0 ft';",
-				"var FieldNmbr = parseFloat(event.target.name.slice(-2)); var usages = What('Limited Feature Used ' + FieldNmbr); var useMult = isNaN(Number(usages)) || !Number(usages) ? 1 : Math.pow(10, usages); var charLvl = What('Character Level'); var total = (Math.round(charLvl * useMult) * 10); total = total > 1000000 ? total / 1000000 + 'M' : total > 1000 ? total / 1000 + 'k' : total; event.value = total + ' gp';",
-				"event.value = Math.floor(classes.known['dawnforgedcast-alchemist'].level/2) + wasm_character.get_ability_modifier('Int');",
-				"event.value = Math.floor(classes.known['dawnforgedcast-alchemist'].level/2) + 3 + wasm_character.get_ability_modifier('Int');",
+				"var FieldNmbr = parseFloat(event.target.name.slice(-2)); var usages = What('Limited Feature Used ' + FieldNmbr); var useMult = isNaN(Number(usages)) || !Number(usages) ? 1 : Math.pow(10, usages); var charLvl = wasm_character.get_level(); var total = (Math.round(charLvl * useMult) * 10); total = total > 1000000 ? total / 1000000 + 'M' : total > 1000 ? total / 1000 + 'k' : total; event.value = total + ' gp';",
+				"event.value = Math.floor(wasm_character.get_class_level('dawnforgedcast-alchemist')/2) + wasm_character.get_ability_modifier('Int');",
+				"event.value = Math.floor(wasm_character.get_class_level('dawnforgedcast-alchemist')/2) + 3 + wasm_character.get_ability_modifier('Int');",
 				"event.value = ''; event.target.setAction('Calculate', ''); event.target.submitName = '';",
-				"event.value = !classes.known.warlock ? '' : (1 + classes.known.warlock.level) + 'd6';",
+				"event.value = !wasm_character.has_class('warlock') ? '' : (1 + wasm_character.get_class_level('warlock')) + 'd6';",
 				"event.value = !event.value || event.value == 'Resets to 1 after ' ? 1 : event.value;",
 				"event.value = event.value.toString().replace(/ ?per ?/i, '');",
 				"event.value = 'I learn two conducting techniques of my choice from those available to the College of the Maestro. The saving throw DC for this is ' + (8 + How('Proficiency Bonus') + wasm_character.get_ability_modifier('Cha')) + ' (8 + proficiency bonus + Cha mod). I gain one bardic inspiration die (d6), which I regain when I finish a short rest.';",
-				"event.value = 'I can spend 10 minutes inspiring up to 6 friendly creatures within 30 feet who can see or hear and can understand me. Each gains lvl (' + What('Character Level') + ') + Cha mod (' + wasm_character.get_ability_modifier('Cha') + \") temporary hit points. One can't gain temporary hit points from this feat again until after a short rest.\";",
+				"event.value = 'I can spend 10 minutes inspiring up to 6 friendly creatures within 30 feet who can see or hear and can understand me. Each gains lvl (' + wasm_character.get_level() + ') + Cha mod (' + wasm_character.get_ability_modifier('Cha') + \") temporary hit points. One can't gain temporary hit points from this feat again until after a short rest.\";",
 				"event.value = \"I can ably create written ciphers that others can't decipher unless I teach them, they succeed on an Intelligence check DC \" + (wasm_character.get_ability('Int') + Number(How('Proficiency Bonus'))) + ' (Intelligence score + proficiency bonus), or they use magic to decipher it. I learn three languages of my choice. [+1 Intelligence]';",
 				"event.value = 'I learn two maneuvers of my choice from those available to the Battle Master (2nd page \"Choose Feature\" button). The saving throw DC for this is ' + (8 + Number(How('Proficiency Bonus')) + Math.max(Number(wasm_character.get_ability_modifier('Str')), Number(wasm_character.get_ability_modifier('Dex')))) + ' (8 + proficiency bonus + Str/Dex mod). I gain one superiority die (d6), which I regain when I finish a short rest.';",
 				"event.value = 'I can use my Breath Weapon to roar instead. Chosen creatures within 30 ft that see and hear me must make a DC ' + (8 + Number(How('Proficiency Bonus')) + Number(wasm_character.get_ability_modifier('Cha'))) + ' Wis save (8 + Prof Bonus + Cha mod) or be frightened of me for 1 min. A target can repeat the save whenever it takes damage. [+1 Str, Con, or Cha]';",
@@ -1172,6 +1122,15 @@ class AdapterClassFieldReference {
 			throw "getItemAt called for unsupported type: " + this.html_elements[0].tagName.toLowerCase() + " (" + this.html_elements[0].id + ")";
 		}
 	}
+
+	clearItems() {
+		if (!((this.html_elements[0].tagName.toLowerCase() == 'input') && this.html_elements[0].hasAttribute('list'))) {
+			throw "clearItems for anything but input-list type not implemented yet: " + this.html_elements[0].id;
+		} else {
+			let list_id = this.html_elements[0].getAttribute('list');
+			document.getElementById(list_id).innerHTML = "<option value='' selected></option>";
+		}
+	}
 }
 
 
@@ -1235,17 +1194,6 @@ class AdapterClassImageReference {
 
 	buttonGetIcon() /*String*/ {
 		return this.img_url;
-	}
-}
-
-
-class AdapterClassReadStream {
-	constructor(fileContent /*String*/) {
-		this.fileContent = fileContent;
-	}
-
-	async read() /*string*/ {
-		return this.fileContent;
 	}
 }
 
@@ -1340,7 +1288,7 @@ class AdapterClassPage {
 			this.buttonFollower = null;
 			this.isTempl = false;
 		} else {
-			throw "Unimplemented page template type:", type;
+			throw ("Unimplemented page template type:" + type);
 		}
 		this.type = type;
 		this.hidden_ = true;
@@ -1465,22 +1413,6 @@ this.bookmarkRoot = {
 
 
 // Current... adapters
-
-class UserImportedFilesAdapter {
-	constructor(args) {
-		for (let arg in args) {
-			this[arg] = args[arg];
-		}
-	}
-
-	toSource() {
-		let scrString = "new UserImportedFilesAdapter({";
-		for (let file in this) {
-			scrString += "\"" + adapter_helper_escape_string_for_toSource(file) + "\":\"" + adapter_helper_escape_string_for_toSource(this[file]) + "\",";
-		}
-		return scrString + "})";
-	}
-}
 
 class ChangesDialogSkipAdapter {
 	constructor(
@@ -1691,6 +1623,8 @@ function adapter_helper_convert_id_to_fieldname(id /*str*/) /*str*/ {
 function adapter_helper_recursive_toSource(object /*any*/) /*str*/ {
 	if (object === undefined) {
 		return "undefined";
+	} else if (object === null) {
+		return "null";
 	} else if (Object.prototype.toString.call(object) === "[object Array]") {
 		let result = "[";
 		let first = true;
@@ -1844,7 +1778,7 @@ function adapter_helper_get_saveimg_field(img_name /*String*/) /*AdapterClassIma
 		}
 	} else if (img_name == 'ClickMeIcon') {
 		return new AdapterClassImageReference('img/page_stats/header_icons/blank.svg');
-	} else if (img_name == 'EmptyIcon') {
+	} else if ((img_name == 'EmptyIcon') || (img_name == "Patreon")) {
 		return new AdapterClassImageReference('');
 	} else if (img_name.startsWith('SpellSlots.')) {
 		return new AdapterClassImageReference('');
@@ -2003,63 +1937,72 @@ function adapter_helper_save_all() {
 function adapter_helper_load() {
 	async function apply_contents(saveData) {
 		// stop calculations
-		noSheetUpdate = !IsNotReset || !IsNotImport;
 		app.calculate = false;
 		tDoc.calculate = false;
 		tDoc.delay = true;
 
-		// differentiate old and new save formats
-		let jsData, wasmData;
-		if ('js' in saveData) {
-			// new format, js prop is js data, other stuff is wasm data
-			const { js, ...wasm } = saveData;
-			jsData = js;
-			wasmData = wasm;
-		} else {
-			// old format, all js data with ability elements in elements prop
-			jsData = {pages: saveData.pages, elements: []};
-			jsData.pages = saveData.pages;
-			let copyElement;
-			wasmData = {config: "", stats: {abilities: []}};
-			let abiArray = ["Str", "Dex", "Con", "Int", "Wis", "Cha", "HoS"];
-			while (saveData.elements.length > 0) {
-				copyElement = saveData.elements.pop();
-				if (abiArray.includes(copyElement.name)) {
-					if (copyElement.value) {
-						let fullname = {
-							Str: "Strength",
-							Dex: "Dexterity",
-							Con: "Constitution",
-							Int: "Intelligence",
-							Wis: "Wisdom",
-							Cha: "Charisma",
-							HoS: "Honor/Sanity"
-						}[copyElement.name]
-						wasmData.stats.abilities.push([copyElement.name, fullname, copyElement.value]);
-					}
-				} else if (
-					![
-						"Str Mod",
-						"Dex Mod",
-						"Con Mod",
-						"Int Mod",
-						"Wis Mod",
-						"Cha Mod",
-						"HoS Mod",
-						"Image.HoS",
-						"Text.HoS.Save",
-						"Text.HoS.Ability",
-						"Image.calc_lines.HoS",
-						"Image.calc boxes.HoS",
-						"Image.calc boxes.CSfront",
-					].includes(copyElement.name)
-				) {
-					jsData.elements.push(copyElement);
+		// differentiate old (0.2.*) and new save formats
+		const { js, ...wasm } = saveData;
+		let jsData = js;
+		let wasmData = wasm;
+		let classes_str = "";
+		if (!('general_info' in wasmData)) {
+			// old (0.2.*) format, fetch general_info from js data
+			newElements = [];
+			let currentElement;
+			wasmData.general_info = {};
+			while (jsData.elements.length > 0) {
+				currentElement = jsData.elements.pop()
+				if (currentElement.name == "PC Name") {
+					wasmData.general_info.name = currentElement.value ? currentElement.value: "";
+				}
+				else if (currentElement.name == "HeaderIcon") {
+					wasmData.general_info.player_icon = (
+						currentElement.image_data ?
+						currentElement.image_data
+							.replace("img/page_stats/header_icons/blank.svg", "img/icons/blank.svg")
+							.replace("img/factions/", "img/icons/factions/")
+							.replace("/emeraldenclave.svg", "/emerald_enclave.svg")
+							.replace("/lordsalliance.svg", "/lords_alliance.svg")
+							.replace("/ordergauntlet.svg", "/order_gauntlet.svg")
+							.replace("img/class/icon/", "img/icons/classes/")
+							.replace("img/adventure_league/", "img/icons/adventure_league/")
+						: "img/icons/blank.svg"
+					);
+				} else if (currentElement.name == "Character Level") {
+					wasmData.general_info.level = currentElement.value ? Number(currentElement.value) : 0;
+				} else if (currentElement.name == "Total Experience") {
+					wasmData.general_info.experience = currentElement.value ? Number(currentElement.value) : 0;
+				} else if (["DCI.Text", "DCI.Title"].includes(currentElement.name)) {
+					// do nothing, field removed
+				} else if (currentElement.name == "Class and Levels") {
+					classes_str = currentElement.value ? currentElement.value: "";
+				} else if (currentElement.name == "Player Name") {
+					wasmData.general_info.player_name = currentElement.value ? currentElement.value: "";
+				} else if (currentElement.name == "Background") {
+					wasmData.general_info.background = currentElement.value ? adapter_helper_parse_background_from_name(currentElement.value): null;
+				} else if (currentElement.name == "Background_Extra") {
+					wasmData.general_info.background_option = currentElement.value ? currentElement.value: null;
+				} else if (currentElement.name == "Race") {
+					wasmData.general_info.race = adapter_helper_parse_race(currentElement.value);
+				} else {
+					newElements.push(currentElement);
 				}
 			}
-			wasmData.stats.abilities = wasmData.stats.abilities.sort(
-				function(a, b) {return abiArray.indexOf(a[0]) - abiArray.indexOf(b[0]);}
-			)
+			let newClasses = adapter_helper_parse_classes_from_string(classes_str, wasmData.general_info.level);
+			wasmData.general_info.classes = [];
+			for (let classId in newClasses) {
+				wasmData.general_info.classes.push({
+					id: classId,
+					name: newClasses[classId].name,
+					subclass_id: newClasses[classId].subclass,
+					level: newClasses[classId].level
+				})
+			}
+			if ((wasmData.general_info.level > 0) && (wasmData.general_info.experience == 0)) {
+				wasmData.general_info.experience = window.get_minimum_experience_for_level(wasmData.general_info.level);
+			}
+			jsData.elements = newElements;
 		}
 
 		// set pages
@@ -2113,10 +2056,15 @@ function adapter_helper_load() {
 		}
 
 		// initialise global variables etc.
-		await InitializeEverything(noButtons = false, noVars = false);
-
-		// continue calculations
-		calcCont();
+		let classesObj = {};
+		for (let classObj of wasmData.general_info.classes) {
+			classesObj[classObj.id] = {
+				name: classObj.name,
+				subclass: classObj.subclass_id,
+				classlevel: classObj.level,
+			};
+		}
+		await InitializeEverything(classesObj, wasmData.general_info.classes[0] ? wasmData.general_info.classes[0].id : "");
 	}
 
 	// load file and apply contents
@@ -2138,13 +2086,9 @@ function adapter_helper_load() {
 function adapter_helper_serialise_field(element /*HTMLElement*/) /*Object*/ {
 	let fieldVar = this.getField(adapter_helper_convert_id_to_fieldname(element.id));
 	if (fieldVar.constructor.name != 'AdapterClassFieldReference') {
-		throw "adapter_helper_serialise_field not implemented for field type '" + String(typeof fieldVar) + "', constructor '" + fieldVar.constructor.name + "'";
+		throw "adapter_helper_serialise_field not implemented for field type '" + String(typeof fieldVar) + "', constructor '" + fieldVar.constructor.name + "', id '" + element.id + "'";
 	}
 	let result = { name: fieldVar.name };
-	if (['User_Imported_Files', 'User_Script'].includes(element.id)) {
-		result.value = btoa(escapeUnicode(element.getAttribute('value')));
-		return result;
-	}
 	let submit_name = fieldVar.submitName;
 	if (submit_name != "") {
 		result.submitName = submit_name;
@@ -2184,11 +2128,7 @@ function adapter_helper_serialise_field(element /*HTMLElement*/) /*Object*/ {
 function adapter_helper_deserialise_field(element_info /*Object*/) {
 	let fieldVar = this.getField(element_info.name);
 	if (fieldVar.constructor.name != 'AdapterClassFieldReference') {
-		throw "adapter_helper_serialise_field not implemented for field type '" + String(typeof fieldVar) + "', constructor '" + fieldVar.constructor.name + "'";
-	}
-	if (element_info.name == 'User Script') {
-		fieldVar.html_elements[0].setAttribute('value', unescapeUnicode(atob(element_info.value)));
-		return;
+		throw "adapter_helper_deserialise_field not implemented for field type '" + String(typeof fieldVar) + "', constructor '" + fieldVar.constructor.name + "'";
 	}
 	fieldVar.submitName = element_info.submitName ? element_info.submitName : "";
 	if (element_info.value) {
@@ -2239,7 +2179,6 @@ function set_value_no_dispatch(fieldVar, new_value) {
 function is_movable_field(fieldName /*String*/) /*boolean*/ {
 	if ([
 		"Text.SaveDC.1",
-		"Image.SaveDCarrow.1",
 		"Image.SaveDC.1",
 		"Spell DC 1 Mod",
 		"Spell DC 1 Bonus"
@@ -2312,3 +2251,523 @@ function unescapeUnicode(lText /*String*/) /*String*/ {
 	return result;
 }
 
+
+function adapter_helper_parse_classes_from_string(classesString /*String*/, totalLevel /*Number*/) /*{id: {name, subclass, level}}, String*/ {
+	// Remove starting numbers and clean the start/end of the string
+	classesString = classesString.replace(/^[ \-.,\\/:;\d]+|[ \-.,\\/:;]+$/g, '');
+
+	// Get the different classes from the class field string
+	let splitClasses = [];
+	if (classesString != "") {
+		let fieldRem = classesString;
+		let fieldSplit = fieldRem.match(/\D+|(\d+(\.|,))?\d+/g);
+		let tempLevel = fieldSplit.length > 2 ? 1 : Math.max(totalLevel, 1);
+		// now loop through the found elements and add them to the splitClasses array
+		for (let i = 0; i < fieldSplit.length; i = i+2) {
+			let fieldLevel = fieldSplit[i+1] !== undefined ? parseFloat(fieldSplit[i+1]) : tempLevel;
+			splitClasses.push([clean(fieldSplit[i]), fieldLevel]);
+		}
+	}
+
+	//find known classes
+	let classesObject = {};
+	for (i = 0; i < splitClasses.length; i++) {
+		let tempLevel = splitClasses[i][1];
+		let tempFound = ParseClass(splitClasses[i][0]);
+
+		if (!tempFound) continue; // class not detected
+		let tempClass = tempFound[0];
+		let tempSubClass = tempFound[1];
+
+		// set the object for this class (later to be set to classes.known)
+		classesObject[tempClass] = {
+			level : tempLevel,
+			subclass : tempSubClass,
+			name : splitClasses[i][0]
+		};
+	};
+	return classesObject;
+}
+
+function adapter_helper_get_class_property(classId /*String*/, propertyName /*String*/, subclass /*String|undefined*/) {
+	if (["features", "AbilitySaveAlt", "attacks"].includes(propertyName)) {
+		return CurrentClasses[classId][propertyName];
+	}
+	if (subclass === undefined) {
+		subclass = wasm_character.get_subclass(classId);
+	}
+	if (subclass && ClassSubList[subclass] && ClassSubList[subclass][propertyName] && !(/^(name|prereqs|primaryAbility)$/i).test(propertyName)) {
+		return ClassSubList[subclass][propertyName];
+	}
+	if (ClassList[classId] && ClassList[classId][propertyName] && !(/^subname$/i).test(propertyName)) {
+		return ClassList[classId][propertyName]
+	}
+	if (propertyName == "fullname") {
+		let name = adapter_helper_get_class_property(classId, "name");
+		let subname = adapter_helper_get_class_property(classId, "subname");
+		return name + (subname ? " (" + subname + ")" : "");
+	}
+	return null;
+}
+
+
+function adapter_helper_get_source_string_from_list(sources /*[(String, Number)]*/) /*String*/ {
+	// get last in list
+	let source_abbr_short = sources[sources.length-1][0];
+	let source_page = sources[sources.length-1][1];
+	let source_abbr = source_abbr_short;
+	for (source in SourceList) {
+		if (SourceList[source].abbreviationSpellsheet == source_abbr_short)  {
+			source_abbr = SourceList[source].abbreviation;
+			break;
+		}
+	}
+	if (source_page > 0) {
+		return source_abbr + "(p." + source_page + ")";
+	}
+	return source_abbr;
+}
+function adapter_helper_get_all_class_ids() /*[String]*/ {
+	let class_ids = []
+	for (let class_ in ClassList) {
+		class_ids.push(class_);
+	}
+	return class_ids;
+
+}
+function adapter_helper_get_class(class_id /*String*/) /*[String]*/ {
+	let class_name = ClassList[class_id].name;
+	let source = adapter_helper_get_source_string_from_list(ClassList[class_id].source);
+	return [class_name, source]
+}
+function adapter_helper_get_all_subclasses(class_id /*String*/) /*[String]*/ {
+	let subclasses = []
+	for (let subclass in ClassSubList) {
+		if (subclass.startsWith(class_id + "-")) {
+			subclasses.push(subclass);
+		}
+	}
+	return subclasses
+}
+function adapter_helper_get_subclass(class_id /*String*/, subclass_id /*String*/) /*[String]*/ {
+	let name = ClassSubList[subclass_id].subname;
+	let full_name = ClassSubList[subclass_id].fullname;
+	if (!full_name) {
+		full_name = ClassList[class_id].name + " (" + name + ")";
+	}
+	let source = adapter_helper_get_source_string_from_list(ClassSubList[subclass_id].source);
+	return [name, full_name, source]
+}
+function adapter_helper_get_available_subclasses_for_class(class_id /*String*/, class_level /*Number*/) /*[String]*/ {
+	let attainable_subclasses = [];
+	let tempClObj = ClassList[class_id];
+	for (let subclass_id of adapter_helper_get_all_subclasses(class_id)) {
+		let enoughLevel = false;
+		for (let propKey in tempClObj.features) {
+			let tempProp = tempClObj.features[propKey];
+			if (propKey.indexOf("subclassfeature") == -1 || !tempProp.minlevel || tempProp.minlevel > class_level) continue;
+			enoughLevel = true;
+			break;
+		}
+		if (enoughLevel) {
+			attainable_subclasses.push(subclass_id);
+		}
+	}
+	return attainable_subclasses;
+}
+function adapter_helper_get_subclass_type_name(class_id /*String*/) /*String*/ {
+	return ClassList[class_id].subclasses[0];
+}
+function adapter_helper_get_subclass_names(subclass_ids /*[String]*/) /*[String]*/ {
+	let subclassNames = [];
+	for (let subclass_id of subclass_ids) {
+		if (!ClassSubList[subclass_id]) {
+			console.error("The subclass '" + subclass_id + "' doesn't exist in the ClassSubList. It has been ignored for now, but it might cause errors with other things in the sheet. So please make sure to remedy this before proceeding!");
+			return [];
+		};
+		subclassNames.push(ClassSubList[subclass_id].subname);
+	}
+	return subclassNames;
+}
+
+function adapter_helper_get_backgrounds() /*[String]*/ {
+	let background_ids = []
+	_get_backgrounds().forEach((bg) => {background_ids.push(bg[0])});
+	return background_ids;
+}
+function adapter_helper_get_background_names() /*[String]*/ {
+	let background_names = []
+	_get_backgrounds().forEach((bg) => {background_names.push(bg[1])});
+	return background_names;
+}
+function _get_backgrounds() /*[[String], [String]]*/ {
+	var ArrayDing = [];
+	for (var key in BackgroundList) {
+		if (testSource(key, BackgroundList[key], "backgrExcl")) continue;
+		var backNm = BackgroundList[key].name;
+		if (ArrayDing.indexOf([key, backNm]) === -1) ArrayDing.push([key, backNm]);
+		var varArr = BackgroundList[key].variant ? BackgroundList[key].variant : [];
+		for (var i = 0; i < varArr.length; i++) {
+			var varKey = varArr[i];
+			if (testSource(varKey, BackgroundSubList[varKey], "backgrExcl")) continue;
+			backNm = BackgroundSubList[varKey].name;
+			if (ArrayDing.indexOf([varKey, backNm]) === -1) ArrayDing.push([varKey, backNm]);
+		}
+	};
+	ArrayDing.sort((a, b) => {
+		if (a[1] < b[1]) {
+			return -1;
+		}
+		if (b[1] < a[1]) {
+			return 1;
+		}
+		return 0;
+	});
+	return ArrayDing;
+}
+function adapter_helper_get_background_property(property_name /*String*/, background_id /*String|undefined*/) /*Any*/ {
+	if (!background_id) {
+		background_id = wasm_character.get_background_id();
+	}
+	if (!background_id) {
+		return undefined;
+	}
+
+	if (BackgroundSubList[background_id]) {
+		if (BackgroundSubList[background_id][property_name]) {
+			return BackgroundSubList[background_id][property_name];
+		}
+		let base_background_id = background_id.split("-")[0];
+		return BackgroundList[base_background_id] ? BackgroundList[base_background_id][property_name] : undefined;
+	}
+	else if (BackgroundList[background_id]) {
+		return BackgroundList[background_id][property_name];
+	}
+	console.error("background", background_id, "not found in BackgroundList or BackgroundSubList");
+	return undefined;
+}
+function adapter_helper_parse_background_from_name(background_name /*String*/) /*String*/ {
+	input = removeDiacritics(background_name);
+	if (!input) return null;
+
+	let foundLen = 0;
+	let foundDat = 0;
+	let resultID = null;
+	for (let backgroundID in BackgroundList) {
+		let baseBackground = BackgroundList[backgroundID];
+
+		// first we look for background variants
+		let matchedThisSub = false;
+		if (baseBackground.variant) {
+			for (let i = 0; i < baseBackground.variant.length; i++) { // scan string for all variants of the background
+				let backgroundVariant = BackgroundSubList[baseBackground.variant[i]];
+				if (!backgroundVariant) {
+					console.error("The variant '" + baseBackground.variant[i] + "' for the background '" + baseBackground.name + "' is missing from the BackgroundSubList object. The variant will be ignored for now.");
+					continue;
+				}
+
+				if (!(backgroundVariant.regExpSearch).test(input)) continue;
+
+				// only go on with this entry if:
+				// we are using the search length (default) and this entry has a longer name or this entry has an equal length name but has a newer source
+				// or if we are not using the search length, just look at the newest source date
+				let tempDate = sourceDate(backgroundVariant.source);
+				if ((!ignoreSearchLength && backgroundVariant.name.length < foundLen) || (!ignoreSearchLength && backgroundVariant.name.length == foundLen && tempDate < foundDat) || (ignoreSearchLength && tempDate <= foundDat)) continue;
+
+				// we have a match, set the values
+				resultID = baseBackground.variant[i];
+				foundLen = backgroundVariant.name.length;
+				foundDat = tempDate;
+				matchedThisSub = true;
+				break;
+			}
+		}
+
+		// continue with the background object, maybe it is a (better) match
+		if (!(baseBackground.regExpSearch).test(input)) continue;
+
+		// only go on with this entry if:
+		// we are using the search length (default) and this entry has a longer name or this entry has an equal length name but has a newer source
+		// or if we are not using the search length, just look at the newest source date
+		var tempDate = sourceDate(baseBackground.source);
+		if ((!ignoreSearchLength && baseBackground.name.length < foundLen) || (!ignoreSearchLength && baseBackground.name.length == foundLen && tempDate < foundDat) || (ignoreSearchLength && tempDate <= foundDat)) continue;
+
+		// we have a match, set the values
+		resultID = matchedThisSub ? resultID : backgroundID;
+		foundLen = matchedThisSub ? foundLen : baseBackground.name.length;
+		foundDat = matchedThisSub ? foundLen : tempDate;
+	}
+	return resultID;
+}
+function adapter_helper_get_background_option_title(backgroundID /*String*/) /*String*/ {
+	if (!backgroundID) return null;
+	let background_extras = adapter_helper_get_background_property("extra", backgroundID);
+	if (!background_extras) return null;
+	return background_extras[0];
+}
+function adapter_helper_get_background_options(backgroundID /*String*/) /*[String]*/ {
+	if (!backgroundID) return null;
+	let background_extras = adapter_helper_get_background_property("extra", backgroundID);
+	if (!background_extras) return null;
+	return background_extras.slice(1);
+}
+
+function adapter_helper_get_races() /*[String]*/ {
+	return _get_races().map((race) => {return race[0]});
+}
+function adapter_helper_get_race_names() /*[String]*/ {
+	return _get_races().map((race) => {return race[1]});
+}
+function _get_races() /*[[String], [String]]*/ {
+	let result = [];
+	for (let raceId in RaceList) {
+		let raceName = RaceList[raceId].sortname ? RaceList[raceId].sortname : RaceList[raceId].name.capitalize();
+		result.push([raceId, raceName]);
+	};
+	result.sort((a, b) => {
+		if (a[1] < b[1]) {
+			return -1;
+		}
+		if (b[1] < a[1]) {
+			return 1;
+		}
+		return 0;
+	});
+	return result;
+}
+
+function adapter_helper_get_race_variants(raceId /*String*/) /*[String]*/ {
+	return _get_race_variants(raceId).map((race) => {return race[0]});
+}
+function adapter_helper_get_race_variant_names(raceId /*String*/) /*[String]*/ {
+	return _get_race_variants(raceId).map((race) => {return race[1]});
+}
+function _get_race_variants(raceId /*String*/) /*[[String], [String]]*/ {
+	let result = [];
+	if (RaceList[raceId].variants) {
+		let raceName = RaceList[raceId].sortname ? RaceList[raceId].sortname : RaceList[raceId].name.capitalize();
+		for (let subRace of RaceList[raceId].variants) {
+			let subRaceId = raceId + "-" + subRace;
+			let subRaceName = RaceSubList[subRaceId] && RaceSubList[subRaceId].name ? RaceSubList[subRaceId].name : raceName + " (" + subRace + ")";
+			result.push([subRaceId, subRaceName])
+		}
+	}
+	result.sort((a, b) => {
+		if (a[1] < b[1]) {
+			return -1;
+		}
+		if (b[1] < a[1]) {
+			return 1;
+		}
+		return 0;
+	});
+	return result;
+}
+function adapter_helper_race_needs_previous_race(race_id /*String|undefined*/) /*Boolean*/ {
+	return race_id && RaceList[race_id] && RaceList[race_id].useFromPreviousRace ? true : false;
+}
+function adapter_helper_get_race_property(property_name /*String*/, race_id /*String|undefined*/) /*Any*/ {
+	if (!race_id) {
+		race_id = wasm_character.get_race_id();
+	}
+	if (!race_id) {
+		return undefined;
+	}
+
+	if (property_name == "level") {
+		return wasm_character.get_level() ? wasm_character.get_level() : 1;
+	}
+
+	let baseRace, subRace;
+	if (RaceList[race_id]) {
+		baseRace = RaceList[race_id];
+		subRace = null;
+	} else if (RaceSubList[race_id]) {
+		let baseID = race_id.split("-")[0];
+		baseRace = RaceList[baseID];
+		subRace = RaceSubList[race_id];
+	} else {
+		console.error("Could not find race", race_id);
+		return undefined;
+	}
+
+	if (property_name == "abilitySave") {
+		let abilitySave = subRace && subRace.abilitySave ? subRace.abilitySave : baseRace ? baseRace.abilitySave : undefined;
+		// if the abilitySave is an array, have the user select which one to use and remember that
+		if (abilitySave && (isArray(abilitySave) || isNaN(abilitySave))) {
+			abilitySave = CurrentVars.raceAbilitySave;
+		}
+		return abilitySave;
+	}
+
+	// useFromPreviousRace (e.g. Dhampir, look at previous race for features and specified other properties)
+	let useFromPreviousRace = subRace && subRace.useFromPreviousRace ? subRace.useFromPreviousRace : baseRace ? baseRace.useFromPreviousRace : undefined;
+
+	if (property_name == "features") {
+		let features = {};
+		if (baseRace && baseRace.features) {
+			for (let feature in baseRace.features) {
+				features[feature] = baseRace.features[feature];
+			}
+		}
+		if (subRace && subRace.features) {
+			for (let feature in subRace.features) {
+				features[feature] = subRace.features[feature];
+				if (!features[feature]) {
+					delete features[feature]; // deliberate override
+				}
+			}
+		}
+		if (useFromPreviousRace) {
+			let previous_race = wasm_character.get_race_previous();
+			if (previous_race) {
+				let previous_race_features = adapter_helper_get_race_property("features", previous_race);
+				if (previous_race_features) {
+					for (let feature in previous_race_features) {
+						features[feature] = previous_race_features[feature];
+					}
+				}
+			}
+		}
+		return features;
+	}
+
+	// get property itself
+	let property = subRace && subRace[property_name] ? subRace[property_name] : baseRace ? baseRace[property_name] : undefined;
+
+	// if there's a previous race (e.g. for Dhampir), merge selected properties from base race
+	if (useFromPreviousRace) {
+		if (property_name == "source") {
+			let previous_race = wasm_character.get_race_previous();
+			if (previous_race) {
+				property.source = property.source.concat(adapter_helper_get_race_property("source", previous_race))
+			}
+		} else if (useFromPreviousRace.gainTraits.map((trait) => {return trait.split(".")[0] == property_name}).includes(true)) {
+			let previous_race = wasm_character.get_race_previous();
+			if (previous_race) {
+				if (!["name", "plural", "useFromPreviousRace"].includes(property_name)) {
+					let previous_race_property = adapter_helper_get_race_property(property_name, previous_race);
+					for (let property_path of useFromPreviousRace.gainTraits) {
+						let property_path_tokens = property_path.split(".");
+						if (property_path_tokens[0] == property_name) {
+							property = _merge_race_property_from_base(property_path_tokens.slice(1), previous_race_property, property);
+						}
+					}
+					if (["name", "plural"].includes(property_name) && useFromPreviousRace.updateName) {
+						switch (useFromPreviousRace.updateName) {
+							case "prefix":
+								property = previous_race_property + " " + property;
+							case "suffix":
+								property = property + " " + previous_race_property;
+						}
+					}
+				}
+			} else if (property_name in useFromPreviousRace.defaultTraits) {
+				property = useFromPreviousRace.defaultTraits[property_name];
+			}
+		}
+	}
+	return property;
+}
+function _merge_race_property_from_base(path_tokens, base, target) {
+	let result = null;
+	if (path_tokens.length == 0) {
+		if (base) {
+			result = base;
+			if (target && isArray(target)) {
+				if (isArray(base)) {
+					result = target.concat(base);
+				} else {
+					result = target.concat([base]);
+				}
+			}
+		} else if (target) {
+			result = target;
+		}
+	} else {
+		if (base) {
+			let merged_property = _merge_race_property_from_base(path_tokens.slice(1), base[path_tokens[0]], target ? target[path_tokens[0]] : null);
+			if (target) {
+				result = target;
+				if (merged_property != null) {
+					result[path_tokens[0]] = merged_property;
+				}
+			} else {
+				if (merged_property != null) {
+					result = {};
+					result[path_tokens[0]] = merged_property;
+				}
+			}
+		} else if (target) {
+			result = target;
+		}
+	}
+	return result;
+}
+function adapter_helper_parse_race(input /*String*/) /*String|null*/ {
+	if (!input) return null;
+
+	input = input.replace(/[^\u0000-\u007E]/g, function (a) {
+		return diacriticsMap[a] || a;
+	});
+	var foundLen = 0;
+	var foundDat = 0;
+
+	var resultArray = ["", ""];
+	for (var key in RaceList) {
+		var kObj = RaceList[key];
+
+		if (!kObj.regExpSearch.test(input) // see if race regex matches
+			|| testSource(key, kObj, "racesExcl") // test if the race or its source isn't excluded
+		) continue;
+
+		// only go on with this entry if:
+		// we are using the search length (default) and this entry has a longer name or this entry has an equal length name but has a newer source
+		// or if we are not using the search length, just look at the newest source date
+		var tempDate = sourceDate(kObj.source);
+		if ((!ignoreSearchLength && kObj.name.length < foundLen) || (!ignoreSearchLength && kObj.name.length == foundLen && tempDate < foundDat) || (ignoreSearchLength && tempDate <= foundDat)) continue;
+
+		// we have a match, set the values
+		resultArray = [key, ""];
+		foundLen = kObj.name.length;
+		foundDat = tempDate;
+
+		// now see if we need to look for racial variants
+		if (kObj.variants) {
+			var foundLen2 = 0;
+			var foundDat2 = 0;
+			for (var i = 0; i < kObj.variants.length; i++) { // scan string for all variants of the race
+				var theR = key + "-" + kObj.variants[i];
+				var rVars = RaceSubList[theR];
+				if (!rVars) {
+					console.println("The racial variant '" + kObj.variants[i] + "' for the '" + kObj.name + "' race missing from the RaceSubList object. Please contact its author to have this issue corrected. The variant will be ignored for now.");
+					console.show();
+					// Remove this array entry, but make sure we don't skip an entry
+					kObj.variants.splice(i, 1);
+					i--;
+					continue;
+				}
+				var theRname = rVars.name ? rVars.name : kObj.variants[i];
+
+				// test if the racial variant or its source isn't excluded
+				if (testSource(theR, rVars, "racesExcl")) continue;
+
+				// see if racial variant regex matches
+				if (!(rVars.regExpSearch).test(input)) continue;
+
+				// only go on with this entry if:
+				// we are using the search length (default) and this entry has a longer name or this entry has an equal length name but has a newer source
+				// or if we are not using the search length, just look at the newest source date
+				var tempDate = sourceDate(rVars.source);
+				if ((!ignoreSearchLength && theRname.length < foundLen2) || (!ignoreSearchLength && theRname.length == foundLen2 && tempDate < foundDat) || (ignoreSearchLength && tempDate <= foundDat)) continue;
+
+				// we have a match, set the values
+				resultArray[1] = kObj.variants[i];
+				foundLen2 = theRname.length;
+				foundDat2 = tempDate;
+			}
+		}
+	}
+	if (!resultArray[0]) return null;
+	return resultArray[0] + (resultArray[1] ? "-" + resultArray[1] : "");
+};

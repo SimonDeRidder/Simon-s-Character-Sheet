@@ -129,33 +129,31 @@ KCCCglobal = {
 		},
 		currentChoices : function(sAltClass) {
 			var sClass = sAltClass ? sAltClass : "inventor";
-			if (!CurrentClasses[sClass]) return [];
+			if (!wasm_character.has_class(sClass)) return [];
 			// Get a list of all the choices for this class
 			var aChoices = [], sChoice;
-			if (CurrentClasses[sClass]) {
-				// loop through the class' features
-				for (var sFea in CurrentClasses[sClass].features) {
-					// add the choice, if any
-					sChoice = GetFeatureChoice("class", sClass, sFea);
-					if (sChoice) aChoices.push(sChoice);
-					// add the extrachoices, if any
-					aChoices = aChoices.concat(GetFeatureChoice("class", sClass, sFea, true));
-				}
+			// loop through the class' features
+			for (var sFea in adapter_helper_get_class_property(sClass, "features")) {
+				// add the choice, if any
+				sChoice = GetFeatureChoice("class", sClass, sFea);
+				if (sChoice) aChoices.push(sChoice);
+				// add the extrachoices, if any
+				aChoices = aChoices.concat(GetFeatureChoice("class", sClass, sFea, true));
 			}
 			return aChoices;
 		},
 		set_upgradeSubmenus : function() {
 			// Set the submenu items of all their subclass choices
 			// to reflect the amount of allowed and currently picked choices
-			if (!classes.known.inventor.subclass) return;
+			if (!wasm_character.get_subclass('inventor')) return;
 			var iLvl;
-			var objSubFea3 = CurrentClasses.inventor.features.subclassfeature3;
-			var strSubclass = classes.known.inventor.subclass.replace("inventor-", "");
-			var aKnownNo = KCCCglobal.fn.get_aKnownNo(classes.known.inventor.subclass);
+			var objSubFea3 = adapter_helper_get_class_property("inventor", "features").subclassfeature3;
+			var strSubclass = wasm_character.get_subclass('inventor').replace("inventor-", "");
+			var aKnownNo = KCCCglobal.fn.get_aKnownNo(wasm_character.get_subclass('inventor'));
 			// First count the number of currently selected upgrades for subclassfeature3
 			var aSelected = GetFeatureChoice("class", "inventor", "subclassfeature3", true);
 			var objSelected = { "0" : 0, "5" : 0, "9" : 0, "11" : 0, "15" : 0 };
-			var objAllowed = KCCCglobal.fn.additional_noAtLevel(aKnownNo, classes.known.inventor.level);
+			var objAllowed = KCCCglobal.fn.additional_noAtLevel(aKnownNo, wasm_character.get_class_level('inventor'));
 			// count the number selected
 			for (var i = 0; i < aSelected.length; i++) {
 				var sUpgr = aSelected[i];
@@ -205,7 +203,7 @@ KCCCglobal = {
 			}
 		},
 		prereqeval : function(v) {
-			if (!CurrentClasses.inventor) return false;
+			if (!wasm_character.has_class("inventor")) return false;
 			var sUpgr = v.choice; // the name of the current choice
 			// See if this choice isn't already selected in some way for another feature,
 			// because then we need to mark it and disable it for this selection
@@ -213,14 +211,15 @@ KCCCglobal = {
 			KCCCglobal.fn.set_aKnown();
 			if (KCCCglobal.aKnown.indexOf(sUpgr) !== -1) return "markButDisable";
 			// Find the object for the current choice in a subclassfeature (not in cross-disciplinary knowledge)
-			for (var sFea in CurrentClasses.inventor.features) {
-				var objUpgr = CurrentClasses.inventor.features[sFea][sUpgr];
+			let inventorFeatures = adapter_helper_get_class_property("inventor", "features");
+			for (var sFea in inventorFeatures) {
+				var objUpgr = inventorFeatures[sFea][sUpgr];
 				if (objUpgr) break;
 			}
 			// stop here if the object for this upgrade is not found
 			if (!objUpgr) return false;
 			// if this choice has a minimum inventor level requirement, check it
-			if (objUpgr.KCCClevel && classes.known.inventor.level < objUpgr.KCCClevel) {
+			if (objUpgr.KCCClevel && wasm_character.get_class_level('inventor') < objUpgr.KCCClevel) {
 				return false;
 			}
 			// if this choice has some defined prerequisites, check those
@@ -277,7 +276,7 @@ KCCCglobal = {
 				if (number == 1) {
 					upgrade.prereqlevel = prereqlevel;
 					upgrade.prereqeval = function(v) {
-						if (classes.known.inventor.level < CurrentClasses.inventor.features.subclassfeature3[v.choice].prereqlevel) return false;
+						if (wasm_character.get_class_level('inventor') < adapter_helper_get_class_property("inventor", "features").subclassfeature3[v.choice].prereqlevel) return false;
 						return KCCCglobal.fn.prereqeval(v);
 					};
 				}
@@ -477,7 +476,7 @@ ClassList['inventor'] = {
 				source : [["KCCC", 23]],
 				submenu : "Infusionsmith's Infused Armament",
 				prereqeval : function() {
-					return classes.known.inventor.subclass.indexOf("infusionsmith") !== -1 ? "skip" : true;
+					return wasm_character.get_subclass('inventor').indexOf("infusionsmith") !== -1 ? "skip" : true;
 				},
 				description : desc([
 					"When I finish a long rest, I can touch a melee weapon to make it an Animated Weapon",
@@ -490,7 +489,7 @@ ClassList['inventor'] = {
 				source : [["KCCC", 23]],
 				submenu : "Infusionsmith's Infused Armament",
 				prereqeval : function() {
-					return classes.known.inventor.subclass.indexOf("infusionsmith") !== -1 ? "skip" : true;
+					return wasm_character.get_subclass('inventor').indexOf("infusionsmith") !== -1 ? "skip" : true;
 				},
 				description : desc([
 					"When I finish a long rest, I can touch a non-magical object to turn it into a Blasting Rod",
@@ -503,7 +502,7 @@ ClassList['inventor'] = {
 				source : [["KCCC", 23]],
 				submenu : "Infusionsmith's Infused Armament",
 				prereqeval : function() {
-					return classes.known.inventor.subclass.indexOf("infusionsmith") !== -1 ? "skip" : true;
+					return wasm_character.get_subclass('inventor').indexOf("infusionsmith") !== -1 ? "skip" : true;
 				},
 				description : desc([
 					"Whenever I finish a long rest, I can touch a weapon to turn it into an Infused Weapon",
@@ -516,7 +515,7 @@ ClassList['inventor'] = {
 				source : [["KCCC", 32]],
 				submenu : "Thundersmith's Stormforged Weapon",
 				prereqeval : function() {
-					return classes.known.inventor.subclass.indexOf("thundersmith") !== -1 ? "skip" : true;
+					return wasm_character.get_subclass('inventor').indexOf("thundersmith") !== -1 ? "skip" : true;
 				},
 				description : desc([
 					"I can create special magic weapons in 3 days for 200 gp, see magic item",
@@ -1706,7 +1705,7 @@ AddSubClass("inventor", "infusionsmith", {
 					},
 					refType : "class", // MPMB: if this is set to something else, the level will always be set automatically to the total character level. Setting this to class makes it possible to control it with the changeeval
 					factor : [2, "default"],
-					level : classes.known.inventor.level,
+					level : wasm_character.get_class_level('inventor'),
 					typeList : 2
 				};
 				// re-order the CurrentSpells object so that the Spell Manual dialog is shown before that for the Inventor
@@ -1736,7 +1735,7 @@ AddSubClass("inventor", "infusionsmith", {
 			},
 			changeeval : function() {
 				// update the Spell Manual level whenever the Inventor level changes
-				if (classes.known.inventor && CurrentSpells['inventor-spell manual']) CurrentSpells['inventor-spell manual'].level = classes.known.inventor.level;
+				if (wasm_character.has_class('inventor') && CurrentSpells['inventor-spell manual']) CurrentSpells['inventor-spell manual'].level = wasm_character.get_class_level('inventor');
 			},
 			calcChanges : {
 				spellList : [
@@ -2216,7 +2215,7 @@ MagicItemsList["animated weapon"] = {
 	type : "weapon (any melee)",
 	prerequisite : "Being an Infusionsmith or an Inventor with Animated Weapon as a Cross-Disciplinary Knowledge",
 	prereqeval : function(v) {
-		return classes.known.inventor && (classes.known.inventor.subclass.indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("animated weapon") !== -1);
+		return wasm_character.has_class('inventor') && (wasm_character.get_subclass('inventor').indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("animated weapon") !== -1);
 	},
 	description : "I can use this melee weapon as normal, or I can ready it, causing it to float beside me. While readied, I can make melee spell attacks with it at a distance as part of my Attack action. All attacks during a turn must be against the same target. The distance is 30 ft, half for Heavy and double for Light weapons.",
 	descriptionFull : "You touch a melee weapon, causing it to spring to life. This Animated Weapon can be carried or stowed like a normal weapon, or you can ready it, causing it to float beside you. While an Animated Weapon is readied, you can make attacks with it as part of the Attack action, sending it out to strike a target. All attacks made with your Animated Weapon during a turn must be made against the same target."+
@@ -2262,7 +2261,7 @@ MagicItemsList["blasting rod"] = {
 	type : "wondrous item",
 	prerequisite : "Being an Infusionsmith or an Inventor with Blasting Rod as a Cross-Disciplinary Knowledge",
 	prereqeval : function(v) {
-		return classes.known.inventor && (classes.known.inventor.subclass.indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("blasting rod") !== -1);
+		return wasm_character.has_class('inventor') && (wasm_character.get_subclass('inventor').indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("blasting rod") !== -1);
 	},
 	description : "When I create the Blasting Rod I choose an Evocation cantrip from the wizard spell list that doesn't require concentration. As an action I can cast that cantrip. I add my Intelligence modifer to the damage I deal with this spell once per turn",
 	descriptionFull : "You touch a nonmagical object\u2014a wand-blank, stick, staff, or rod\u2014turning it into a Blasting Rod and infusing it with the ability to cast a cantrip. Select one evocation cantrip from the wizard spell list that doesn't require concentration. Thereafter, as an action, you can use the Blasting Rod to cast that cantrip."+
@@ -2323,7 +2322,7 @@ MagicItemsList["infused weapon"] = {
 	type : "weapon (any)",
 	prerequisite : "Being an Infusionsmith or an Inventor with Infused Weapon as a Cross-Disciplinary Knowledge",
 	prereqeval : function(v) {
-		return classes.known.inventor && (classes.known.inventor.subclass.indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("infused weapon") !== -1);
+		return wasm_character.has_class('inventor') && (wasm_character.get_subclass('inventor').indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("infused weapon") !== -1);
 	},
 	description : "I am proficient with this enchanted weapon, and nobody else. I can use Intelligence as the modifier for attack and damage rolls made with it, instead of Strength or Dexterity. If it uses a single damage die, that die is increased by one step (up to 1d12).",
 	descriptionFull : "You touch a weapon, enchanting it. While this weapon is enchanted, you (and only you) have proficiency with it. This Infused Weapon can be wielded like a normal weapon, but it gains the following special property:"+
@@ -2366,7 +2365,7 @@ MagicItemsList["animated archer weapon"] = {
 	type : "weapon (any ranged)",
 	prerequisite : "Being an Infusionsmith with the Animated Archer upgrade",
 	prereqeval : function(v) {
-		return classes.known.inventor && (classes.known.inventor.subclass.indexOf("infusionsmith") !== -1 && KCCCglobal.fn.currentChoices().indexOf("animated archer") !== -1);
+		return wasm_character.has_class('inventor') && (wasm_character.get_subclass('inventor').indexOf("infusionsmith") !== -1 && KCCCglobal.fn.currentChoices().indexOf("animated archer") !== -1);
 	},
 	description : "I can use this ranged weapon as normal, or I can ready it, causing it to float beside me. While readied, I can make ranged spell attacks as part of my Attack action. All attacks during a turn must be against the same target. The weapon requires ammunition, and can carry up to 30 ammunition at a time. I can reload it as an action.",
 	descriptionFull : "You touch a ranged weapon, causing it to spring to life. This Animated Weapon can be carried or stowed like a normal weapon, or you can ready it, causing it to float beside you. While an Animated Weapon is readied, you can make attacks with it as part of the Attack action, sending it out to strike a target. All attacks made with your Animated Weapon during a turn must be made against the same target."+
@@ -2407,7 +2406,7 @@ MagicItemsList["lesser ring of protection"] = {
 	source : [["KCCC", 25]],
 	type : "ring",
 	prereqeval : function(v) {
-		return classes.known.inventor && (classes.known.inventor.subclass.indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("lesser ring of protection") !== -1);
+		return wasm_character.has_class('inventor') && (wasm_character.get_subclass('inventor').indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("lesser ring of protection") !== -1);
 	},
 	description : "While wearing this ring, I gain a +1 bonus to AC",
 	descriptionFull : "Any creature wearing this rings gains a +1 bonus to AC",
@@ -2418,7 +2417,7 @@ MagicItemsList["ring of reaction"] = {
 	source : [["KCCC", 25]],
 	type : "ring",
 	prereqeval : function(v) {
-		return classes.known.inventor && (classes.known.inventor.subclass.indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("ring of reaction") !== -1);
+		return wasm_character.has_class('inventor') && (wasm_character.get_subclass('inventor').indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("ring of reaction") !== -1);
 	},
 	description : "While wearing this ring, I add the creator's Intelligence modifier to my Dexterity saving throws and initiative rolls.",
 	descriptionFull  : "Any creature wearing this ring can add your Intelligence modifier to its Dexterity saving throws and initiative rolls.",
@@ -2432,7 +2431,7 @@ MagicItemsList["invisibility cloak"] = {
 	source : [["KCCC", 25]],
 	type : "wondrous item",
 	prereqeval : function(v) {
-		return classes.known.inventor && (classes.known.inventor.subclass.indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("invisibility cloak") !== -1);
+		return wasm_character.has_class('inventor') && (wasm_character.get_subclass('inventor').indexOf("infusionsmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("invisibility cloak") !== -1);
 	},
 	description : "While wearing this cloak, once per short rest, I can cast Invisibility without expending a spell slot or material components. When cast this way it does not require concentration. It ends early if I am no longer wearing the cloak or if I choose to end it (no action required).",
 	descriptionFull : "While wearing this cloak, a creature can cast Invisibility on itself, without expending a spell slot or material components. When cast in this way, the spell doesn't require the caster's concentration. The spell ends if the caster is no longer wearing the cloak or if they choose to end the spell early (no action required). Once a creature uses the cloak to cast this spell, it can't be used in this way again until you finish a short or long rest.",
@@ -2611,7 +2610,7 @@ var KCCC_potionsmith = AddSubClass("inventor", "potionsmith", {
 					known : { spells : 'list', prepared : true },
 					refType : "class", // MPMB: if this is set to something else, the level will always be set automatically to the total character level. Setting this to class makes it possible to control it with the changeeval
 					factor : [2, "default"],
-					level : classes.known.inventor.level,
+					level : wasm_character.get_class_level('inventor'),
 					typeList : 2
 				};
 				// update the changes dialog
@@ -2625,7 +2624,7 @@ var KCCC_potionsmith = AddSubClass("inventor", "potionsmith", {
 			},
 			changeeval : function() {
 				// update the Alchemical Infusions level whenever the Inventor level changes
-				if (classes.known.inventor && CurrentSpells['inventor-alchemical infusions']) CurrentSpells['inventor-alchemical infusions'].level = classes.known.inventor.level;
+				if (wasm_character.has_class('inventor') && CurrentSpells['inventor-alchemical infusions']) CurrentSpells['inventor-alchemical infusions'].level = wasm_character.get_class_level('inventor');
 			},
 			calcChanges : {
 				spellAdd : [
@@ -3073,7 +3072,7 @@ KCCCglobal.upgrades.potionsmith = [
 		KCCClevel : 11,
 		name : "Mutation Mixture",
 		listname : "Mutation Mixture (prereq: level 13 inventor)",
-		prereqeval : function(v) { return classes.known.inventor.level >= 13 && KCCCglobal.fn.prereqeval(v); },
+		prereqeval : function(v) { return wasm_character.get_class_level('inventor') >= 13 && KCCCglobal.fn.prereqeval(v); },
 		source : [["KCCC", 31]],
 		description : desc([
 			"I add Polymorph to the list of my alchemical infusion spells",
@@ -3638,7 +3637,7 @@ MagicItemsList["stormforged weapon"] = {
 	allowDuplicates : true,
 	prerequisite : "Being a Thundersmith or an Inventor with Stormforged Weapon as a Cross-Disciplinary Knowledge",
 	prereqeval : function(v) {
-		return classes.known.inventor && (classes.known.inventor.subclass.indexOf("thundersmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("stormforged weapon") !== -1);
+		return wasm_character.has_class('inventor') && (wasm_character.get_subclass('inventor').indexOf("thundersmith") !== -1 || KCCCglobal.fn.currentChoices().indexOf("stormforged weapon") !== -1);
 	},
 	choices : ["Thunder Cannon", "Hand Cannon", "Kinetic Hammer", "Charged Blade", "Lightning Pike"],
 	"thunder cannon" : {
@@ -4383,8 +4382,8 @@ KCCCglobal.upgrades.warsmith = [
 	}],
 	calcChanges : {
 		hp : (function (totalHD, HDobj, prefix) {
-			if (classes.known.inventor) {
-				return [classes.known.inventor.level, "Mechanical Enhancement (Warsmith)"];
+			if (wasm_character.has_class('inventor')) {
+				return [wasm_character.get_class_level('inventor'), "Mechanical Enhancement (Warsmith)"];
 			}
 		}),
 		hpForceRecalc : true
@@ -4951,7 +4950,7 @@ MagicItemsList["warplate gauntlet"] = {
 	attunement : true,
 	action : [["action", "Artificial Strength"]],
 	prerequisite : "Being a Warsmith\nA warsmith's armor already includes a warplate gauntlet and you can't be attuned to both at the same time",
-	prereqeval : function(v) { return classes.known.inventor && classes.known.inventor.subclass.indexOf("warsmith") !== -1 && CurrentMagicItems.known.indexOf("warsmith's armor") === -1; },
+	prereqeval : function(v) { return wasm_character.has_class('inventor') && wasm_character.get_subclass('inventor').indexOf("warsmith") !== -1 && CurrentMagicItems.known.indexOf("warsmith's armor") === -1; },
 };
 MagicItemsList["warsmith's armor"] = {
 	name : "Warsmith's Armor",
@@ -4960,7 +4959,7 @@ MagicItemsList["warsmith's armor"] = {
 	description : "This armor adds 2 to my Str (up to 22), makes me count as one size greater for the weight I can carry, can be augmented by my warsmith upgrades, and includes a warplate gauntlet. As an action, I can use its artificial strength feature to lower my Int and increase my Str with an equal amount, up to my original Int.",
 	attunement : true,
 	prerequisite : "Being a Warsmith\nA warsmith's armor already includes a warplate gauntlet and you can't be attuned to both at the same time",
-	prereqeval : function(v) { return classes.known.inventor && classes.known.inventor.subclass.indexOf("warsmith") !== -1 && CurrentMagicItems.known.indexOf("warplate gauntlet") == -1; },
+	prereqeval : function(v) { return wasm_character.has_class('inventor') && wasm_character.get_subclass('inventor').indexOf("warsmith") !== -1 && CurrentMagicItems.known.indexOf("warplate gauntlet") == -1; },
 	action : [["action", "Artificial Strength"]],
 	scores : [2, 0, 0, 0, 0, 0],
 	scoresMaximum : [22, 0, 0, 0, 0, 0],
@@ -4981,8 +4980,8 @@ MagicItemsList["warsmith's armor"] = {
 			weight : 65,
 			isWarsmithArmour : true
 		}],
-		eval : function(n) { if (CurrentRace.size === 4 && tDoc.getField("Size Category").currentValueIndices === 4) PickDropdown("Size Category", 3); },
-		removeeval : function(n) { if (CurrentRace.size === 4 && tDoc.getField("Size Category").currentValueIndices === 3) PickDropdown("Size Category", 4); }
+		eval : function(n) { if (adapter_helper_get_race_property("size") === 4 && tDoc.getField("Size Category").currentValueIndices === 4) PickDropdown("Size Category", 3); },
+		removeeval : function(n) { if (adapter_helper_get_race_property("size") === 4 && tDoc.getField("Size Category").currentValueIndices === 3) PickDropdown("Size Category", 4); }
 	},
 	"warsuit (medium)" : {
 		name : "Warsmith's Warsuit",
@@ -5073,7 +5072,7 @@ var KCCC_fleshsmith = AddSubClass("inventor", "fleshsmith", {
 					'I gain the Fleshcrafted Mutation upgrade; Use the "Choose Feature" button'
 				]),
 				usages : levels.map(function (n) { return n + " bonus attacks per"; }),
-				usagescalc : "event.value = classes.known.inventor ? classes.known.inventor.level : 0",
+				usagescalc : "event.value = wasm_character.get_class_level('inventor')",
 				recovery : "long rest",
 				action : [["bonus action", " (Attack)"]],
 				eval : function() {
@@ -5093,7 +5092,7 @@ var KCCC_fleshsmith = AddSubClass("inventor", "fleshsmith", {
 					"I gain the Dissection upgrade and expertise with Wisdom (Medicine)"
 				]),
 				usages : levels.map(function (n) { return n + "d8 per "; }),
-				usagescalc : "event.value = classes.known.inventor ? classes.known.inventor.level + 'd8' : 0",
+				usagescalc : "event.value = wasm_character.has_class('inventor') ? wasm_character.get_class_level('inventor') + 'd8' : 0",
 				recovery : "long rest",
 				skills : [["Medicine", "full"]],
 				eval : function() {
@@ -5131,7 +5130,7 @@ var KCCC_fleshsmith = AddSubClass("inventor", "fleshsmith", {
 					abilitytodamage : false
 				},
 				usages : levels.map(function (n) { return n + " bonus actions per"; }),
-				usagescalc : "event.value = classes.known.inventor ? classes.known.inventor.level : 0",
+				usagescalc : "event.value = wasm_character.get_class_level('inventor')",
 				recovery : "long rest",
 				action : [["action", "Command Critter"], ["bonus action", "Command Critter (expends a use)"]],
 				calcChanges : {
@@ -5167,7 +5166,7 @@ var KCCC_fleshsmith = AddSubClass("inventor", "fleshsmith", {
 					"I can only do this bonus action a limited number of times per long rest"
 				]),
 				usages : levels.map(function (n) { return n + " bonus actions per "; }),
-				usagescalc : "event.value = classes.known.inventor ? classes.known.inventor.level : 0",
+				usagescalc : "event.value = wasm_character.get_class_level('inventor')",
 				recovery : "long rest",
 				eval : function() {
 					if (GetFeatureChoice("classes", "inventor", "subclassfeature3", true).indexOf("flaying hook") !== -1) {
@@ -5786,14 +5785,14 @@ KCCCglobal.upgrades.fleshsmith = [
 			dex : -10
 		},
 		eval : function() { // Give a bonus to the Natural Armor if the inventor is level 5+
-			if (classes.known.inventor.level >= 5) {
+			if (wasm_character.get_class_level('inventor') >= 5) {
 				processAddArmour(true, "Natural Armor +1")
 			}
 		},
 		changeeval : function() {
-			if (classes.known.inventor.level >= 5 && What('AC Armor Description') == "Natural Armor") {
+			if (wasm_character.get_class_level('inventor') >= 5 && What('AC Armor Description') == "Natural Armor") {
 				processAddArmour(true, "Natural Armor +1")
-			} else if (classes.known.inventor.level < 5 && What('AC Armor Description') == "Natural Armor +1") {
+			} else if (wasm_character.get_class_level('inventor') < 5 && What('AC Armor Description') == "Natural Armor +1") {
 				Clear('AC Armor Description')
 				processAddArmour(true, "Natural Armor")
 			}
@@ -5819,7 +5818,7 @@ KCCCglobal.upgrades.fleshsmith = [
 		]),
 		calcChanges : {
 			hp : function (totalHD) {
-				if (classes.known.inventor) return [classes.known.inventor.level, 'Unnatural Health (inventor level)'];
+				if (wasm_character.has_class('inventor')) return [wasm_character.get_class_level('inventor'), 'Unnatural Health (inventor level)'];
 			}
 		}
 	}, {
@@ -6579,7 +6578,7 @@ KCCCglobal.upgrades.cursesmith = [
 		prereqKCCC : {
 			featuresNot : ["blood rites, 1st level", "blood rites, 2nd level", "blood rites, 3rd level", "blood rites, 5th level (prereq: level 17 inventor)"]
 		},
-		prereqeval : function(v) { return classes.known.inventor.level >= 13 && KCCCglobal.fn.prereqeval(v); },
+		prereqeval : function(v) { return wasm_character.get_class_level('inventor') >= 13 && KCCCglobal.fn.prereqeval(v); },
 		name : "Blood Rites, 4th level",
 		source : [["KCCC", 50]],
 		description : desc([
@@ -6600,7 +6599,7 @@ KCCCglobal.upgrades.cursesmith = [
 		prereqKCCC : {
 			featuresNot : ["blood rites, 1st level", "blood rites, 2nd level", "blood rites, 3rd level", "blood rites, 4th level (prereq: level 13 inventor)"]
 		},
-		prereqeval : function(v) { return classes.known.inventor.level >= 17 && KCCCglobal.fn.prereqeval(v); },
+		prereqeval : function(v) { return wasm_character.get_class_level('inventor') >= 17 && KCCCglobal.fn.prereqeval(v); },
 		name : "Blood Rites, 5th level",
 		source : [["KCCC", 50]],
 		description : desc([
@@ -7749,7 +7748,7 @@ SpellsList["aether lance"] = {
 	level : 3,
 	school : "Evoc",
 	time : "1 a",
-	range : "S:30" + (typePF ? "-" : "") + "ft line",
+	range : "S:30-ft line",
 	components : "V,S",
 	duration : "Instantaneous",
 	description : "30-ft long 5-ft wide all 8d4+1d4/SL Force dmg",
@@ -7850,7 +7849,7 @@ SpellsList["arctic breath"] = {
 	level : 1,
 	school : "Conj",
 	time : "1 a",
-	range : "S:30" + (typePF ? "-" : "") + "ft line",
+	range : "S:30-ft line",
 	components : "V,S",
 	duration : "Instantaneous",
 	save : "Dex",
@@ -7902,7 +7901,7 @@ SpellsList["beam of annihilation"] = {
 	level : 6,
 	school : "Evoc",
 	time : "1 c",
-	range : "S:60" + (typePF ? "-" : "") + "ft line",
+	range : "S:60-ft line",
 	components : "S",
 	duration : "Conc, 3 r",
 	save : "Dex",
@@ -8022,7 +8021,7 @@ SpellsList["crashing wave"] = {
 	level : 1,
 	school : "Conj",
 	time : "1 a",
-	range : "S:15" + (typePF ? "-" : "") + "ft cone",
+	range : "S:15-ft cone",
 	components : "V,S",
 	duration : "Instantaneous",
     save : "Str",
@@ -8109,7 +8108,7 @@ SpellsList["devouring darkness"] = {
 	level : 5,
 	school : "Necro",
 	time : "1 a",
-	range : "S:20" + (typePF ? "-" : "") + "ft rad",
+	range : "S:20-ft rad",
 	components : "V,S",
 	duration : "Instantaneous",
 	save : "Con",
@@ -8123,7 +8122,7 @@ SpellsList["dimension cutter"] = {
 	level : 4,
 	school : "Conj",
 	time : "1 a",
-	range : "S:15" + (typePF ? "-" : "") + "ft cone",
+	range : "S:15-ft cone",
 	components : "V,M\u2020",
 	compMaterial : "A melee weapon you are proficient with worth at least 1 cp",
 	duration : "Instantaneous",
@@ -8316,7 +8315,7 @@ SpellsList["fissure"] = {
 	level : 5,
 	school : "Trans",
 	time : "1 a",
-	range : "S:60" + (typePF ? "-" : "") + "ft line",
+	range : "S:60-ft line",
 	components : "V,S",
 	duration : "Instantaneous",
 	save : "Dex",
@@ -8330,7 +8329,7 @@ SpellsList["flash freeze"] = {
 	level : 3,
 	school : "Evoc",
 	time : "1 a",
-	range : "S:30" + (typePF ? "-" : "") + "ft cone",
+	range : "S:30-ft cone",
 	components : "V,S",
 	duration : "Instantaneous",
 	save : "Con",
@@ -8358,7 +8357,7 @@ SpellsList["flickering strikes"] = {
 	level : 5,
 	school : "Conj",
 	time : "1 a",
-	range : "S:30" + (typePF ? "-" : "") + "ft rad",
+	range : "S:30-ft rad",
 	components : "V,S,M\u0192",
 	compMaterial : "A melee weapon you are proficient with worth at least 1 sp",
 	duration : "Instantaneous",
@@ -8507,7 +8506,7 @@ SpellsList["hurricane slash"] = {
 	level : 2,
 	school : "Evoc",
 	time : "1 a",
-	range : "S:30" + (typePF ? "-" : "") + "ft line",
+	range : "S:30-ft line",
 	components : "V,S",
 	duration : "Instantaneous",
 	save : "Dex",
@@ -8711,7 +8710,7 @@ SpellsList["mind blast"] = {
 	level : 6,
 	school : "Psion",
 	time : "1 a",
-	range : "S:60" + (typePF ? "-" : "") + "ft cone",
+	range : "S:60-ft cone",
 	components : "S",
 	duration : "Instantaneous",
 	save : "Int",
@@ -8806,7 +8805,7 @@ SpellsList["poison puff"] = {
 	level : 4,
 	school : "Trans",
 	time : "1 a",
-	range : "S:30" + (typePF ? "-" : "") + "ft cone",
+	range : "S:30-ft cone",
 	components : "V,S",
 	duration : "1 rnd",
 	save : "Con",
@@ -8820,7 +8819,7 @@ SpellsList["pressure cutter"] = {
 	level : 5,
 	school : "Conj",
 	time : "1 a",
-	range : "S:60" + (typePF ? "-" : "") + "ft line",
+	range : "S:60-ft line",
 	components : "V,S",
 	duration : "Instantaneous",
 	save : "Dex",
@@ -8973,7 +8972,7 @@ SpellsList["sonic shriek"] = {
 	level : 5,
 	school : "Evoc",
 	time : "1 a",
-	range : "S:120" + (typePF ? "-" : "") + "ft cone",
+	range : "S:120-ft cone",
 	components : "V,S",
 	duration : "Instantaneous",
 	save : "Con",
@@ -9015,7 +9014,7 @@ SpellsList["star dust"] = {
 	level : 2,
 	school : "Evoc",
 	time : "1 a",
-	range : "S:30" + (typePF ? "-" : "") + "ft cone",
+	range : "S:30-ft cone",
 	components : "V,S",
 	duration : "Instantaneous",
 	description : "Creas in cone take 3d4 Force damage, next attack before your next turn has advantage",
@@ -9156,7 +9155,7 @@ SpellsList["thunder pulse"] = {
 	level : 3,
 	school : "Evoc",
 	time : "1 a",
-	range : "S:15" + (typePF ? "-" : "") + "ft cone",
+	range : "S:15-ft cone",
 	components : "V,S",
 	duration : "Conc, 1 min",
 	save : "Con",
@@ -9302,7 +9301,7 @@ SpellsList["vortex blast"] = {
 	level : 3,
 	school : "Evoc",
 	time : "1 a",
-	range : "S:30" + (typePF ? "-" : "") + "ft cone",
+	range : "S:30-ft cone",
 	components : "V,S",
 	duration : "Instantaneous",
 	save : "Str",
@@ -9330,7 +9329,7 @@ SpellsList["water cannon"] = {
 	level : 3,
 	school : "Evoc",
 	time : "1 a",
-	range : "S:30" + (typePF ? "-" : "") + "ft line",
+	range : "S:30-ft line",
 	components : "V,S",
 	duration : "Instantaneous",
 	save : "Str",

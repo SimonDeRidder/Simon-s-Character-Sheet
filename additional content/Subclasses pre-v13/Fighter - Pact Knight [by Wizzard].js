@@ -274,7 +274,7 @@ AddSubClass("fighter", "pact knight", {
 			minlevel : 18,
 			description : "\n   " + "Attacks with my pact weapon score a critical hit on a roll of both 19 and 20",
 			calcChanges : {
-				atkAdd : ["if (isMeleeWeapon && (/\\bpact\\b/i).test(inputText) && classes.known.fighter && classes.known.fighter.level > 17) {fields.Description += (fields.Description ? '; ' : '') + 'Crit on 19-20'; }; ", "My pact weapon attacks score a critical on a to hit roll of both 19 and 20."]
+				atkAdd : ["if (isMeleeWeapon && (/\\bpact\\b/i).test(inputText) && wasm_character.get_class_level('fighter') > 17) {fields.Description += (fields.Description ? '; ' : '') + 'Crit on 19-20'; }; ", "My pact weapon attacks score a critical on a to hit roll of both 19 and 20."]
 			}
 		},
 		"subclassfeature18.1" : {

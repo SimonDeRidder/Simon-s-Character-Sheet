@@ -96,8 +96,8 @@ RaceList["faerie dragon"] = {
 		tooltip : "Once per short rest, I can exhale a puff of euphoric gas at one creature within 5 ft of me. It must succeed on a Wisdom saving throw with a DC equal to 8 + my Constitution modifier + my proficiency bonus. A creature that fails its save cannot take reactions and must roll a d6 at the start of each of its turns to determine what it must do for that turn. On a roll of 1, the target moves in a random direction and takes no actions or bonus actions. On a 2-5, the target moves in a random direction. On a 6, the target behaves normally for the turn. This effect lasts for 1 minute or until it succeeds on a Wisdom saving throw at the end of its turn."
 	}],
 	trait : "Faerie Dragon "+
-		(typePF ? "(my creature type is dragon, not humanoid)" : "(+2 Dexterity, +1 Intelligence) [my creature type is dragon, not humanoid]")+
-		"\n \u2022 Flight: " + (typePF ? "I have a 30 ft fly speed, while not wearing medium or heavy armor. If I take damage during, I make a concentration save or fall." : "I have a flying speed of 30 ft, but can't wear medium or heavy armor while doing so. If I take damage while flying, I have to succeed on a concentration save or fall.")+
+		"(+2 Dexterity, +1 Intelligence) [my creature type is dragon, not humanoid]"+
+		"\n \u2022 Flight: I have a flying speed of 30 ft, but can't wear medium or heavy armor while doing so. If I take damage while flying, I have to succeed on a concentration save or fall."+
 		"\n \u2022 Faerie Dragon Magic: I know the Dancing Lights, Mage Hand, and Minor Illusion cantrips. Once per long rest, I can cast Invisibility on myself. Cha is my spellcasting ability for these."+
 		"\n \u2022 Minor Telepathy: I can speak telepathically to one within 30 ft, if we share a language."+
 		"\n \u2022 Euphoric Breath: Once per short rest, I can exhale euphoric gas at one target within 5 ft.",

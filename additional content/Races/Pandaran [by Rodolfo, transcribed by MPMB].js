@@ -38,7 +38,7 @@ RaceList["turtle spirit pandaren"] = {
 	height : " stand between 6 and 9 feet tall (male: 6'0\" + 3d12\"; female: 6'0\" + 2d12\")",
 	weight : " weigh between 200 and 500 lbs (male: 300 + 3d12 \xD7 2d100 lb; female: 200 + 2d12 \xD7 1d100 lb)",
 	scores : [0, 0, 2, 0, 2, 0],
-	trait : "Pandaren, Servant of the Turtle Spirit (+2 Constitution, +2 Wisdom)\nQuadruped: My speed is 40 ft if I walk on all fours (both hands empty). It costs 15 ft to stand up from this." + (typePF ? "\n" : " ") + "Favored Snack: I have adv. on attack & damage vs. plants.\nHerbivore: Whenever I eat meat, I have to make a DC 10 Con save or take 1d4 poison damage. Once per long rest, I can eat plants to heal 1d4 per level.\nBig Posture: When an ally within 15 ft succeeds on a Dex save that is DC 15 or higher to half the damage for a spell, it instead takes no damage of that spell.",
+	trait : "Pandaren, Servant of the Turtle Spirit (+2 Constitution, +2 Wisdom)\nQuadruped: My speed is 40 ft if I walk on all fours (both hands empty). It costs 15 ft to stand up from this.\nFavored Snack: I have adv. on attack & damage vs. plants.\nHerbivore: Whenever I eat meat, I have to make a DC 10 Con save or take 1d4 poison damage. Once per long rest, I can eat plants to heal 1d4 per level.\nBig Posture: When an ally within 15 ft succeeds on a Dex save that is DC 15 or higher to half the damage for a spell, it instead takes no damage of that spell.",
 	saves : ["Con"]
 };
 
@@ -59,9 +59,9 @@ RaceList["yeti spirit pandaren"] = {
 	age : " reach adulthood around 80 and live over 350 years",
 	height : " stand between 6 and 9 feet tall (male: 6'0\" + 3d12\"; female: 6'0\" + 2d12\")",
 	weight : " weigh between 200 and 500 lbs (male: 300 + 3d12 \xD7 2d100 lb; female: 200 + 2d12 \xD7 1d100 lb)",
-	improvements : "Pandaren, Servant of the Yeti Spirit: +2 Strength, +2 Constitution;",
+	scorestxt : "Pandaren, Servant of the Yeti Spirit: +2 Strength, +2 Constitution;",
 	scores : [2, 0, 2, 0, 0, 0],
-	trait : "Pandaren, Servant of the Yeti Spirit (+2 Strength, +2 Constitution)\nQuadruped: My speed is 40 ft if I walk on all fours (both hands empty). It costs 15 ft to stand up from this." + (typePF ? "\n" : " ") + "Favored Snack: I have adv. on attack & damage vs. plants.\nHerbivore: Whenever I eat meat, I have to make a DC 10 Con save or take 1d4 poison damage. Once per long rest, I can eat plants to heal 1d4 per level.\nBig Posture: When an ally within 15 ft succeeds on a Dex save that is DC 15 or higher to half the damage for a spell, it instead takes no damage of that spell.",
+	trait : "Pandaren, Servant of the Yeti Spirit (+2 Strength, +2 Constitution)\nQuadruped: My speed is 40 ft if I walk on all fours (both hands empty). It costs 15 ft to stand up from this.\nFavored Snack: I have adv. on attack & damage vs. plants.\nHerbivore: Whenever I eat meat, I have to make a DC 10 Con save or take 1d4 poison damage. Once per long rest, I can eat plants to heal 1d4 per level.\nBig Posture: When an ally within 15 ft succeeds on a Dex save that is DC 15 or higher to half the damage for a spell, it instead takes no damage of that spell.",
 	saves : ["Con"]
 };
 
@@ -83,7 +83,7 @@ RaceList["serpent spirit pandaren"] = {
 	height : " stand between 6 and 9 feet tall (male: 6'0\" + 3d12\"; female: 6'0\" + 2d12\")",
 	weight : " weigh between 200 and 500 lbs (male: 300 + 3d12 \xD7 2d100 lb; female: 200 + 2d12 \xD7 1d100 lb)",
 	scores : [0, 0, 2, 2, 0, 0],
-	trait : "Pandaren, Servant of the Serpent Spirit (+2 " + (typePF ? "Con, +2 Int" : "Constitution, +2 Intelligence") + ")\nQuadruped: My speed is 40 ft if I walk on all fours (both hands empty). It costs 15 ft to stand up from this." + (typePF ? "\n" : " ") + "Favored Snack: I have adv. on attack & damage vs. plants.\nHerbivore: Whenever I eat meat, I have to make a DC 10 Con save or take 1d4 poison damage. Once per long rest, I can eat plants to heal 1d4 per level.\nBig Posture: When an ally within 15 ft succeeds on a Dex save that is DC 15 or higher to half the damage for a spell, it instead takes no damage of that spell.",
+	trait : "Pandaren, Servant of the Serpent Spirit (+2 Constitution, +2 Intelligence)\nQuadruped: My speed is 40 ft if I walk on all fours (both hands empty). It costs 15 ft to stand up from this.\nFavored Snack: I have adv. on attack & damage vs. plants.\nHerbivore: Whenever I eat meat, I have to make a DC 10 Con save or take 1d4 poison damage. Once per long rest, I can eat plants to heal 1d4 per level.\nBig Posture: When an ally within 15 ft succeeds on a Dex save that is DC 15 or higher to half the damage for a spell, it instead takes no damage of that spell.",
 	saves : ["Con"]
 };
 
@@ -106,7 +106,7 @@ RaceList["jaguar spirit pandaren"] = {
 	height : " stand between 6 and 9 feet tall (male: 6'0\" + 3d12\"; female: 6'0\" + 2d12\")",
 	weight : " weigh between 200 and 500 lbs (male: 300 + 3d12 \xD7 2d100 lb; female: 200 + 2d12 \xD7 1d100 lb)",
 	scores : [0, 2, 2, 0, 0, 0],
-	trait : "Pandaren, Servant of the Jaguar Spirit (+2 " + (typePF ? "Dex, +2 Con" : "Dexterity, +2 Constitution") + ")\nQuadruped: My speed is 40 ft if I walk on all fours (both hands empty). It costs 15 ft to stand up from this." + (typePF ? "\n" : " ") + "Favored Snack: I have adv. on attack & damage vs. plants.\nHerbivore: Whenever I eat meat, I have to make a DC 10 Con save or take 1d4 poison damage. Once per long rest, I can eat plants to heal 1d4 per level.\nBig Posture: When an ally within 15 ft succeeds on a Dex save that is DC 15 or higher to half the damage for a spell, it instead takes no damage of that spell.",
+	trait : "Pandaren, Servant of the Jaguar Spirit (+2 Dexterity, +2 Constitution)\nQuadruped: My speed is 40 ft if I walk on all fours (both hands empty). It costs 15 ft to stand up from this.\nFavored Snack: I have adv. on attack & damage vs. plants.\nHerbivore: Whenever I eat meat, I have to make a DC 10 Con save or take 1d4 poison damage. Once per long rest, I can eat plants to heal 1d4 per level.\nBig Posture: When an ally within 15 ft succeeds on a Dex save that is DC 15 or higher to half the damage for a spell, it instead takes no damage of that spell.",
 	saves : ["Con"]
 };
 
@@ -129,6 +129,6 @@ RaceList["fox spirit pandaren"] = {
 	height : " stand between 6 and 9 feet tall (male: 6'0\" + 3d12\"; female: 6'0\" + 2d12\")",
 	weight : " weigh between 200 and 500 lbs (male: 300 + 3d12 \xD7 2d100 lb; female: 200 + 2d12 \xD7 1d100 lb)",
 	scores : [0, 0, 2, 0, 0, 2],
-	trait : "Pandaren, Servant of the Fox Spirit (+2 Constitution, +2 Charisma)\nQuadruped: My speed is 40 ft if I walk on all fours (both hands empty). It costs 15 ft to stand up from this." + (typePF ? "\n" : " ") + "Favored Snack: I have adv. on attack & damage vs. plants.\nHerbivore: Whenever I eat meat, I have to make a DC 10 Con save or take 1d4 poison damage. Once per long rest, I can eat plants to heal 1d4 per level.\nBig Posture: When an ally within 15 ft succeeds on a Dex save that is DC 15 or higher to half the damage for a spell, it instead takes no damage of that spell.",
+	trait : "Pandaren, Servant of the Fox Spirit (+2 Constitution, +2 Charisma)\nQuadruped: My speed is 40 ft if I walk on all fours (both hands empty). It costs 15 ft to stand up from this.\nFavored Snack: I have adv. on attack & damage vs. plants.\nHerbivore: Whenever I eat meat, I have to make a DC 10 Con save or take 1d4 poison damage. Once per long rest, I can eat plants to heal 1d4 per level.\nBig Posture: When an ally within 15 ft succeeds on a Dex save that is DC 15 or higher to half the damage for a spell, it instead takes no damage of that spell.",
 	saves : ["Con"]
 };

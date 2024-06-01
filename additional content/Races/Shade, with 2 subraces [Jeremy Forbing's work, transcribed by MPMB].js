@@ -47,7 +47,7 @@ RaceList["independent shade"] = {
 	height : " are the same height as a normal member of their previous race.",
 	weight : " are the same weight as a normal member of their previous race.",
 	scores : [0, 2, 0, 0, 0, 1],
-	trait : "Independent Shade (+2 Dexterity, +1 Charisma)\nFragile Mortality: After I regain HD after a long rest, I must first make a DC 15 Con save, or loose half my proficiency bonus in HD." + (typePF ? "\n" : " ") + "Hidden Step: Once per short rest, as a bonus action, I can teleport from and into dim light or darkness within 30 ft. After this, I turn invisible until the start of my next turn, or until I attack or force someone to save.\nTwilight Cantrip: Whenever I cast a cantrip as an action, I can take the Hide action as a bonus action." + (typePF ? "\n" : " ") + "Swift as Shadows: I learn the Shifting Shadow cantrip.",
+	trait : "Independent Shade (+2 Dexterity, +1 Charisma)\nFragile Mortality: After I regain HD after a long rest, I must first make a DC 15 Con save, or loose half my proficiency bonus in HD.\nHidden Step: Once per short rest, as a bonus action, I can teleport from and into dim light or darkness within 30 ft. After this, I turn invisible until the start of my next turn, or until I attack or force someone to save.\nTwilight Cantrip: Whenever I cast a cantrip as an action, I can take the Hide action as a bonus action.\nSwift as Shadows: I learn the Shifting Shadow cantrip.",
 	spellcastingAbility : 6,
 	spellcastingBonus : [{
 		name : "Swift as Shadows",
@@ -87,7 +87,7 @@ RaceList["netherese shade"] = {
 	height : " are the same height as a normal member of their previous race.",
 	weight : " are the same weight as a normal member of their previous race.",
 	scores : [0, 2, 0, 1, 0, 0],
-	trait : "Independent Shade (+2 Dexterity, +1 Charisma)" + (typePF ? "\n" : " ") + "Fragile Mortality: After I regain HD after a long rest, I must first make a DC 15 Con save, or loose half my proficiency bonus in HD." + (typePF ? "\n" : " ") + "Hidden Step: Once per short rest, as a bonus action, I can teleport from and into dim light or darkness within 30 ft. After, I'm invisible until my next turn starts, or until I attack or force someone to save." + (typePF ? "\n" : " ") + "Netherese Cantrip: I known one Evocation, Illusion, or Necromancy wizard cantrip. Int is my ability for it." + (typePF ? "\n" : " ") + "Shar's Bargain: Once per short rest, I can reduce a cantrip's casting time to a bonus action by taking my proficiency bonus in damage.",
+	trait : "Independent Shade (+2 Dexterity, +1 Charisma)\nFragile Mortality: After I regain HD after a long rest, I must first make a DC 15 Con save, or loose half my proficiency bonus in HD.\nHidden Step: Once per short rest, as a bonus action, I can teleport from and into dim light or darkness within 30 ft. After, I'm invisible until my next turn starts, or until I attack or force someone to save.\nNetherese Cantrip: I known one Evocation, Illusion, or Necromancy wizard cantrip. Int is my ability for it.\nShar's Bargain: Once per short rest, I can reduce a cantrip's casting time to a bonus action by taking my proficiency bonus in damage.",
 	spellcastingAbility : 4,
 	spellcastingBonus : [{
 		name : "Netherese Cantrip",

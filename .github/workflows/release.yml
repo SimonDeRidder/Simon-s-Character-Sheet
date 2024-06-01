@@ -10,14 +10,14 @@ jobs:
     name: Compile and build wasm
     runs-on: [self-hosted, linux, x64]
     container:
-      image: rust:1.85.0-alpine
+      image: rust:1.93.0-alpine
     steps:
       - uses: actions/checkout@v4
       - run: apk add musl-dev tar zip
       - run: rustup target add wasm32-unknown-unknown
-      - run: cargo install -f wasm-bindgen-cli --version 0.2.100
+      - run: cargo install -f wasm-bindgen-cli --version 0.2.108
       - run: cargo install -f wasm-pack
-      - run: wasm-pack build -m no-install --no-typescript -t web --dev -d wasm --out-name wasm --no-pack
+      - run: wasm-pack build -m no-install --no-typescript -t web -d wasm --out-name wasm --no-pack --release
       - run: rm -r src target Cargo.* *.sh rustfmt.toml
       - run: tar -czvf Simon-s-html-front-end-for-MPMBs-Character-Record-Sheet-${{github.ref_name}}.tar.gz *
       - run: zip -r Simon-s-html-front-end-for-MPMBs-Character-Record-Sheet-${{github.ref_name}}.zip * -x *.tar.gz

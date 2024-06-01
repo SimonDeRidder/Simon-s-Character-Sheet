@@ -154,10 +154,11 @@ if (SourceList["UA:A3"] && ClassList["artificer-ua3"]) {
 	// Add a function to see if the upgrade isn't already selected in another feature
 	ClassList["artificer-ua3"].chosenUpgrades = function() {
 		var aClass = "artificer-ua3";
-		if (!CurrentClasses[aClass]) return true;
+		if (!wasm_character.has_class(aClass)) return true;
 		var theRe = [];
-		for (var aFea in CurrentClasses[aClass].features) {
-			var feaObj = CurrentClasses[aClass].features[aFea];
+		let classFeatures = adapter_helper_get_class_property(aClass, "features");
+		for (var aFea in classFeatures) {
+			var feaObj = classFeatures[aFea];
 			if ((/^subclassfeature/).test(aFea) && feaObj.extrachoices && (/upgrade/i).test(feaObj.name)) {
 				theRe = theRe.concat(GetFeatureChoice("class", aClass, aFea, true));
 			}
@@ -178,7 +179,7 @@ if (SourceList["UA:A3"] && ClassList["artificer-ua3"]) {
 		listname : "Accelerated Movement, 2nd (prereq: Accelerated Movement)",
 		prereqeval : function () {
 			var upgKn = ClassList["artificer-ua3"].chosenUpgrades();
-			return classes.known["artificer-ua3"].level >= 3 && upgKn.indexOf("accelerated movement, 2nd (prereq: accelerated movement)") == -1 && upgKn.indexOf("accelerated movement") != -1;
+			return wasm_character.get_class_level('artificer-ua3') >= 3 && upgKn.indexOf("accelerated movement, 2nd (prereq: accelerated movement)") == -1 && upgKn.indexOf("accelerated movement") != -1;
 		},
 		name : "Accelerated Movement, 2nd",
 		source : ["KT:AA", 27],
@@ -252,8 +253,8 @@ if (SourceList["UA:A3"] && ClassList["artificer-ua3"]) {
 		calcChanges : {
 			atkCalc : [
 				function (fields, v, output) {
-					if (v.theWea.isWarsmithForceBlast && classes.known['artificer-ua3'] && classes.known['artificer-ua3'].level >= 5) {
-						var extraBonus = classes.known['artificer-ua3'].level < 14 ? 1 : 2;
+					if (v.theWea.isWarsmithForceBlast && wasm_character.get_class_level('artificer-ua3') >= 5) {
+						var extraBonus = wasm_character.get_class_level('artificer-ua3') < 14 ? 1 : 2;
 						output.extraDmg += extraBonus;
 						output.extraHit += extraBonus;
 					};
@@ -358,8 +359,8 @@ if (SourceList["UA:A3"] && ClassList["artificer-ua3"]) {
 		calcChanges : {
 			atkCalc : [
 				function (fields, v, output) {
-					if (v.theWea.isWarsmithPowerFist && classes.known['artificer-ua3'] && classes.known['artificer-ua3'].level >= 5) {
-						var extraBonus = classes.known['artificer-ua3'].level < 14 ? 1 : 2;
+					if (v.theWea.isWarsmithPowerFist && wasm_character.get_class_level('artificer-ua3') >= 5) {
+						var extraBonus = wasm_character.get_class_level('artificer-ua3') < 14 ? 1 : 2;
 						output.extraDmg += extraBonus;
 						output.extraHit += extraBonus;
 					};
@@ -532,8 +533,8 @@ if (SourceList["UA:A3"] && ClassList["artificer-ua3"]) {
 		description : "\n   +5 ft to all movement modes, +1 HP per artificer level, and +1 on Str, Dex, and Con saves",
 		calcChanges : {
 			hp : function (totalHD) {
-				if (classes.known["artificer-ua3"]) {
-					return [classes.known["artificer-ua3"].level, "Mechanical Enhancement (artificer level)"];
+				if (wasm_character.has_class('artificer-ua3')) {
+					return [wasm_character.get_class_level('artificer-ua3'), "Mechanical Enhancement (artificer level)"];
 				}
 			}
 		},
@@ -940,7 +941,7 @@ if (SourceList["UA:A3"] && ClassList["artificer-ua3"]) {
 		var upgLevel = aObj.listlevel ? aObj.listlevel : 1;
 		if (!aObj.prereqeval && upgLevel === 3) {
 			aObj.prereqeval = function () {
-				return classes.known["artificer-ua3"].level >= 3 && ClassList["artificer-ua3"].chosenUpgrades().indexOf(upgNameLC) == -1;
+				return wasm_character.get_class_level('artificer-ua3') >= 3 && ClassList["artificer-ua3"].chosenUpgrades().indexOf(upgNameLC) == -1;
 			}
 			upgLevel = 1; // so that it's still added to the first list of upgrades
 		} else if (!aObj.prereqeval && upgLevel < 15) {
@@ -1012,10 +1013,10 @@ if (SourceList["UA:A3"] && ClassList["artificer-ua3"]) {
 				isWarsmithArmour : true
 			}],
 			eval : function () {
-				if (CurrentRace.size < 4) MagicItemsList["warsmith's armor"]["warsuit (medium)"].carryingCapacity = 2;
+				if (adapter_helper_get_race_property("size") < 4) MagicItemsList["warsmith's armor"]["warsuit (medium)"].carryingCapacity = 2;
 			},
 			removeeval : function () {
-				if (CurrentRace.size < 4) MagicItemsList["warsmith's armor"]["warsuit (medium)"].carryingCapacity = 2;
+				if (adapter_helper_get_race_property("size") < 4) MagicItemsList["warsmith's armor"]["warsuit (medium)"].carryingCapacity = 2;
 			}
 		},
 		"integrated armor (medium)" : {

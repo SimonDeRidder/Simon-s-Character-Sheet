@@ -178,7 +178,7 @@ var createDragonCompanion = function (colour, origColour) {
 		name : colourUC + " Dragon Companion",
 		nameAlt : ["Dragon Companion, " + colourUC],
 		minlevelLinked : ["dragon knight"],
-		header : "Dragon comp" + (typePF ? "anion" : "."),
+		header : "Dragon companion",
 		source : [["RJ:DK", 11]],
 		size : 3,
 		type : "Dragon",
@@ -295,7 +295,7 @@ var createDragonCompanion = function (colour, origColour) {
 		}, {
 			name : "Draconic Advancement (Dragon Knight 9)",
 			minlevel : 9,
-			description : typePF ? "The dragon has advantage on all saves while it can see its bond." : "Adv. on saves while the dragon can see its bond.",
+			description : "The dragon has advantage on all saves while it can see its bond.",
 			eval : function(prefix, lvl) {
 				// upgrade size
 				PickDropdown(prefix + "Comp.Desc.Size", 2);
@@ -417,7 +417,7 @@ var createDragonCompanion = function (colour, origColour) {
 			aHPsets[3] = "fixed";
 			AddTooltip(sHPfld, undefined, aHPsets.join(","));
 			// Remove the attacks if adding this creature before dragon knight level 2
-			var dkLvl = classes.known['dragon knight'] ? classes.known['dragon knight'].level : classes.totallevel;
+			var dkLvl = wasm_character.has_class('dragon knight') ? wasm_character.get_class_level('dragon knight') : wasm_character.get_level();
 			if (dkLvl < 2) {
 				Value(prefix + "Comp.Use.Attack.1.Weapon Selection", crea.attacks[0].name);
 				Value(prefix + "Comp.Use.Attack.2.Weapon Selection", "");
@@ -443,10 +443,11 @@ var createDragonCompanion = function (colour, origColour) {
 			var objCreaFnd = CurrentCompRace[prefix];
 			var objCrea = CreatureList[objCreaFnd.known];
 			var iASIs = 0;
-			for (var aClass in classes.known) {
-				if (!CurrentClasses[aClass].improvements) continue;
-				var classLvL = Math.min(CurrentClasses[aClass].improvements.length, classes.known[aClass].level);
-				iASIs += 2 * CurrentClasses[aClass].improvements[classLvL - 1];
+			for (let aClass of wasm_character.list_classes()) {
+				let classImprovements = adapter_helper_get_class_property(aClass, "improvements");
+				if (!classImprovements) continue;
+				var classLvL = Math.min(classImprovements.length, wasm_character.get_class_level(aClass));
+				iASIs += 2 * classImprovements[classLvL - 1];
 			}
 			var sNote = What(prefix + "Cnote.Left");
 			var sNoteNew = sNote;
@@ -470,7 +471,7 @@ var createDragonCompanion = function (colour, origColour) {
 		nameAlt : ["Dragon continued, " + colourUC],
 		minlevelLinked : ["dragon knight"],
 		proficiencyBonusLinked : true,
-		header : "Dragon cont" + (typePF ? "inued" : "."),
+		header : "Dragon continued",
 		source : creature.source,
 		size : creature.size,
 		type : creature.type,
@@ -536,7 +537,7 @@ var createDragonCompanion = function (colour, origColour) {
 			global_DragonKnight.fn.linkToMain(true, prefix);
 			// Select weapons
 			var crea = CurrentCompRace[prefix];
-			var dkLvl = classes.known['dragon knight'] ? classes.known['dragon knight'].level : classes.totallevel;
+			var dkLvl = wasm_character.has_class('dragon knight') ? wasm_character.get_class_level('dragon knight') : wasm_character.get_level();
 			Value(prefix + "Comp.Use.Attack.1.Weapon Selection", crea.attacks[3].name);
 			Value(prefix + "Comp.Use.Attack.2.Weapon Selection", dkLvl < 6 ? "" : crea.attacks[4].name);
 			Value(prefix + "Comp.Use.Attack.3.Weapon Selection", dkLvl < 13 ? "" : crea.attacks[5].name);
@@ -558,7 +559,7 @@ global_DragonKnight = {
 		"falls it if it ends its turn in the air", // until dragon knight level 5
 		"can't be used as a mount, and can't fly while grappling a creature." // until dragon knight level 9
 	],
-	and : typePF ? "and" : "\u0026"
+	and : "and"
   },
   fn : {
 	linkToChar : function(bLink, prefix) {
@@ -627,12 +628,8 @@ global_DragonKnight = {
 			var skill = SkillsList.abbreviations[i];
 			if (skill === 'Init' || skill === 'Too') continue;
 			var skFldBase = 'Comp.Use.Skills.' + skill;
-			if (typePF) {
-				linkFld(skFldBase + '.Exp', false, 'Comp.Use.Skills.Acr.Mod');
-				linkFld(skFldBase, '.Prof', '.Exp');
-			} else {
-				linkFld('Text.' + skFldBase + '.Prof', false, 'Comp.Use.Skills.Acr.Mod');
-			}
+			linkFld(skFldBase + '.Exp', false, 'Comp.Use.Skills.Acr.Mod');
+			linkFld(skFldBase, '.Prof', '.Exp');
 			linkFld('BlueText.' + skFldBase + '.Bonus', false, skFldBase + '.Mod');
 		}
 		linkFld('BlueText.Comp.Use.Skills.All.Bonus', false, 'Comp.Use.Skills.Acr.Mod');
@@ -679,18 +676,18 @@ global_DragonKnight = {
 		if (!colour) colour = GetFeatureChoice('classes', 'dragon knight', 'dragon covenant');
 
 		// if not a passible option, exit
-		var oSubfeature = CurrentClasses['dragon knight'] ? CurrentClasses['dragon knight'].features['dragon covenant'][colour] : false;
+		var oSubfeature = wasm_character.has_class("dragon knight") ? adapter_helper_get_class_property("dragon knight", "features")['dragon covenant'][colour] : false;
 		if (!oSubfeature) return;
 
-		var dkLvl = classes.known['dragon knight'] ? classes.known['dragon knight'].level : 0;
+		var dkLvl = wasm_character.get_class_level('dragon knight');
 		// see if we should use a subclass instead
-		var oAltSubfeature = bIgnoreSubclass || !classes.known['dragon knight'].subclass ? false : CurrentClasses['dragon knight'].features['subclassfeature3_dragoncolor'];
+		var oAltSubfeature = bIgnoreSubclass || !wasm_character.get_subclass('dragon knight') ? false : adapter_helper_get_class_property("dragon knight", "features")['subclassfeature3_dragoncolor'];
 		var bUseAltFeature = oAltSubfeature && oAltSubfeature[colour] && oAltSubfeature[colour].creatureOptions && dkLvl >= oAltSubfeature.minlevel;
 		var oUseFeature = bUseAltFeature ? oAltSubfeature[colour] : oSubfeature;
 
 		// get the name of the creature to add, its source, and possible CompanionList entry
 		var addCrea = oUseFeature.creatureOptions[bContinued ? 1 : 0].name;
-		var sourceName = CurrentClasses['dragon knight'].name + ": " + oUseFeature.name;
+		var sourceName = "Dragon Knight: " + oUseFeature.name;
 		var subclassCompanionApply = global_DragonKnight.fn.getLinkedCompanionListing(bContinued);
 
 		var processArray = [[addCrea, false, false, subclassCompanionApply]];
@@ -720,7 +717,7 @@ global_DragonKnight = {
 		var updateColour = oCrea.dragonCompanionType;
 		if (!updateColour || oCrea.dragonKnightLevel === lvl) return;
 
-		var subclass = classes.known['dragon knight'] ? classes.known['dragon knight'].subclass : "";
+		var subclass = wasm_character.has_class('dragon knight') ? wasm_character.get_subclass('dragon knight') : "";
 		var subclassCompanionApply = global_DragonKnight.fn.getLinkedCompanionListing(false, subclass);
 		var subclassContinuedApply = global_DragonKnight.fn.getLinkedCompanionListing(true, subclass);
 
@@ -795,7 +792,7 @@ global_DragonKnight = {
 	getLinkedCompanionListing : function(bContinued, subclass) {
 		// Return the entry of the CompanionList object associated with currently selected Dragon Knight subclass
 		if (!subclass) {
-			subclass = classes.known['dragon knight'] && classes.known['dragon knight'].subclass ? classes.known['dragon knight'].subclass : false;
+			subclass = wasm_character.has_class('dragon knight') && wasm_character.get_subclass('dragon knight') ? wasm_character.get_subclass('dragon knight') : false;
 		}
 		if (subclass) {
 			for (var sComp in CompanionList) {
@@ -1291,8 +1288,8 @@ ClassList["dragon knight"] = {
 			]),
 			hp : function (totalHD, HDobj) {
 				var prefix = global_DragonKnight.fn.getDragonCompPrefix()[0];
-				if (classes.known['dragon knight'] && prefix) {
-					return [classes.known['dragon knight'].level * (6 + Number(What(prefix + 'Comp.Use.Ability.Con.Mod'))), "Dragon Companion's hit points (Dragon Knight)"];
+				if (wasm_character.has_class('dragon knight') && prefix) {
+					return [wasm_character.get_class_level('dragon knight') * (6 + Number(What(prefix + 'Comp.Use.Ability.Con.Mod'))), "Dragon Companion's hit points (Dragon Knight)"];
 				}
 			}
 		}
@@ -1409,15 +1406,15 @@ CompanionList["dragon_rider_practice_companion"] = {
 		traits : [{
 			name : "Dragon's Claw (Rider Practice 3)",
 			minlevel : 3,
-			description : "When the dragon and its bond are both within 5 ft of a creature, it suffers disadv" + (typePF ? "." : "antage") + " on attacks that target neither the dragon or its bond.",
-			addMod : [ // from Dragon's Eye, but needs to be applied to the first page, while the string might go to the continued page (on typePF)
+			description : "When the dragon and its bond are both within 5 ft of a creature, it suffers disadvantage on attacks that target neither the dragon or its bond.",
+			addMod : [ // from Dragon's Eye, but needs to be applied to the first page, while the string might go to the continued page
 				{ type : "skill", field : "Init", mod : "max(oCha|0)", text : "The dragon adds its bond's Charisma modifier to initiative rolls." }
 			]
 		}],
 		features : [{
 			name : "Dragon's Fang (Rider Practice 15)",
 			minlevel : 15,
-			description : typePF ? "See notes of the dragon continued." : "See notes below."
+			description : "See notes of the dragon continued."
 		}, {
 			name : "Dragon's Presence (Rider Practice 18)",
 			minlevel : 18,
@@ -1426,26 +1423,24 @@ CompanionList["dragon_rider_practice_companion"] = {
 		actions : [{
 			name : "Dragon's Scale (Rider Practice 7)",
 			minlevel : 7,
-			description : "As an action while within 5 ft of its bond, the dragon can protect " + (typePF ? "them" : "its bond") + " from one creature it can see. The creature's attacks are made with disadv" + (typePF ? ". vs." : "antage against") + " its bond until the dragon's next turn starts."
+			description : "As an action while within 5 ft of its bond, the dragon can protect its bond from one creature it can see. The creature's attacks are made with disadvantage against its bond until the dragon's next turn starts."
 		}]
 	}
 };
-if (typePF) {
-	// The printer friendly sheets have less space on a companion page for text, so we are going to have to add some of the game mechanics to the 'continued' page instead
-	CompanionList["dragon_rider_practice_continued"] = {
-		dragonKnightSubclass : dragonKnightRider,
-		dragonKnightContinued : true,
-		name : "Rider Practice Dragon Continued",
-		nameTooltip : "Dragon Knight: Rider Practice Continued",
-		nameOrigin : "Rider Practice",
-		nameMenu : "DON'T CLICK THIS! Rider Practice Dragon Continued (will be applied automatically)",
-		source : [["RJ:DK", 7]],
-		attributesAdd : {
-			notes : CompanionList["dragon_rider_practice_companion"].attributesAdd.notes
-		}
-	};
-	CompanionList["dragon_rider_practice_companion"].attributesAdd.notes = false;
-}
+// The printer friendly sheets have less space on a companion page for text, so we are going to have to add some of the game mechanics to the 'continued' page instead
+CompanionList["dragon_rider_practice_continued"] = {
+	dragonKnightSubclass : dragonKnightRider,
+	dragonKnightContinued : true,
+	name : "Rider Practice Dragon Continued",
+	nameTooltip : "Dragon Knight: Rider Practice Continued",
+	nameOrigin : "Rider Practice",
+	nameMenu : "DON'T CLICK THIS! Rider Practice Dragon Continued (will be applied automatically)",
+	source : [["RJ:DK", 7]],
+	attributesAdd : {
+		notes : CompanionList["dragon_rider_practice_companion"].attributesAdd.notes
+	}
+};
+CompanionList["dragon_rider_practice_companion"].attributesAdd.notes = false;
 
 var dragonKnightElemental = AddSubClass('dragon knight', 'elemental', {
 	regExpSearch : /^(?=.*dragon)(?=.*knight)(?=.*elemental).*$/i,
@@ -2006,7 +2001,7 @@ AddSubClass('dragon knight', 'shadow', {
 			source : [["RJ:DK", 10]],
 			minlevel : 10,
 			description : desc([
-				"As a bonus action while in dim light or darkness, my dragon " + global_DragonKnight.str.and + " I can " + (typePF ? "take" : "do") + " the Hide action",
+				"As a bonus action while in dim light or darkness, my dragon " + global_DragonKnight.str.and + " I can take the Hide action",
 				"Also, my dragon and I have adv. on Dex (Stealth) checks to hide in dim light or darkness"
 			]),
 			action : [["bonus action", "Hide (in dim light or darkness)"]]

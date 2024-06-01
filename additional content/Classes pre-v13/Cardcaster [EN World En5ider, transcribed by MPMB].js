@@ -122,14 +122,14 @@ ClassList["cardcaster"] = {
 		"\r\rVI - The Lovers" + desc(["\u2022 Detect Thoughts\t\t\u2022 Mirror Image", "\u2022 Suggestion\t\t\u2022 Zone of Truth"]) +
 		"\r\rVII - The Chariot" + desc(["\u2022 Blur\t\t\t\u2022 Enlarge/Reduce", "\u2022 Magic Weapon\t\t\u2022 Spiritual Weapon"]) +
 		"\r\rVIII - Justice" + desc(["\u2022 Bestow Curse\t\t\u2022 Clairvoyance", "\u2022 Lightning Bolt\t\t\u2022 Protection From Energy"]) +
-		"\r\rIX - The Hermit" + desc(["\u2022 Counterspell\t\t\u2022 Dispel Magic", "\u2022 Leomund's Tiny Hut\t" + (typePF ? "" : "\t") + "\u2022 Remove Curse"]) +
+		"\r\rIX - The Hermit" + desc(["\u2022 Counterspell\t\t\u2022 Dispel Magic", "\u2022 Leomund's Tiny Hut\t\u2022 Remove Curse"]) +
 		"\r\rX - Wheel of Fortune " + desc(["\u2022 Confusion\t\t\u2022 Death Ward", "\u2022 Divination\t\t\u2022 Freedom of Movement"]) +
 		"\r\rXI - Strength" + desc(["\u2022 Otiluke's Resilient Sphere\t\u2022 Stone Shape\t\u2022 Stoneskin"]),
 	majorArcana2 : "Cardcaster's Major Arcana (Cardcaster 1, EN5:106 5) [cards XII-XXI]" +
 		"\rXII - The Hanged Man" + desc(["\u2022 Dominate Beast\t\t\u2022 Dominate Person", "\u2022 Geas\t\t\t\u2022 Planar Binding"]) +
 		"\r\rXIII - Death" + desc(["\u2022 Animate Dead\t\t\u2022 Cloudkill", "\u2022 Contagion\t\t\u2022 Insect Plague"]) +
 		"\r\rXIV - Temperance" + desc(["\u2022 Globe of Invulnerability\t\u2022 Contingency\t\u2022 True Seeing", "If I play Temperance or the Devil, I can't use either again until I finish a long rest"]) +
-		"\r\rXV - The Devil" + desc(["\u2022 Eyebite\t\t\t\u2022 Forcecage\t" + (typePF ? "" : "\t") + "\u2022 Mass Suggestion", "If I play Temperance or the Devil, I can't use either again until I finish a long rest"]) +
+		"\r\rXV - The Devil" + desc(["\u2022 Eyebite\t\t\t\u2022 Forcecage\t\u2022 Mass Suggestion", "If I play Temperance or the Devil, I can't use either again until I finish a long rest"]) +
 		"\r\rXVI - The Tower" + desc(["\u2022 Disintegrate\t\t\u2022 Divine Word", "\u2022 Reverse Gravity\t\t\u2022 Mordenkainen's Magnificent Mansion", "If I play the Tower or the Star, I can't use either again until I finish a long rest"]) +
 		"\r\rXVII - The Star" + desc(["\u2022 Conjure Celestial\t\t\u2022 Plane Shift", "\u2022 Prismatic Spray\t\t\u2022 Regenerate", "If I play the Tower or the Star, I can't use either again until I finish a long rest"]) +
 		"\r\rXVIII - The Moon" + desc(["\u2022 Antipathy/Sympathy\t\u2022 Feeblemind", "\u2022 Maze\t\t\t\u2022 Mind Blank", "If I play the Moon or the Sun, I can't use either again until I finish a long rest"]) +
@@ -365,7 +365,7 @@ AddSubClass("cardcaster", "knight of swords", {
 				return n < 14 ? "" : "+" + n + " damage";
 			}),
 			calcChanges : {
-				atkAdd : ["if (classes.known.cardcaster && classes.known.cardcaster.level > 13 && isMeleeWeapon) {fields.Description += (fields.Description ? '; ' : '') + 'Once per long rest +' + classes.known.cardcaster.level + ' damage'; }; ", "Once per long rest, I can have one of my melee weapon attacks that hit do extra damage equal to my cardcaster level."]
+				atkAdd : ["if (wasm_character.get_class_level('cardcaster') > 13 && isMeleeWeapon) {fields.Description += (fields.Description ? '; ' : '') + 'Once per long rest +' + wasm_character.get_class_level('cardcaster') + ' damage'; }; ", "Once per long rest, I can have one of my melee weapon attacks that hit do extra damage equal to my cardcaster level."]
 			}
 		},
 		"subclassfeature14.1" : {
@@ -584,7 +584,7 @@ AddSubClass("cardcaster", "king of pentacles", {
 			]),
 			recovery : "long rest",
 			usages : "",
-			usagescalc : "var FieldNmbr = parseFloat(event.target.name.slice(-2)); var usages = What('Limited Feature Used ' + FieldNmbr); var useMult = isNaN(Number(usages)) || !Number(usages) ? 1 : Math.pow(10, usages); var charLvl = What('Character Level'); var total = (Math.round(charLvl * useMult) * 10); total = total > 1000000 ? total / 1000000 + 'M' : total > 1000 ? total / 1000 + 'k' : total; event.value = total + ' gp';"
+			usagescalc : "var FieldNmbr = parseFloat(event.target.name.slice(-2)); var usages = What('Limited Feature Used ' + FieldNmbr); var useMult = isNaN(Number(usages)) || !Number(usages) ? 1 : Math.pow(10, usages); var charLvl = wasm_character.get_level(); var total = (Math.round(charLvl * useMult) * 10); total = total > 1000000 ? total / 1000000 + 'M' : total > 1000 ? total / 1000 + 'k' : total; event.value = total + ' gp';"
 		},
 		"subclassfeature14" : {
 			name : "Mystical Mint",

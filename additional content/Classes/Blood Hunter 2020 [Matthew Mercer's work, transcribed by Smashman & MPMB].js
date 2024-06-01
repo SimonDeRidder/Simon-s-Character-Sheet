@@ -232,25 +232,25 @@ ClassList["blood hunter"] = {
 				source : [["MM:BH", 4]],
 				name : "Rite of the Dead",
 				description : " [necrotic damage]",
-				prereqeval : function() { return classes.known['blood hunter'].level >= 14 }
+				prereqeval : function() { return wasm_character.get_class_level('blood hunter') >= 14 }
 			},
 			"esoteric rite of the oracle" : {
 				source : [["MM:BH", 4]],
 				name : "Rite of the Oracle",
 				description : " [psychic damage]",
-				prereqeval : function() { return classes.known['blood hunter'].level >= 14 }
+				prereqeval : function() { return wasm_character.get_class_level('blood hunter') >= 14 }
 			},
 			"esoteric rite of the roar" : {
 				source : [["MM:BH", 4]],
 				name : "Rite of the Roar",
 				description : " [thunder damage]",
-				prereqeval : function() { return classes.known['blood hunter'].level >= 14 }
+				prereqeval : function() { return wasm_character.get_class_level('blood hunter') >= 14 }
 			},
 			calcChanges : {
 				atkAdd : [
 					function (fields, v) {
 						if (!v.isSpell && (/\brite\b/i).test(v.WeaponTextName)) {
-							fields.Description += (fields.Description ? '; ' : '') + '+' + MMBH_BhHemocraftDie(classes.known['blood hunter'].level) + ' rite damage';
+							fields.Description += (fields.Description ? '; ' : '') + '+' + MMBH_BhHemocraftDie(wasm_character.get_class_level('blood hunter')) + ' rite damage';
 						}
 					},
 					"If I include the word 'Rite' in a weapon's name, it gets my hemocraft damage die added in its description."
@@ -457,7 +457,7 @@ AddSubClass("blood hunter", "ghostslayer", {
 				atkAdd : [
 					function (fields, v) {
 						if (!v.isSpell && (/\brite\b/i).test(v.WeaponTextName)) {
-							fields.Description += (fields.Description ? '; ' : '') + '+' + MMBH_BhHemocraftDie(classes.known['blood hunter'].level) + ' rite damage vs. branded creature';
+							fields.Description += (fields.Description ? '; ' : '') + '+' + MMBH_BhHemocraftDie(wasm_character.get_class_level('blood hunter')) + ' rite damage vs. branded creature';
 						}
 					},
 					"If I include the word 'Rite' in a weapon's name, it gets an additional hemocraft die if target is branded."
@@ -817,7 +817,7 @@ AddSubClass("blood hunter", "mutant", {
 					"I gain 20 ft flying speed for 1 hour",
 					"\u2022 Side effect: I gain disadvantage on Strength and Dexterity ability checks for 1 hour"
 				]),
-				prereqeval : function() { return classes.known['blood hunter'].level >= 11 }
+				prereqeval : function() { return wasm_character.get_class_level('blood hunter') >= 11 }
 			},
 			"alluring" : {
 				name : "Alluring",
@@ -854,7 +854,7 @@ AddSubClass("blood hunter", "mutant", {
 					"\u2022 Side effect: I gain disadvantage on Intelligence, Wisdom, and Charisma saving throws"
 				]),
 				action : [["bonus action", "Cruelty Mutagen (after Attack action)"]],
-				prereqeval : function() { return classes.known['blood hunter'].level >= 11 }
+				prereqeval : function() { return wasm_character.get_class_level('blood hunter') >= 11 }
 			},
 			"deftness" : {
 				name : "Deftness",
@@ -933,7 +933,7 @@ AddSubClass("blood hunter", "mutant", {
 					"My weapon attacks score critical hits on attack rolls of 19 and 20",
 					"\u2022 Side effect: I gian disadvantage on Strength saving throws"
 				]),
-				prereqeval : function() { return classes.known['blood hunter'].level >= 11 }
+				prereqeval : function() { return wasm_character.get_class_level('blood hunter') >= 11 }
 			},
 			"rapidity" : {
 				name : "Rapidity",
@@ -954,7 +954,7 @@ AddSubClass("blood hunter", "mutant", {
 					"This only occurs if I have at least 1 hit point and am below half my hit point maximum",
 					"\u2022 Side effect: My speed decreases by 10 ft for an hour"
 				]),
-				prereqeval : function() { return classes.known['blood hunter'].level >= 7 }
+				prereqeval : function() { return wasm_character.get_class_level('blood hunter') >= 7 }
 			},
 			"sagacity" : {
 				name : "Sagacity",
@@ -1082,8 +1082,8 @@ AddSubClass("blood hunter", "lycan", {
 			calcChanges : {
 				atkCalc : [
 					function(fields, v, output) {
-						if (v.isMeleeWeapon && classes.known['blood hunter'] && classes.known['blood hunter'].level && ((/\b(lycan|hybrid)\b/i).test(v.WeaponTextName) || v.theWea.isPredatoryStrikes)) {
-							var lvl = classes.known['blood hunter'].level;
+						if (v.isMeleeWeapon && wasm_character.has_class('blood hunter') && ((/\b(lycan|hybrid)\b/i).test(v.WeaponTextName) || v.theWea.isPredatoryStrikes)) {
+							var lvl = wasm_character.get_class_level('blood hunter');
 							output.extraDmg += lvl < 3 ? 0 : lvl < 11 ? 1 : lvl < 18 ? 2 : 3;
 						}
 					},
@@ -1106,8 +1106,8 @@ AddSubClass("blood hunter", "lycan", {
 			calcChanges : {
 				atkCalc : [
 					function(fields, v, output) {
-						if (v.theWea.isPredatoryStrikes && classes.known['blood hunter'] && classes.known['blood hunter'].level) {
-							var lvl = classes.known['blood hunter'].level;
+						if (v.theWea.isPredatoryStrikes && wasm_character.has_class('blood hunter')) {
+							var lvl = wasm_character.get_class_level('blood hunter');
 							output.extraHit += lvl < 7 ? 0 : lvl < 11 ? 1 : lvl < 18 ? 2 : 3;
 						}
 					},
@@ -1115,7 +1115,7 @@ AddSubClass("blood hunter", "lycan", {
 				],
 				atkAdd : [
 					function(fields, v) {
-						if (v.theWea.isPredatoryStrikes && classes.known['blood hunter'] && classes.known['blood hunter'].level && classes.known['blood hunter'].level >= 7) {
+						if (v.theWea.isPredatoryStrikes && wasm_character.get_class_level('blood hunter') >= 7) {
 							fields.Description += (fields.Description ? '; ' : '') + 'Counts as magical if a rite is active';
 						}
 					},
@@ -1131,7 +1131,7 @@ AddSubClass("blood hunter", "lycan", {
 			calcChanges : {
 				atkCalc : [
 					function(fields, v, output) {
-						if (v.theWea.isPredatoryStrikes && classes.known['blood hunter'] && classes.known['blood hunter'].level && classes.known['blood hunter'].level >= 11) {
+						if (v.theWea.isPredatoryStrikes && wasm_character.get_class_level('blood hunter') >= 11) {
 							try {
 								var curDie = eval_ish(fields.Damage_Die.replace('d', '*'));
 							} catch (e) {

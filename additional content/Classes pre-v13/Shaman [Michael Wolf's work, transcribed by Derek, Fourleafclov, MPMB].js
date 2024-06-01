@@ -136,14 +136,14 @@ ClassList["shaman"] = {
 					selection : ["levitate"],
 					atwill : true
 				}],
-				prereqeval : "classes.known.shaman.level >= 9"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 9"
 			},
 			"battle frenzy (prereq: level 12 shaman, gift of savagery)" : {
 				name : "Battle Frenzy",
 				description : "\n   " + "I can make one attack as a bonus action when taking the attack action",
 				source : ["MW:SC", 13],
 				action : [["bonus action", " (with Attack action)"]],
-				prereqeval : "classes.known.shaman.level >= 12 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of savagery') !== -1"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 12 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of savagery') !== -1"
 			},
 			"call of the elements (prereq: level 9 shaman, speaker of flames/stones/waters/winds)" : {
 				name : "Call of the Elements",
@@ -157,13 +157,13 @@ ClassList["shaman"] = {
 					selection : ["conjure elemental"],
 					oncelr : true
 				}],
-				prereqeval : "classes.known.shaman.level >= 9 && (/flames|stones|waters|winds/i).test(classes.known.shaman.subclass)"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 9 && (/flames|stones|waters|winds/i).test(wasm_character.get_subclass('shaman'))"
 			},
 			"elemental empowerment (prereq: level 7 shaman, gift of savagery)" : {
 				name : "Elemental Empowerment",
 				description : "\n   " + "When casting Elemental Weapon on my spirit weapon I can do so as a bonus action" + "\n   " + "I can concentrate on an Elemental Weapon casting until my next short or long rest" + "\n   " + "I can spend 1 spirit point to avoid breaking my concentration on Elemental Weapon",
 				source : ["MW:SC", 13],
-				prereqeval : "classes.known.shaman.level >= 9 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of savagery') !== -1"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 9 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of savagery') !== -1"
 			},
 			"entreat the spirits (prereq: level 9 shaman)" : {
 				name : "Entreat the Spirits",
@@ -175,7 +175,7 @@ ClassList["shaman"] = {
 					selection : ["commune with nature"],
 					firstCol : "(R)"
 				}],
-				prereqeval : "classes.known.shaman.level >= 9"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 9"
 			},
 			"fauna shaman (prereq: level 5 shaman)" : {
 				name : "Fauna Shaman",
@@ -188,7 +188,7 @@ ClassList["shaman"] = {
 					firstCol : "(R)",
 					times : 2
 				}],
-				prereqeval : "classes.known.shaman.level >= 5"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 5"
 			},
 			"force of will" : {
 				name : "Force of Will",
@@ -208,7 +208,7 @@ ClassList["shaman"] = {
 					selection : ["augury"],
 					firstCol : "(R)"
 				}],
-				prereqeval : "classes.known.shaman.level >= 5 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of sight') !== -1"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 5 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of sight') !== -1"
 			},
 			"keeper of lore" : {
 				name : "Keeper of Lore",
@@ -227,7 +227,7 @@ ClassList["shaman"] = {
 					selection : ["polymorph"],
 					oncelr : true
 				}],
-				prereqeval : "classes.known.shaman.level >= 9"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 9"
 			},
 			"mask of many faces" : {
 				name : "Mask of Many Faces",
@@ -250,7 +250,7 @@ ClassList["shaman"] = {
 					selection : ["alter self"],
 					atwill : true
 				}],
-				prereqeval : "classes.known.shaman.level >= 15"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 15"
 			},
 			"pierce the shadows (prereq: gift of sight)" : {
 				name : "Pierce the Shadows",
@@ -271,7 +271,7 @@ ClassList["shaman"] = {
 					selection : ["animate dead"],
 					oncelr : true
 				}],
-				prereqeval : "classes.known.shaman.level >= 9 && classes.known.shaman.subclass === 'speaker of ancestors'"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 9 && wasm_character.get_subclass('shaman') === 'speaker of ancestors'"
 			},
 			"rewrite the past (prereq: level 12 shaman, speaker of dreams)" : {
 				name : "Rewrite the Past",
@@ -285,7 +285,7 @@ ClassList["shaman"] = {
 					selection : ["modify memory"],
 					oncelr : true
 				}],
-				prereqeval : "classes.known.shaman.level >= 12 && classes.known.shaman.subclass === 'speaker of dreams'"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 12 && wasm_character.get_subclass('shaman') === 'speaker of dreams'"
 			},
 			"rite of cleansing" : {
 				name : "Rite of Cleansing",
@@ -309,19 +309,19 @@ ClassList["shaman"] = {
 					firstCol : "(R)",
 					times : 2
 				}],
-				prereqeval : "classes.known.shaman.level >= 5"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 5"
 			},
 			"savage magic (prereq: level 5 shaman, gift of savagery)" : {
 				name : "Savage Magic",
 				description : " [1 spirit point]" + "\n   " + "When making a spell attack as part of a shaman spell, I may use my spirit weapon instead" + "\n   " + "For 1 spirit point, I make a spirit weapon attack that deals damage and the spell's effect",
 				source : ["MW:SC", 14],
-				prereqeval : "classes.known.shaman.level >= 5 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of savagery') !== -1"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 5 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of savagery') !== -1"
 			},
 			"see the unwritten (prereq: level 12 shaman, gift of sight)" : {
 				name : "See the Unwritten",
 				description : "\n   " + "I roll three d20s for my Gift of Sight, rather than two",
 				source : ["MW:SC", 14],
-				prereqeval : "classes.known.shaman.level >= 12 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of sight') !== -1"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 12 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of sight') !== -1"
 			},
 			"seeker of visions (prereq: level 7 shaman, gift of sight)" : {
 				name : "Seeker of Visions",
@@ -333,14 +333,14 @@ ClassList["shaman"] = {
 					selection : ["divination"],
 					firstCol : "(R)"
 				}],
-				prereqeval : "classes.known.shaman.level >= 7 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of sight') !== -1"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 7 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of sight') !== -1"
 			},
 			"sight beyond sight (prereq: level 15 shaman, gift of sight)" : {
 				name : "Sight Beyond Sight",
 				description : "\n   " + "I see the true form of any in 30 ft even if shapechanged, illusion or transmutation magic",
 				source : ["MW:SC", 14],
 				vision : [["Witch sight", 30]],
-				prereqeval : "classes.known.shaman.level >= 15 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of sight') !== -1"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 15 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of sight') !== -1"
 			},
 			"sky shaping (prereq: level 5 shaman)" : {
 				name : "Sky Shaping",
@@ -352,7 +352,7 @@ ClassList["shaman"] = {
 					selection : ["skywrite"],
 					firstCol : "(R)"
 				}],
-				prereqeval : "classes.known.shaman.level >= 5"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 5"
 			},
 			"smoke teller" : {
 				name : "Smoke Teller",
@@ -372,13 +372,13 @@ ClassList["shaman"] = {
 					selection : ["detect thoughts"],
 					oncelr : true
 				}],
-				prereqeval : "classes.known.shaman.level >= 5"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 5"
 			},
 			"speaker of all (prereq: level 12 shaman)" : {
 				name : "Speaker of All",
 				description : "\n   " + "I understand all spoken languages and any creature with a language understands me",
 				source : ["MW:SC", 14],
-				prereqeval : "classes.known.shaman.level >= 12"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 12"
 			},
 			"spirit sight (prereq: gift of sight)" : {
 				name : "Spirit Sight",
@@ -428,7 +428,7 @@ ClassList["shaman"] = {
 					selection : ["speak with plants"],
 					oncelr : true
 				}],
-				prereqeval : "classes.known.shaman.level >= 5"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 5"
 			},
 			"twilight shepherd (prereq: level 9 shaman)" : {
 				name : "Twilight Shepherd",
@@ -442,7 +442,7 @@ ClassList["shaman"] = {
 					selection : ["reincarnate"],
 					oncelr : true
 				}],
-				prereqeval : "classes.known.shaman.level >= 9"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 9"
 			},
 			"unfiltered perceptions (prereq: level 7 shaman)" : {
 				name : "Unfiltered Perception",
@@ -450,13 +450,13 @@ ClassList["shaman"] = {
 				source : ["MW:SC", 15],
 				savetxt : { immune : ["blinded", "deafened"] },
 				vision : [["Sense invisible", 10]],
-				prereqeval : "classes.known.shaman.level >= 7"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 7"
 			},
 			"unrestrained savagery (prereq: level 5 shaman, gift of savagery)" : {
 				name : "Unrestrained Savagery",
 				description : "\n   " + "When taking the Attack action, I can attack twice with my spirit weapon",
 				source : ["MW:SC", 15],
-				prereqeval : "classes.known.shaman.level >= 5 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of savagery') !== -1"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 5 && What('Class Features Remember').indexOf('shaman,spiritual gift,gift of savagery') !== -1"
 			},
 			"voice of the forgotten (prereq: level 7 shaman)" : {
 				name : "Voice of the Forgotten",
@@ -468,13 +468,13 @@ ClassList["shaman"] = {
 					selection : ["speak with dead"],
 					atwill : true
 				}],
-				prereqeval : "classes.known.shaman.level >= 7"
+				prereqeval : "wasm_character.get_class_level('shaman') >= 7"
 			},
 			"walker of the world (prereq: level 7 shaman)" : {
 				name : "Walker of the World",
 				description : "\n   " + "My movement speed increases by 10 feet while not wearing armor" + "\n   " + "While underground, I always know which way is north and my depth below the surface",
 				source : ["MW:SC", 15],
-				prereqeval : "classes.known.shaman.level >= 7",
+				prereqeval : "wasm_character.get_class_level('shaman') >= 7",
 				speed : { allModes : "+10" }
 			}
 		},
@@ -523,7 +523,7 @@ ClassList["shaman"] = {
 				level : [6, 6],
 				oncelr : true
 			}],
-			changeeval : "if (classes.known.shaman.level < 13) {delete CurrentSpells.shaman.bonus[\"hidden lore (7)\"]} else {if (!CurrentSpells.shaman.bonus[\"hidden lore (7)\"]) {CurrentSpells.shaman.bonus[\"hidden lore (7)\"] = {name : \"Hidden Lore (7)\", class : \"shaman\", level : [7, 7], oncelr : true}}}; if (classes.known.shaman.level < 15) {delete CurrentSpells.shaman.bonus[\"hidden lore (8)\"]} else {if (!CurrentSpells.shaman.bonus[\"hidden lore (8)\"]) {CurrentSpells.shaman.bonus[\"hidden lore (8)\"] = {name : \"Hidden Lore (8)\", class : \"shaman\", level : [8, 8], oncelr : true}}}; if (classes.known.shaman.level < 17) {delete CurrentSpells.shaman.bonus[\"hidden lore (9)\"]} else {if (!CurrentSpells.shaman.bonus[\"hidden lore (9)\"]) {CurrentSpells.shaman.bonus[\"hidden lore (9)\"] = {name : \"Hidden Lore (9)\", class : \"shaman\", level : [9, 9], oncelr : true}}}"
+			changeeval : "if (wasm_character.get_class_level('shaman') < 13) {delete CurrentSpells.shaman.bonus[\"hidden lore (7)\"]} else {if (!CurrentSpells.shaman.bonus[\"hidden lore (7)\"]) {CurrentSpells.shaman.bonus[\"hidden lore (7)\"] = {name : \"Hidden Lore (7)\", class : \"shaman\", level : [7, 7], oncelr : true}}}; if (wasm_character.get_class_level('shaman') < 15) {delete CurrentSpells.shaman.bonus[\"hidden lore (8)\"]} else {if (!CurrentSpells.shaman.bonus[\"hidden lore (8)\"]) {CurrentSpells.shaman.bonus[\"hidden lore (8)\"] = {name : \"Hidden Lore (8)\", class : \"shaman\", level : [8, 8], oncelr : true}}}; if (wasm_character.get_class_level('shaman') <  17) {delete CurrentSpells.shaman.bonus[\"hidden lore (9)\"]} else {if (!CurrentSpells.shaman.bonus[\"hidden lore (9)\"]) {CurrentSpells.shaman.bonus[\"hidden lore (9)\"] = {name : \"Hidden Lore (9)\", class : \"shaman\", level : [9, 9], oncelr : true}}}"
 		},
 		"timeless body" : {
 			name : "Timeless Body",

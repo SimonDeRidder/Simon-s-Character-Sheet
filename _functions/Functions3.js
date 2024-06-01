@@ -100,7 +100,7 @@ function GetFeatureType(type, bNoDefaultReturn, bSingularReturn) {
 		choiceA - child object names of overriding choice
 			ARRAY [STRING: old-choice, STRING: new-choice, STRING: "only","change"]
 			// if 'only-choice' is set to true, it is viewed as an extra-choice and just the child features will be used (e.g. Warlock Invocations)
-		forceNonCurrent - the parent object name if the sheet is to use the original list object and not the CurrentXXX (CurrentRace, CurrentClasses)
+		forceNonCurrent - the parent object name if the sheet is to use the original list object and not the CurrentXXX (CurrentClasses)
 			STRING
 	Examples:
 		ApplyFeatureAttributes("feat", "grappler", [0,1,false], false, false);
@@ -108,7 +108,7 @@ function GetFeatureType(type, bNoDefaultReturn, bSingularReturn) {
 		ApplyFeatureAttributes("class", ["warlock","eldritch invocations"], [0,4,true], ["","devil's sight","only"], false); // add Devil's Sight
 		ApplyFeatureAttributes("class", ["warlock","eldritch invocations"], [15,0,true], ["devil's sight","","only"], false); // remove Devil's Sight
 */
-async function ApplyFeatureAttributes(type, fObjName, lvlA, choiceA, forceNonCurrent, prefix="") {
+async function ApplyFeatureAttributes(type, fObjName, lvlA, choiceA, forceNonCurrent, prefix="", fromRaceUpdate=false) {
 	if (!IsNotReset) return; //stop this function on a reset
 
 	// validate input
@@ -141,7 +141,6 @@ async function ApplyFeatureAttributes(type, fObjName, lvlA, choiceA, forceNonCur
 				return;
 			}
 			var eText = "The " + attributeName + " from '" + fObjName + (aParent ? "' of the '" + aParent : "") + "' " + type + " produced an error! Please contact the author of the feature to correct this issue and please include this error message:\n " + error;
-			for (var e in error) eText += "\n " + e + ": " + error[e];
 			console.println(eText);
 			console.show();
 		}
@@ -206,7 +205,7 @@ async function ApplyFeatureAttributes(type, fObjName, lvlA, choiceA, forceNonCur
 		if (uObj.carryingCapacity) await SetProf("carryingcapacity", addIt, uObj.carryingCapacity, tipNmF);
 		if (uObj.advantages) await processAdvantages(addIt, tipNmF, uObj.advantages);
 
-		var abiScoresTxt = uObj.scorestxt ? uObj.scorestxt : uObj.description? uObj.description : uObj.improvements ? uObj.improvements : false;
+		var abiScoresTxt = uObj.scorestxt ? uObj.scorestxt : uObj.description? uObj.description : uObj.improvements ? uObj.improvements : uObj.name ? uObj.name : "";
 		if (uObj.scores || uObj.scorestxt) {
 			if (addIt) {
 				if (uObj.scores) {
@@ -320,11 +319,28 @@ async function ApplyFeatureAttributes(type, fObjName, lvlA, choiceA, forceNonCur
 			type = "class";
 			aParent = fObjName[0];
 			fObjName = fObjName[1];
-			var useClObj = forceNonCurrent && ClassList[forceNonCurrent] && ClassList[forceNonCurrent].features[fObjName] ? ClassList[forceNonCurrent] :
-				forceNonCurrent && ClassSubList[forceNonCurrent] && ClassSubList[forceNonCurrent].features[fObjName] ? ClassSubList[forceNonCurrent] :
-				CurrentClasses[aParent];
-			var fObj = useClObj.features[fObjName];
-			var displName = fObjName.indexOf("subclassfeature") == -1 ? useClObj.name : useClObj.fullname ? useClObj.fullname : forceNonCurrent && useClObj.subname ? useClObj.subname : useClObj.name;
+			let useClObjFeatures = (
+				forceNonCurrent && ClassList[forceNonCurrent] && ClassList[forceNonCurrent].features[fObjName]
+				? ClassList[forceNonCurrent].features
+				: (
+					forceNonCurrent && ClassSubList[forceNonCurrent] && ClassSubList[forceNonCurrent].features[fObjName]
+					? ClassSubList[forceNonCurrent].features
+					: adapter_helper_get_class_property(aParent, "features")
+				)
+			);
+			var fObj = useClObjFeatures[fObjName];
+			let className = adapter_helper_get_class_property(forceNonCurrent? forceNonCurrent: aParent, "name");
+			let classFullName = adapter_helper_get_class_property(forceNonCurrent? forceNonCurrent: aParent, "fullname");
+			let classSubName = adapter_helper_get_class_property(forceNonCurrent? forceNonCurrent: aParent, "subname");
+			var displName = (
+				fObjName.indexOf("subclassfeature") == -1
+				? className
+				: (
+					classFullName
+					? classFullName
+					: forceNonCurrent && classSubName ? classSubName : className
+				)
+			);
 
 			// --- backwards compatibility --- //
 			// also create some variables that (old) eval scripts tend to use
@@ -337,15 +353,55 @@ async function ApplyFeatureAttributes(type, fObjName, lvlA, choiceA, forceNonCur
 			type = "race";
 			aParent = fObjName[0];
 			fObjName = fObjName[1];
-			var fObj = aParent == fObjName && !CurrentRace.features[fObjName] ?
-					(forceNonCurrent ? RaceList[forceNonCurrent] : CurrentRace) :
-				forceNonCurrent && RaceList[forceNonCurrent] && RaceList[forceNonCurrent].features[fObjName] ?
-					RaceList[forceNonCurrent].features[fObjName] : CurrentRace.features[fObjName];
-			var displName = CurrentRace.name;
+
+			var fObj;
+			let raceID = aParent;
+			let raceFeatures = adapter_helper_get_race_property("features", raceID);
+			if (aParent == fObjName && !raceFeatures[fObjName]) {
+				fObj = forceNonCurrent ? RaceList[forceNonCurrent] : {
+					name: adapter_helper_get_race_property("name", raceID),
+					source: adapter_helper_get_race_property("source", raceID),
+					armorOptions: adapter_helper_get_race_property("armorOptions", raceID),
+					weaponOptions: adapter_helper_get_race_property("weaponOptions", raceID),
+					eval: adapter_helper_get_race_property("eval", raceID),
+					removeeval: adapter_helper_get_race_property("removeeval", raceID),
+					calcChanges: adapter_helper_get_race_property("calcChanges", raceID),
+					savetxt: adapter_helper_get_race_property("savetxt", raceID),
+					speed: adapter_helper_get_race_property("speed", raceID),
+					addMod: adapter_helper_get_race_property("addMod", raceID),
+					toolProfs: adapter_helper_get_race_property("toolProfs", raceID),
+					languageProfs: adapter_helper_get_race_property("languageProfs", raceID),
+					vision: adapter_helper_get_race_property("vision", raceID),
+					dmgres: adapter_helper_get_race_property("dmgres", raceID),
+					action: adapter_helper_get_race_property("action", raceID),
+					extraLimitedFeatures: adapter_helper_get_race_property("extraLimitedFeatures", raceID),
+					extraAC: adapter_helper_get_race_property("extraAC", raceID),
+					toNotesPage: adapter_helper_get_race_property("toNotesPage", raceID),
+					carryingCapacity: adapter_helper_get_race_property("carryingCapacity", raceID),
+					advantages: adapter_helper_get_race_property("advantages", raceID),
+					scorestxt: adapter_helper_get_race_property("scorestxt", raceID),
+					improvements: adapter_helper_get_race_property("improvements", raceID),
+					scores: adapter_helper_get_race_property("scores", raceID),
+					abilityChecksum: adapter_helper_get_race_property("abilityChecksum", raceID),
+					abilitySubset: adapter_helper_get_race_property("abilitySubset", raceID),
+					spellcastingBonus: adapter_helper_get_race_property("spellcastingBonus", raceID),
+					spellChanges: adapter_helper_get_race_property("spellChanges", raceID),
+					weaponProfs: adapter_helper_get_race_property("weaponProfs", raceID),
+					armorProfs: adapter_helper_get_race_property("armorProfs", raceID),
+					weaponsAdd: adapter_helper_get_race_property("weaponsAdd", raceID),
+					armorAdd: adapter_helper_get_race_property("armorAdd", raceID),
+					weight: adapter_helper_get_race_property("weight", raceID),
+					skillstxt: adapter_helper_get_race_property("skillstxt", raceID),
+					skills: adapter_helper_get_race_property("skills", raceID),
+				};
+			} else {
+				fObj = forceNonCurrent && RaceList[forceNonCurrent] && RaceList[forceNonCurrent].features[fObjName] ? RaceList[forceNonCurrent].features[fObjName] : raceFeatures[fObjName];
+			}
+			var displName = adapter_helper_get_race_property("name", raceID);
 			break;
 		case "background":
 			type = "background";
-			var fObj = forceNonCurrent && BackgroundList[fObjName] ? BackgroundList[fObjName] : CurrentBackground;
+			var fObj = {...BackgroundList[fObjName], ...BackgroundSubList[fObjName]};
 			var displName = fObj.name;
 			tipNmExtra = "(background)";
 			break;
@@ -378,7 +434,10 @@ async function ApplyFeatureAttributes(type, fObjName, lvlA, choiceA, forceNonCur
 	if (fObj.minlevel && fObj.minlevel > lvlH) return false; // no reason to continue with this function
 
 	// Are we to do anything with the feature?
-	var CheckLVL = lvlA[2] ? true : fObj.minlevel ? fObj.minlevel <= lvlH && fObj.minlevel > lvlL : lvlL == 0;
+	var CheckLVL = (
+		(lvlA[2] ? true : fObj.minlevel ? fObj.minlevel <= lvlH && fObj.minlevel > lvlL : lvlL == 0)
+		&& (fromRaceUpdate || (type != "race") || lvlH > 1)
+	);
 	// Add (true) or remove (false) the feature's attributes?
 	var AddFea = fObj.minlevel ? fObj.minlevel <= lvlA[1] : 0 < lvlA[1];
 
@@ -559,7 +618,7 @@ async function ApplyClassBaseAttributes(AddRemove, aClass, primaryClass) {
 	}
 
 	if (!isArray(AddRemove)) { // do the class (and subclass) attributes in full
-		var newSubCl = classes.known[aClass].subclass ? ClassSubList[classes.known[aClass].subclass] : false;
+		var newSubCl = wasm_character.get_subclass(aClass) ? ClassSubList[wasm_character.get_subclass(aClass)] : false;
 		// do the AddRemove for the class attributes that are not in the subclass
 		await processAttributes(parentCl, AddRemove, parentCl.name, false, newSubCl);
 		// do the AddRemove for the whole subclass
@@ -672,7 +731,7 @@ function getBonusClassExtraChoiceNr(sClass, sFeaNm) {
 	if (CurrentFeatureChoices.bonus && CurrentFeatureChoices.bonus[sClass]) {
 		var oThis = CurrentFeatureChoices.bonus[sClass];
 		if (oThis.mainClass && oThis.mainClass[sFeaNm]) iReturn += oThis.mainClass[sFeaNm];
-		var sCurSubclass = classes.known[sClass] && classes.known[sClass].subclass ? classes.known[sClass].subclass : false;
+		var sCurSubclass = wasm_character.get_subclass(sClass) ? wasm_character.get_subclass(sClass) : false;
 		if (oThis[sCurSubclass] && oThis[sCurSubclass][sFeaNm]) iReturn += oThis[sCurSubclass][sFeaNm];
 	}
 	return iReturn;
@@ -686,14 +745,14 @@ function getBonusClassExtraChoices(bIgnoreNotInMenu) {
 		var oClassList = ClassList[sClass];
 		if (!oClassList) continue; // class doesn't exist
 		var oClass = CurrentFeatureChoices.bonus[sClass];
-		var iClassLvl = classes.known[sClass] && classes.known[sClass].level ? classes.known[sClass].level : 0;
-		var sCurSubclass = classes.known[sClass] && classes.known[sClass].subclass ? classes.known[sClass].subclass : false;
+		var iClassLvl = wasm_character.get_class_level(sClass);
+		var sCurSubclass = wasm_character.get_subclass(sClass) ? wasm_character.get_subclass(sClass) : false;
 		for (var sSubclass in oClass) {
 			var bIsMainClass = sSubclass === "mainClass";
 			if (!bIsMainClass && !ClassSubList[sSubclass]) continue; // subclass doesn't exist
 			var oSubclass = oClass[sSubclass];
-			var bTestLvl = iClassLvl && (bIsMainClass || sSubclass === sCurSubclass) && CurrentClasses[sClass];
-			var oUseObj = bTestLvl ? CurrentClasses[sClass].features : bIsMainClass ? oClassList.features : ClassSubList[sSubclass].features;
+			var bTestLvl = iClassLvl && (bIsMainClass || sSubclass === sCurSubclass) && wasm_character.has_class(sClass);
+			var oUseObj = bTestLvl ? adapter_helper_get_class_property(sClass, "features") : bIsMainClass ? oClassList.features : ClassSubList[sSubclass].features;
 			for (var sFeaNm in oSubclass) {
 				// see if the feature exists and if it isn't already available for the character or if the features are not meant to be displayed in the menu
 				if (!oUseObj[sFeaNm] || !oUseObj[sFeaNm].extrachoices || (!bIgnoreNotInMenu && oUseObj[sFeaNm].extrachoicesNotInMenu) || (bTestLvl && oUseObj[sFeaNm].minlevel <= iClassLvl)) continue;
@@ -716,10 +775,13 @@ function GetFightingStyleSelection() {
 	if (CurrentFeatureChoices.classes) {
 		for (var aClass in CurrentFeatureChoices.classes) {
 			var clObj = CurrentFeatureChoices.classes[aClass];
-			var clNm = !CurrentClasses[aClass] ? "Unknown" : CurrentClasses[aClass].fullname.indexOf(CurrentClasses[aClass].name) == -1 ? CurrentClasses[aClass].fullname : CurrentClasses[aClass].name;
+			let classFullName = adapter_helper_get_class_property(aClass, "fullname");
+			let className = adapter_helper_get_class_property(aClass, "name");
+			let classFeatures = wasm_character.has_class(aClass) ? adapter_helper_get_class_property(aClass, "features") : null;
+			var clNm = !wasm_character.has_class(aClass) ? "Unknown" : classFullName.indexOf(className) == -1 ? classFullName : className;
 			for (var aFea in clObj) {
 				var feaObj = clObj[aFea];
-				var feaNm = CurrentClasses[aClass] && CurrentClasses[aClass].features[aFea] ? CurrentClasses[aClass].features[aFea].name : aFea.capitalize();
+				var feaNm = classFeatures && classFeatures[aFea] ? classFeatures[aFea].name : aFea.capitalize();
 				if (typeof feaObj == "object" && feaObj.choice && (/fighting style/i).test(aFea + feaNm)) fndObj[feaObj.choice] = ["classes", aClass, "\t   (selected: " + clNm + " - " + feaNm + ")"];
 			}
 		}
@@ -789,23 +851,32 @@ async function CreateCurrentSpellsEntry(type, fObjName, aChoice, forceNonCurrent
 	};
 	switch (type.toLowerCase()) {
 		case "classes":
-			var fObj = forceNonCurrent && !CurrentClasses[fObjName] ? ClassList[fObjName] : CurrentClasses[fObjName];
+			var fObj = forceNonCurrent || !wasm_character.has_class(fObjName) ? ClassList[fObjName] : {
+				fullname: adapter_helper_get_class_property(fObjName, "fullname"),
+				name: adapter_helper_get_class_property(fObjName, "name"),
+				abilitySave: adapter_helper_get_class_property(fObjName, "abilitySave"),
+				allowUpCasting: adapter_helper_get_class_property(fObjName, "allowUpCasting"),
+			};
 			if (!fObj) return false;
-			var aClass = classes.known[fObjName].name;
-			var aSubClass = classes.known[fObjName].subclass;
+			var aSubClass = wasm_character.get_subclass(fObjName);
 			var sObj = setCSobj(fObjName);
-			sObj.shortname = ClassList[aClass].spellcastingFactor || !aSubClass ? ClassList[aClass].name : ClassSubList[aSubClass].fullname ? ClassSubList[aSubClass].fullname : ClassSubList[aSubClass].subname;
-			sObj.level = classes.known[fObjName].level;
-			sObj.name = !forceNonCurrent ? fObj.fullname : !aSubClass ? sObj.shortname : ClassSubList[aSubClass].fullname ? ClassSubList[aSubClass].fullname : ClassList[aClass].name + " (" + ClassSubList[aSubClass].subname + ")";
+			sObj.shortname = ClassList[fObjName].spellcastingFactor || !aSubClass ? ClassList[fObjName].name : ClassSubList[aSubClass].fullname ? ClassSubList[aSubClass].fullname : ClassSubList[aSubClass].subname;
+			sObj.level = wasm_character.get_class_level(fObjName);
+			sObj.name = !forceNonCurrent ? fObj.fullname : !aSubClass ? sObj.shortname : ClassSubList[aSubClass].fullname ? ClassSubList[aSubClass].fullname : ClassList[fObjName].name + " (" + ClassSubList[aSubClass].subname + ")";
 			if (sObj.typeSp == undefined) sObj.typeSp = "";
 			sObj.refType = sTypeSingular;
 			break;
 		case "race":
-			var fObj = CurrentRace;
+			let raceID = wasm_character.get_race_id();
+			var fObj = {
+				name: adapter_helper_get_race_property("name", raceID),
+				spellcastingAbility: adapter_helper_get_race_property("spellcastingAbility", raceID),
+				abilitySave: adapter_helper_get_race_property("abilitySave", raceID),
+			}
 			var sObj = setCSobj(fObjName);
 			sObj.name = fObj.name;
 			sObj.typeSp = sTypeSingular;
-			sObj.level = fObj.level;
+			sObj.level = wasm_character.get_level();
 			sObj.refType = sTypeSingular;
 			break;
 		case "feats":
@@ -903,7 +974,7 @@ async function processSpBonus(AddRemove, srcNm, spBon, type, parentName, choice,
 		if (spAllowUpCasting !== undefined) sObj.allowUpCasting = spAllowUpCasting;
 		if (spMagicItemComponents !== undefined) sObj.magicItemComponents = spMagicItemComponents;
 		// if concerning a feat or item, set the level only if the spellcastingBonus needs it
-		if (/feat|item/i.test(sObj.typeSp) && spFeatItemLvl) sObj.level = Math.max(Number(What("Character Level")), 1);
+		if (/feat|item/i.test(sObj.typeSp) && spFeatItemLvl) sObj.level = Math.max(wasm_character.get_level(), 1);
 	}
 	SetStringifieds('spells');
 	CurrentUpdates.types.push("spells");
@@ -1557,14 +1628,12 @@ function UpdateSheetWeapons() {
 	// some atkAdd eval might be level-dependent, so force updating the weapons when changing level and such an eval is present
 	var isLvlDepAtkAdd = false;
 	// iterate through all the atkAdd evals to see if any are level-dependent, but only when changing level
-	if (CurrentUpdates.types.find(/^(xp|classchange)$/) !== -1 && CurrentEvals.atkAdd) {
-		for (addEval in CurrentEvals.atkAdd) {
-			var evalThing = CurrentEvals.atkAdd[addEval];
-			if (typeof evalThing == 'function') evalThing = evalThing.toSource();
-			if ((/\.(total)?level|Proficiency Bonus/).test(evalThing)) {
-				isLvlDepAtkAdd = true;
-				break;
-			}
+	for (addEval in CurrentEvals.atkAdd) {
+		var evalThing = CurrentEvals.atkAdd[addEval];
+		if (typeof evalThing == 'function') evalThing = evalThing.toSource();
+		if ((/\.(total)?level|Proficiency Bonus/).test(evalThing)) {
+			isLvlDepAtkAdd = true;
+			break;
 		}
 	}
 
@@ -1685,55 +1754,6 @@ async function UpdateSheetDisplay() {
 		}
 	};
 
-	// if the level changed but the xp (or similar system) is not correct, update the xp to the needed value for the level
-	if (CurrentUpdates.types.indexOf("xp") !== -1) {
-		var curLvl = Number(What("Character Level"));
-		var curExp = What("Total Experience");
-		if (!curExp) curExp = 0;
-		var LvlXp = getCurrentLevelByXP(curLvl, curExp);
-		// if the amount of xp is less than needed for the level, change the xp. But not if the level is 0
-		Changes_Dialog.oldXPval = curExp;
-		if (curLvl > LvlXp[0]) {
-			Value("Total Experience", LvlXp[1]);
-			// make the xp dialog insert
-			dialogParts.push({
-				skipType : "chXP",
-				type : "cluster",
-				align_children : "align_left",
-				alignment : "align_fill",
-				width : 500,
-				font : "heading",
-				name : "Experience Points",
-				elements : [{
-					type : "view",
-					align_children : "align_row",
-					alignment : "align_fill",
-					elements : [{
-						type : "static_text",
-						width : 375,
-						alignment : "align_fill",
-						font : "dialog",
-						wrap_name : true,
-						name : "The current amount of experience points (" + toUni(curExp) + ") are not enough to attain the current level (" + toUni(curLvl) + "), as that requires " + toUni(LvlXp[1]) + " experience points.\nThe total XP has now been updated to " + toUni(LvlXp[1]) + "."
-					}, {
-						type : "button",
-						item_id : "bXPo",
-						name : "Change XP back to " + curExp
-					}]
-				}, {
-					type : "check_box",
-					item_id : "chXP",
-					alignment : "align_fill",
-					font : "palette",
-					name : checkboxTxt
-				}]
-			});
-			Changes_Dialog.bXPo = function (dialog) {
-				Value("Total Experience", this.oldXPval);
-			};
-		}
-	};
-
 	// if something affecting the stats changed
 	// possible options for stats: statsoverride, statsclasses, statsrace, statsfeats, statsitems
 	if (CUflat.indexOf("stats") !== -1 || CurrentUpdates.types.indexOf("testasi") !== -1) {
@@ -1764,15 +1784,22 @@ async function UpdateSheetDisplay() {
 			}
 
 			let improvementStrings = [];
-			for (var nClass in classes.known) {
-				var clLvl = Math.min(CurrentClasses[nClass].improvements.length, classes.known[nClass].level);
-				improvementStrings = improvementStrings.concat(get_class_improvements(CurrentClasses[nClass], clLvl));
+			for (let nClass of wasm_character.list_classes()) {
+				let classImprovements = adapter_helper_get_class_property(nClass, "improvements");
+				var clLvl = Math.min(classImprovements.length, wasm_character.get_class_level(nClass));
+				improvementStrings = improvementStrings.concat(get_class_improvements({
+					fullname: adapter_helper_get_class_property(nClass, "fullname"),
+					improvements: classImprovements,
+				}, clLvl));
 			}
 			// update ability description, or add if it doesn't exist yet, let user increase actual value
 			wasm_character.update_ability_source_improvements(improvementStrings);
 			let oldImprovementStrings = [];
 			for (var oClass in classes.old) {
-				var useObj = CurrentClasses[oClass] ? CurrentClasses[oClass] : ClassList[oClass];
+				var useObj = wasm_character.has_class(oClass) ? {
+					fullname: adapter_helper_get_class_property(oClass, "fullname"),
+					improvements: adapter_helper_get_class_property(oClass, "improvements"),
+				} : ClassList[oClass];
 				clLvl = Math.min(useObj.improvements.length, classes.old[oClass].classlevel);
 				oldImprovementStrings = oldImprovementStrings.concat(get_class_improvements(useObj, clLvl));
 			}
@@ -1796,7 +1823,8 @@ async function UpdateSheetDisplay() {
 			if (CurrentUpdates.types.indexOf("statsoverride") !== -1 || CurrentUpdates.types.indexOf("statsitems") !== -1 || CurrentUpdates.types.indexOf("statsmagic") !== -1) statChanges.push(toUni("Magic Item(s)"));
 			strStats += formatLineList("\nThe following changed one or more ability score:", statChanges);
 		}
-		if (strStats) {
+		let newStats = wasm_character.get_abilities_tooltip();
+		if (strStats && Changes_Dialog.oldStats != newStats) {
 			// make the Stats dialog insert
 			dialogParts.push({
 				skipType : "chAS",
@@ -1843,7 +1871,7 @@ async function UpdateSheetDisplay() {
 					["Ability Score changes", "The text above is part of the 'Ability Scores Dialog' and the tooltip (mouseover text) of the ability score fields.\nYou can always open the 'Ability Scores Dialog' using the 'Scores' button in the 'JavaScript Window'-toolbar or the 'Ability Scores' bookmark."],
 					[
 						["Old ability score modifiers", this.oldStats],
-						["New ability score modifiers", wasm_character.get_abilities_tooltip()]
+						["New ability score modifiers", newStats]
 					],
 					true
 				);
@@ -1863,49 +1891,52 @@ async function UpdateSheetDisplay() {
 		Changes_Dialog.oldHPtt = Who("HP Max");
 		// update the HP of the main character (and companions with alternative HP calculations)
 		SetHPTooltip(false, "compAlt");
+		let newHPMax = What("HP Max");
 		// make the HP dialog insert
-		var strHP = "The hit die and/or hit point maximum of the character have changed.";
-		if (autoHP) {
-			strHP += "\nAs HP has been set to update automatically, the Maximum Hit Points have been changed from " + toUni(oldHPmax) + " to " + toUni(What("HP Max")) + ".";
-		}
-		dialogParts.push({
-			skipType : "chHP",
-			type : "cluster",
-			align_children : "align_left",
-			alignment : "align_fill",
-			width : 500,
-			font : "heading",
-			name : "Hit Points",
-			elements : [{
-				type : "view",
-				align_children : "align_row",
+		if ((oldHPmax != newHPMax) || (Changes_Dialog.oldHPtt != Who("HP Max"))) {
+			var strHP = "The hit die and/or hit point maximum of the character have changed.";
+			if (autoHP) {
+				strHP += "\nAs HP has been set to update automatically, the Maximum Hit Points have been changed from " + toUni(oldHPmax) + " to " + toUni(newHPMax) + ".";
+			}
+			dialogParts.push({
+				skipType : "chHP",
+				type : "cluster",
+				align_children : "align_left",
 				alignment : "align_fill",
+				width : 500,
+				font : "heading",
+				name : "Hit Points",
 				elements : [{
-					type : "static_text",
-					width : 400,
+					type : "view",
+					align_children : "align_row",
 					alignment : "align_fill",
-					font : "dialog",
-					wrap_name : true,
-					name : strHP
+					elements : [{
+						type : "static_text",
+						width : 400,
+						alignment : "align_fill",
+						font : "dialog",
+						wrap_name : true,
+						name : strHP
+					}, {
+						type : "button",
+						item_id : "bHPc",
+						name : "See Changes"
+					}]
 				}, {
-					type : "button",
-					item_id : "bHPc",
-					name : "See Changes"
+					type : "check_box",
+					item_id : "chHP",
+					alignment : "align_fill",
+					font : "palette",
+					name : checkboxTxt
 				}]
-			}, {
-				type : "check_box",
-				item_id : "chHP",
-				alignment : "align_fill",
-				font : "palette",
-				name : checkboxTxt
-			}]
-		});
-		Changes_Dialog.bHPc = async function (dialog) {
-			await ShowCompareDialog(
-				["Hit Points changes", "You can always find the current Hit Point calculation in the tooltip (mouseover text) of the Max HP field."],
-				[["Old HP calculation", this.oldHPtt], ["New HP calculation", Who("HP Max")]]
-			);
-		};
+			});
+			Changes_Dialog.bHPc = async function (dialog) {
+				await ShowCompareDialog(
+					["Hit Points changes", "You can always find the current Hit Point calculation in the tooltip (mouseover text) of the Max HP field."],
+					[["Old HP calculation", this.oldHPtt], ["New HP calculation", Who("HP Max")]]
+				);
+			};
+		}
 	} else if (CurrentUpdates.types.indexOf("classes") !== -1 && CurrentEvals.Comp) {
 		for (var aPrefix in CurrentEvals.Comp) {
 			if (CurrentEvals.Comp[aPrefix].hp) {
@@ -1925,10 +1956,10 @@ async function UpdateSheetDisplay() {
 		for (var theCaster in CurrentSpells) {
 			var aCast = CurrentSpells[theCaster];
 			// skip this entry if this is not a class, or not a class with spells known, or there is already a spell sheet made of all cantrips & spells
-			if (!classes.known[theCaster] || !aCast.known || (aCast.typeList && aCast.typeList == 4)) continue;
+			if (!wasm_character.has_class(theCaster) || !aCast.known || (aCast.typeList && aCast.typeList == 4)) continue;
 			var newClass = !classes.old[theCaster];
 			var lvlOld = newClass ? 0 : classes.old[theCaster].classlevel - 1;
-			var lvlNew = classes.known[theCaster].level - 1;
+			var lvlNew = wasm_character.get_class_level(theCaster) - 1;
 			// see if there is a cantrips array in the known section and the amount of known
 			if (isArray(aCast.known.cantrips)) {
 				var oldCaLvl = Math.min(aCast.known.cantrips.length - 1, lvlOld);
@@ -2090,49 +2121,52 @@ async function UpdateSheetDisplay() {
 	if (CurrentUpdates.types.indexOf("atkstr") !== -1) {
 		// get the previous atkCalc/stkAdd string
 		Changes_Dialog.oldAtkStr = CurrentUpdates.atkStrOld ? CurrentUpdates.atkStrOld : "";
-		// make the attack dialog insert
-		dialogParts.push({
-			skipType : "chAT",
-			type : "cluster",
-			align_children : "align_left",
-			alignment : "align_fill",
-			width : 500,
-			font : "heading",
-			name : "Attack Calculations (possibly including spellcasting DC)",
-			elements : [{
-				type : "view",
-				align_children : "align_row",
+		Changes_Dialog.newAtkStr = StringEvals(["atkStr", "spellAtkStr"]);
+		if (Changes_Dialog.newAtkStr != Changes_Dialog.oldAtkStr) {
+			// make the attack dialog insert
+			dialogParts.push({
+				skipType : "chAT",
+				type : "cluster",
+				align_children : "align_left",
 				alignment : "align_fill",
+				width : 500,
+				font : "heading",
+				name : "Attack Calculations (possibly including spellcasting DC)",
 				elements : [{
-					type : "static_text",
-					width : 400,
+					type : "view",
+					align_children : "align_row",
 					alignment : "align_fill",
-					font : "dialog",
-					wrap_name : true,
-					name : "A change was detected in the things that affect how (spell) attacks and/or how spell save DCs are calculated."
+					elements : [{
+						type : "static_text",
+						width : 400,
+						alignment : "align_fill",
+						font : "dialog",
+						wrap_name : true,
+						name : "A change was detected in the things that affect how (spell) attacks and/or how spell save DCs are calculated."
+					}, {
+						type : "button",
+						item_id : "bAtk",
+						name : "See Changes"
+					}]
 				}, {
-					type : "button",
-					item_id : "bAtk",
-					name : "See Changes"
+					type : "check_box",
+					item_id : "chAT",
+					alignment : "align_fill",
+					font : "palette",
+					name : checkboxTxt
 				}]
-			}, {
-				type : "check_box",
-				item_id : "chAT",
-				alignment : "align_fill",
-				font : "palette",
-				name : checkboxTxt
-			}]
-		});
-		Changes_Dialog.bAtk = async function (dialog) {
-			await ShowCompareDialog(
-				["Things affecting attack/DC calculations", "You can always see what things are affecting the attack calculations with the small buttons in front of each attack entry on the first page.", "Be aware that things affecting spell attacks and spell save DCs are applied in the attack section and on the spell sheet pages, but not to the 'Ability Save DC' on the first page."],
-				[
-					["Old attack/DC manipulations", this.oldAtkStr],
-					["New attack/DC manipulations", StringEvals(["atkStr", "spellAtkStr"])]
-				],
-				true
-			);
-		};
+			});
+			Changes_Dialog.bAtk = async function (dialog) {
+				await ShowCompareDialog(
+					["Things affecting attack/DC calculations", "You can always see what things are affecting the attack calculations with the small buttons in front of each attack entry on the first page.", "Be aware that things affecting spell attacks and spell save DCs are applied in the attack section and on the spell sheet pages, but not to the 'Ability Save DC' on the first page."],
+					[
+						["Old attack/DC manipulations", this.oldAtkStr],
+						["New attack/DC manipulations", this.newAtkStr]
+					],
+					true
+				);
+			};
+		}
 	}
 
 	// if an addition was done to the 3rd page Notes section or to a Notes page
@@ -2544,11 +2578,6 @@ function ParseMagicItem(input, bForInventory) {
 function FindMagicItems() {
 	CurrentMagicItems.known = [];
 	CurrentMagicItems.choices = [];
-	if (CurrentVars.manual.items) {
-		CurrentMagicItems.known = CurrentVars.manual.items[0];
-		CurrentMagicItems.choices = CurrentVars.manual.items[3] ? CurrentVars.manual.items[3] : [];
-		return;
-	}
 	for (var i = 1; i <= FieldNumbers.magicitems; i++) {
 		var parsedItem = ParseMagicItem( What("Extra.Magic Item " + i) );
 		CurrentMagicItems.known.push(parsedItem[0]);
@@ -2559,7 +2588,7 @@ function FindMagicItems() {
 // Add the text and features of a Magic Items
 async function ApplyMagicItem(input, FldNmbr, field) {
 	let returnRC = true;
-	if (IsSetDropDowns || CurrentVars.manual.items || !IsNotMagicItemMenu) return returnRC; // When just changing the dropdowns or magic items are set to manual or this is a menu action, don't do anything
+	if (IsSetDropDowns || !IsNotMagicItemMenu) return returnRC; // When just changing the dropdowns or magic items are set to manual or this is a menu action, don't do anything
 	var MIflds = ReturnMagicItemFieldsArray(FldNmbr);
 	// Not called from a field? Then just set the field and let this function be called anew
 	if ((!field || field.name !== MIflds[0]) && What(MIflds[0]) !== input) {
@@ -2864,7 +2893,6 @@ async function ApplyMagicItem(input, FldNmbr, field) {
 };
 
 async function correctMIdescriptionLong(FldNmbr, field) {
-	if (CurrentVars.manual.items) return;
 	var ArrayNmbr = FldNmbr - 1;
 	var aMI = MagicItemsList[CurrentMagicItems.known[ArrayNmbr]];
 	var aMIvar = aMI && CurrentMagicItems.choices[ArrayNmbr] ? aMI[CurrentMagicItems.choices[ArrayNmbr]] : false;
@@ -2897,7 +2925,6 @@ async function correctMIdescriptionLong(FldNmbr, field) {
 }
 
 async function ApplyAttunementMI(FldNmbr, field) {
-	if (CurrentVars.manual.items) return;
 	var ArrayNmbr = FldNmbr - 1;
 	var aMI = CurrentMagicItems.known[ArrayNmbr];
 	if (!aMI) return; // no magic item recognized, so do nothing
@@ -2935,12 +2962,11 @@ function setMIattunedVisibility(FldNmbr, force, fldName) {
 	if (isOF && !isTemplVis("ASoverflow")) return; // overflow, but overflow is not visible
 
 	// Define some constants
-	var noteWidth = typePF ? 25 : 35;
-	var fullWidth = !typePF ? 216 : isOF ? 243.45 : 164.3;
+	var noteWidth = 25;
+	var fullWidth = isOF ? 243.45 : 164.3;
 	var nameRect = tDoc.getField(MIflds[0] + ".1").rect;
 	var noteRect = tDoc.getField(MIflds[1] + ".1").rect;
-	var startCount = nameRect[0];
-	var smallWidth = !typePF ? tDoc.getField(MIflds[4] + ".1").rect[0] - 1 - startCount : isOF ? 211.27 : 132.15;
+	var smallWidth = isOF ? 211.27 : 132.15;
 
 	if (hideIt) {
 		// hide it, uncheck it, and set the rect for the Name and Note fields
@@ -3387,14 +3413,12 @@ async function MakeMagicItemMenu_MagicItemOptions(MenuSelection, itemNmbr, field
 			setMIattunedVisibility(itemNmbr, undefined, field.name);
 			setMIattunedVisibility(otherNmbr, undefined, field.name);
 			// Correct the entry in the CurrentMagicItems.known array
-			if (!CurrentVars.manual.items) {
-				var thisKnown = CurrentMagicItems.known[itemNmbr - 1];
-				var thisChoice = CurrentMagicItems.choices[itemNmbr - 1];
-				CurrentMagicItems.known[itemNmbr - 1] = CurrentMagicItems.known[otherNmbr - 1];
-				CurrentMagicItems.known[otherNmbr - 1] = thisKnown;
-				CurrentMagicItems.choices[itemNmbr - 1] = CurrentMagicItems.choices[otherNmbr - 1];
-				CurrentMagicItems.choices[otherNmbr - 1] = thisChoice;
-			}
+			var thisKnown = CurrentMagicItems.known[itemNmbr - 1];
+			var thisChoice = CurrentMagicItems.choices[itemNmbr - 1];
+			CurrentMagicItems.known[itemNmbr - 1] = CurrentMagicItems.known[otherNmbr - 1];
+			CurrentMagicItems.known[otherNmbr - 1] = thisKnown;
+			CurrentMagicItems.choices[itemNmbr - 1] = CurrentMagicItems.choices[otherNmbr - 1];
+			CurrentMagicItems.choices[otherNmbr - 1] = thisChoice;
 			// Correct the description if moving between 3rd and overflow page
 			if ((upToOtherPage && MenuSelection[1] == "up") || (downToOtherPage && MenuSelection[1] == "down")) {
 				await correctMIdescriptionLong(itemNmbr, field);
@@ -3426,17 +3450,15 @@ async function MakeMagicItemMenu_MagicItemOptions(MenuSelection, itemNmbr, field
 			Checkbox(MIflds[4], !visibleAttunement && What(MIflds[0]), undefined, visibleAttunement ? "hide" : "");
 			setMIattunedVisibility(itemNmbr, undefined, field.name);
 			// Now if attunement was visible and it was unchecked, we have to reapply the magic item's properties
-			if (!CurrentVars.manual.items) {
-				if (theMI && visibleAttunement && !currentlyChecked) {
-					// now apply or remove the magic item's features
-					var Fea = await ApplyFeatureAttributes(
-						"item", // type
-						theMI, // fObjName
-						[0, CurrentMagicItems.level, false], // lvlA [old-level, new-level, force-apply]
-						false, // choiceA [old-choice, new-choice, "only"|"change"]
-						false // forceNonCurrent
-					);
-				}
+			if (theMI && visibleAttunement && !currentlyChecked) {
+				// now apply or remove the magic item's features
+				var Fea = await ApplyFeatureAttributes(
+					"item", // type
+					theMI, // fObjName
+					[0, CurrentMagicItems.level, false], // lvlA [old-level, new-level, force-apply]
+					false, // choiceA [old-choice, new-choice, "only"|"change"]
+					false // forceNonCurrent
+				);
 			}
 			break;
 	}
@@ -3574,10 +3596,8 @@ async function MagicItemInsert(itemNmbr, field) {
 				copyField(MIfldsFrom[i], MIfldsTo[i], exclObj);
 			}
 			// Correct the known array & choices arrays
-			if (!CurrentVars.manual.items) {
-				CurrentMagicItems.known[it - 1] = CurrentMagicItems.known[it - 2];
-				CurrentMagicItems.choices[it - 1] = CurrentMagicItems.choices[it - 2];
-			}
+			CurrentMagicItems.known[it - 1] = CurrentMagicItems.known[it - 2];
+			CurrentMagicItems.choices[it - 1] = CurrentMagicItems.choices[it - 2];
 			// Correct the attuned checkbox visibility
 			setMIattunedVisibility(it, field.name);
 			// Correct the description (normal/long)
@@ -3616,10 +3636,8 @@ async function MagicItemDelete(itemNmbr, field) {
 			copyField(MIfldsFrom[i], MIfldsTo[i], exclObj);
 		}
 		// Correct the known & choices arrays
-		if (!CurrentVars.manual.items) {
-			CurrentMagicItems.known[it - 1] = CurrentMagicItems.known[it];
-			CurrentMagicItems.choices[it - 1] = CurrentMagicItems.choices[it];
-		}
+		CurrentMagicItems.known[it - 1] = CurrentMagicItems.known[it];
+		CurrentMagicItems.choices[it - 1] = CurrentMagicItems.choices[it];
 		// Correct the attuned checkbox visibility
 		setMIattunedVisibility(it, field.name);
 		// Correct the description (normal/long)
@@ -3636,12 +3654,12 @@ async function MagicItemDelete(itemNmbr, field) {
 // Clear a magic item at the position given
 function MagicItemClear(itemNmbr, doAutomation) {
 	var MIflds = ReturnMagicItemFieldsArray(itemNmbr);
-	if (doAutomation && !CurrentVars.manual.items && CurrentMagicItems.known[itemNmbr - 1]) {
+	if (doAutomation && CurrentMagicItems.known[itemNmbr - 1]) {
 		IsNotMagicItemMenu = true;
 		Value("Extra.Magic Item " + itemNmbr, "");
 		tDoc.resetForm(MIflds[1]);
 	} else {
-		if (!CurrentVars.manual.items) CurrentMagicItems.known[itemNmbr - 1] = "";
+		CurrentMagicItems.known[itemNmbr - 1] = "";
 		AddTooltip(MIflds[2], "", "");
 		tDoc.getField(MIflds[2]).setAction("Calculate", "");
 		AddTooltip(MIflds[4], undefined, "");
@@ -3856,7 +3874,7 @@ function gatherPrereqevalVars() {
 		// general character abilities
 		isSpellcaster : isSpellcaster(),
 		isSpellcastingClass : isSpellcaster("class"),
-		characterLevel : Number(What("Character Level")),
+		characterLevel : wasm_character.get_level(),
 		// armour proficiencies
 		shieldProf : tDoc.getField("Proficiency Shields").isBoxChecked(0),
 		lightArmorProf : tDoc.getField("Proficiency Armor Light").isBoxChecked(0),
@@ -3930,7 +3948,7 @@ async function setPlayersMakeAllRolls(enable, fldName) {
 
 // if a feature choice offers extrachoices, correct the parent object to accomodate for this aChoice = [stringOldChoice, stringNewChoice] or bOnlyObject = true in FindClasses()
 async function applyExtrachoicesOfChoice(sClass, sProp, aChoice, bOnlyObject) {
-	var propFea = CurrentClasses[sClass].features[sProp];
+	var propFea = adapter_helper_get_class_property(sClass, "features")[sProp];
 	if (!aChoice && bOnlyObject) aChoice = [false, GetFeatureChoice("classes", sClass, sProp, false)];
 	var propChoiceOld = aChoice[0] && propFea[aChoice[0]] ? propFea[aChoice[0]] : false;
 	var propChoiceNew = aChoice[1] && propFea[aChoice[1]] ? propFea[aChoice[1]] : false;
@@ -3945,7 +3963,7 @@ async function applyExtrachoicesOfChoice(sClass, sProp, aChoice, bOnlyObject) {
 	if (!bOnlyObject) {
 		// Remove the old autoSelectExtrachoices, if changed
 		if (bChangedAutoSelectExtrachoices) {
-			await processClassFeatureExtraChoiceDependencies([classes.known[sClass].level, 0], sClass, sProp, { autoSelectExtrachoices : oldAutoSelectExtrachoices, minlevel : propFea.minlevel }, true);
+			await processClassFeatureExtraChoiceDependencies([wasm_character.get_class_level(sClass), 0], sClass, sProp, { autoSelectExtrachoices : oldAutoSelectExtrachoices, minlevel : propFea.minlevel }, true);
 		}
 		// Remove any extrachoices that were related to the old choice if there was a change
 		if (propChoiceOld && aChoice[0] !== aChoice[1] && propChoiceOld.extrachoices && propFea.extrachoices) {
@@ -3979,6 +3997,6 @@ async function applyExtrachoicesOfChoice(sClass, sProp, aChoice, bOnlyObject) {
 	}
 	// If not only changing the object, now process the new autoSelectExtrachoices, if it changed
 	if (!bOnlyObject && bChangedAutoSelectExtrachoices) {
-		await processClassFeatureExtraChoiceDependencies([0, classes.known[sClass].level], sClass, sProp, propFea);
+		await processClassFeatureExtraChoiceDependencies([0, wasm_character.get_class_level(sClass)], sClass, sProp, propFea);
 	}
 }

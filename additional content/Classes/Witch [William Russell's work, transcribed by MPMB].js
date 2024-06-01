@@ -215,7 +215,7 @@ CompanionList.spirit_kin = {
 	nameMenu : "Spirit Kin (Witch feature)",
 	source : [["WR:W", 9]],
 	includeCheck : function(sCrea, objCrea, iCreaCR) {
-		var iWitchLevel = classes.known['witch-wr'] ? classes.known['witch-wr'].level : 1;
+		var iWitchLevel = wasm_character.has_class('witch-wr') ? wasm_character.get_class_level('witch-wr') : 1;
 		return sCrea === 'pseudodragon' || (objCrea.type.toLowerCase() === "beast" && objCrea.hd && objCrea.hd[0] <= iWitchLevel) ? true : false;
 	},
 	action : [
@@ -235,18 +235,18 @@ CompanionList.spirit_kin = {
 			// Build the string with ballot boxes
 			var aSlots = CompanionList.spirit_kin.spellTable[Math.min(totalHD, 20)];
 			var sBox = '\u274F';
-			var sNewStr = 'spell slots [' + totalHD + ' HD]:' + (typePF ? '\n   ' : '  ');
+			var sNewStr = 'spell slots [' + totalHD + ' HD]:\n   ';
 			for (var i = 0; i < aSlots.length; i++) {
 				if (aSlots[i]) {
 					sNewStr += Base_spellLevelList[i+1].replace('-level', '') + ": " + sBox.repeat(aSlots[i]);
 					if ((i+1) === aSlots.length || !aSlots[i+1]) {
 						// closing with non-breaking space to find this string again
 						sNewStr += '\u00A0';
-					} else if (typePF && i === 2) {
+					} else if (i === 2) {
 						// add a line break on the Printer Friendly sheet after the 3rd level slots
 						sNewStr += '\n   ';
 					} else {
-						sNewStr += typePF ? '\t' : '    ';
+						sNewStr += '\t';
 					}
 				};
 			}

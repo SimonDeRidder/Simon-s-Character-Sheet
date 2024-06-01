@@ -18,12 +18,12 @@ use crate::domain::stats::abilities::{
 use crate::domain::types::{AbilityPart, AbilityValue};
 use crate::render::utils::{create_number_input, remove_modal};
 use crate::{
+	Character,
 	domain::stats::abilities::Ability,
 	render::{
 		error::RenderError,
-		utils::{show_modal, RenderableValue as _},
+		utils::{RenderableValue as _, show_modal},
 	},
-	Character,
 };
 
 type InteractiveAbilitySources = leptos::prelude::RwSignal<
@@ -33,21 +33,22 @@ type InteractiveAbilitySources = leptos::prelude::RwSignal<
 pub fn render_abilities(character: &Character, stats_page: web_sys::HtmlElement) -> Result<(), RenderError> {
 	console_log(">> Rendering abilities pane");
 	let abilities = &character.stats.abilities.abilities;
+	let abilities_len = abilities.len();
 	let abilities_tooltip = character.stats.abilities.tooltip;
 	let abilities_sources = character.stats.abilities.sources;
 	let abilities_min_sources = character.stats.abilities.min_sources;
 	let abilities_max_sources = character.stats.abilities.max_sources;
 	let ability_pane = leptos::html::div()
 		.id("character_abilities")
-		.class(
-			String::from("pane grey-bg-tb-fancy abilities abilities-") + {
-				if abilities.len() <= 6 {
-					"6"
-				} else {
-					"7"
-				}
-			},
-		)
+		.class("pane grey-bg-tb-fancy abilities")
+		.style(format!(
+			"top: 16.55%;left: 3.8%;width: 10.15%;padding-top: 1%;padding-bottom: 1%;height: {}%",
+			if abilities_len <= 6 {
+				55.6
+			} else {
+				64.65
+			}
+		))
 		.title(move || abilities_tooltip.get())
 		.child(
 			// Add individual ability elements
@@ -67,22 +68,26 @@ pub fn render_abilities(character: &Character, stats_page: web_sys::HtmlElement)
 	Ok(())
 }
 
-fn create_ability_pane(abbreviation: &str, ability: &Ability) -> impl leptos::IntoView {
+fn create_ability_pane(abbreviation: &str, ability: &Ability) -> impl leptos::IntoView + use<> {
 	let ability_modifier = ability.modifier;
 	let ability_value = ability.value;
 
 	leptos::html::div()
 		.id(String::from("wasm_") + abbreviation)
 		.class("ability")
+		.style("width: 86.5%")
 		.child((
 			leptos::html::div()
-				.class("textlabel-bold ability-name")
+				.class("textlabel-bold")
+				.style("top: 8.5%;width: 100%;text-transform: uppercase")
 				.child(ability.name.clone()),
 			leptos::html::div()
-				.class("display-field ability-mod")
+				.class("display-field")
+				.style("top: 16%;width: 100%;height: 48%;font-size: 360%")
 				.child(move || ability_modifier.get().render()),
 			leptos::html::div()
-				.class("display-field ability-value")
+				.class("display-field")
+				.style("width: 44%;height: 25%;bottom: 4%;left: 28%;font-size: 220%")
 				.child(move || ability_value.get().render()),
 		))
 }
@@ -137,10 +142,10 @@ pub fn show_ability_modal(
 			));
 			checksum_array.push(source.get_check_sum().map(move |total_val| {
 				leptos::prelude::Memo::new(move |_| {
-					if let Some(feat_flag_bool) = feat_flag {
-						if feat_flag_bool.get() {
-							return true;
-						}
+					if let Some(feat_flag_bool) = feat_flag
+						&& feat_flag_bool.get()
+					{
+						return true;
 					}
 					let mut current_total: AbilityPart = 0;
 					for current_val in source_ability_parts.iter() {
@@ -320,7 +325,16 @@ pub fn show_ability_modal(
 											.clone()
 											.is_none_or(|subs| subs.contains(&String::from(*abbr)))
 										{
-											create_number_input(*abi_signal, 3, *feat_flag).into_any()
+											create_number_input(
+												*abi_signal,
+												"width: 3em",
+												*feat_flag,
+												true,
+												false,
+												false,
+												true,
+											)
+											.into_any()
 										} else {
 											leptos::html::div()
 												.class("display-field")
@@ -332,34 +346,36 @@ pub fn show_ability_modal(
 								.collect_view(),
 							leptos::html::td().child(match feat_flag_clone {
 								None => Vec::new(),
-								Some(feat_flag_signal) => vec![leptos::html::input()
-									.r#type("checkbox")
-									.checked(feat_flag_signal)
-									.on(leptos::ev::change, move |event| {
-										console_log(
-											format!(
-												"before: feat_flag: {:?}, event value: {:?}",
-												feat_flag_signal.get_untracked(),
-												leptos::prelude::event_target_checked(&event)
-											)
-											.as_str(),
-										);
-										let is_checked = leptos::prelude::event_target_checked(&event);
-										feat_flag_signal.set(is_checked);
-										if is_checked {
-											for signal in abi_signals_clone.iter() {
-												signal.set(0);
+								Some(feat_flag_signal) => vec![
+									leptos::html::input()
+										.r#type("checkbox")
+										.checked(feat_flag_signal)
+										.on(leptos::ev::change, move |event| {
+											console_log(
+												format!(
+													"before: feat_flag: {:?}, event value: {:?}",
+													feat_flag_signal.get_untracked(),
+													leptos::prelude::event_target_checked(&event)
+												)
+												.as_str(),
+											);
+											let is_checked = leptos::prelude::event_target_checked(&event);
+											feat_flag_signal.set(is_checked);
+											if is_checked {
+												for signal in abi_signals_clone.iter() {
+													signal.set(0);
+												}
 											}
-										}
-										console_log(
-											format!(
-												"after: feat_flag: {:?}, event value: {:?}",
-												feat_flag_signal.get_untracked(),
-												leptos::prelude::event_target_checked(&event)
-											)
-											.as_str(),
-										);
-									})],
+											console_log(
+												format!(
+													"after: feat_flag: {:?}, event value: {:?}",
+													feat_flag_signal.get_untracked(),
+													leptos::prelude::event_target_checked(&event)
+												)
+												.as_str(),
+											);
+										}),
+								],
 							}),
 						))
 					})
@@ -379,67 +395,77 @@ pub fn show_ability_modal(
 				if min_sources_input_array.read().is_empty() {
 					Vec::new()
 				} else {
-					vec![leptos::html::tr().class("empty-row").child((
-						leptos::html::th(),
-						CONFIG
-							.ability_names_with_max
-							.iter()
-							.map(|_| leptos::html::td())
-							.collect_view(),
-					))]
+					vec![
+						leptos::html::tr().class("empty-row").child((
+							leptos::html::th(),
+							CONFIG
+								.ability_names_with_max
+								.iter()
+								.map(|_| leptos::html::td())
+								.collect_view(),
+						)),
+					]
 				}
 			},
 			move || {
 				if min_sources_input_array.read().is_empty() {
 					Vec::new()
 				} else {
-					vec![leptos::html::tr().child((
-						leptos::html::th().child("Minimum:"),
-						CONFIG
-							.ability_names_with_max
-							.iter()
-							.map(|_| leptos::html::td())
-							.collect_view(),
-					))]
+					vec![
+						leptos::html::tr().child((
+							leptos::html::th().child("Minimum:"),
+							CONFIG
+								.ability_names_with_max
+								.iter()
+								.map(|_| leptos::html::td())
+								.collect_view(),
+						)),
+					]
 				}
 			},
 			move || {
 				if min_sources_input_array.read().is_empty() {
 					Vec::new()
 				} else {
-					vec![min_sources_input_array
-						.read()
-						.iter()
-						.map(|(abbr, descr, abi_min_signals)| {
-							leptos::html::tr().child((
-								leptos::html::th().child(abbr.clone()).title(descr.clone()),
-								abi_min_signals
-									.iter()
-									.map(|abi_min_signal| {
-										leptos::html::td().child(
-											leptos::html::div().class("display-field").child(*abi_min_signal),
-										)
-									})
-									.collect_view(),
-							))
-						})
-						.collect_view()]
-				}
-			},
-			move || {
-				if min_sources_input_array.read().is_empty() {
-					Vec::new()
-				} else {
-					vec![leptos::html::tr().class("table-total").child((
-						leptos::html::th().child("Total:"),
-						min_sources_totals_clone
+					vec![
+						min_sources_input_array
+							.read()
 							.iter()
-							.map(|total_signal| {
-								leptos::html::td()
-									.child(leptos::html::div().class("display-field").child(*total_signal))
+							.map(|(abbr, descr, abi_min_signals)| {
+								leptos::html::tr().child((
+									leptos::html::th().child(abbr.clone()).title(descr.clone()),
+									abi_min_signals
+										.iter()
+										.map(|abi_min_signal| {
+											leptos::html::td().child(
+												leptos::html::div()
+													.class("display-field")
+													.child(*abi_min_signal),
+											)
+										})
+										.collect_view(),
+								))
 							})
 							.collect_view(),
-					))]
+					]
+				}
+			},
+			move || {
+				if min_sources_input_array.read().is_empty() {
+					Vec::new()
+				} else {
+					vec![
+						leptos::html::tr().class("table-total").child((
+							leptos::html::th().child("Total:"),
+							min_sources_totals_clone
+								.iter()
+								.map(|total_signal| {
+									leptos::html::td()
+										.child(leptos::html::div().class("display-field").child(*total_signal))
+								})
+								.collect_view(),
+						)),
+					]
 				}
 			},
 			leptos::html::tr().class("empty-row").child((
@@ -569,7 +595,11 @@ pub fn show_ability_modal(
 			};
 		}
 	});
-	let _ = show_modal("Edit Abilities", modal_content, vec![("OK", ok_signal), ("Cancel", cancel_signal)]);
+	show_modal(
+		"Edit Abilities",
+		modal_content,
+		vec![(String::from("OK"), ok_signal, None), (String::from("Cancel"), cancel_signal, None)],
+	);
 }
 
 fn modify_ability_sources(

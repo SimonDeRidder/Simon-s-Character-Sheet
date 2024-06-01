@@ -120,7 +120,7 @@ AddWarlockInvocation("Hex Beacon (prereq: level 5 warlock)", {
 	name : "Hex Beacon",
 	description : "\n   " + "Adv. on Perception, Survival, Investigation, Nature checks to find a target of my Hex spell",
 	source : ["ATC:BBW", 3],
-	prereqeval : "classes.known.warlock.level >= 5"
+	prereqeval : "wasm_character.get_class_level('warlock') >= 5"
 });
 AddWarlockInvocation("Whispers from the Dark (prereq: level 5 warlock)", {
 	name : "Whispers from the Dark",
@@ -134,7 +134,7 @@ AddWarlockInvocation("Whispers from the Dark (prereq: level 5 warlock)", {
 		selection : ["dissonant whispers"],
 		oncesr : true
 	}],
-	prereqeval : "classes.known.warlock.level >= 5"
+	prereqeval : "wasm_character.get_class_level('warlock') >= 5"
 });
 AddWarlockInvocation("Stalker's Step (prereq: level 7 warlock)", {
 	name : "Stalker's Step",
@@ -148,7 +148,7 @@ AddWarlockInvocation("Stalker's Step (prereq: level 7 warlock)", {
 		selection : ["pass without trace"],
 		oncesr : true
 	}],
-	prereqeval : "classes.known.warlock.level >= 7"
+	prereqeval : "wasm_character.get_class_level('warlock') >= 7"
 });
 AddWarlockInvocation("The Better to Find You With (prereq: level 9 warlock)", {
 	name : "The Better to Find You With",
@@ -162,7 +162,7 @@ AddWarlockInvocation("The Better to Find You With (prereq: level 9 warlock)", {
 		selection : ["locate creature"],
 		oncesr : true
 	}],
-	prereqeval : "classes.known.warlock.level >= 9"
+	prereqeval : "wasm_character.get_class_level('warlock') >= 9"
 });
 AddWarlockInvocation("Let Me In (prereq: level 9 warlock)", {
 	name : "Let Me In",
@@ -174,7 +174,7 @@ AddWarlockInvocation("Let Me In (prereq: level 9 warlock)", {
 		selection : ["knock"],
 		atwill : true
 	}],
-	prereqeval : "classes.known.warlock.level >= 9"
+	prereqeval : "wasm_character.get_class_level('warlock') >= 9"
 });
 AddWarlockInvocation("Unseen Artisans (prereq: level 15 warlock)", {
 	name : "Unseen Artisans",
@@ -188,7 +188,7 @@ AddWarlockInvocation("Unseen Artisans (prereq: level 15 warlock)", {
 		selection : ["fabricate"],
 		atwill : true
 	}],
-	prereqeval : "classes.known.warlock.level >= 15"
+	prereqeval : "wasm_character.get_class_level('warlock') >= 15"
 });
 AddWarlockInvocation("Fangs of the Wolf (prereq: level 12 warlock, the Big, Bad Wolf patron, Pact of the Blade)", {
 	name : "Fangs of the Wolf",
@@ -197,13 +197,13 @@ AddWarlockInvocation("Fangs of the Wolf (prereq: level 12 warlock, the Big, Bad 
 	calcChanges : {
 		atkAdd : ["if (inputText.match(/\\bpact\\b/i)) { fields.Description += (fields.Description ? '; ' : '') + '+1d6 psychic damage vs. target frightened of me'; }; ", "If I include the word 'Pact' in a weapon's name, it will be treated as a Pact Weapon. When I hit a target that is frightened of me with my Pact weapon, the attack does an additional 1d6 psychic damage. I then gain half this bonus damage as temporary HP."]
 	},
-	prereqeval : "classes.known.warlock.subclass === 'warlock-the big bad wolf' && classes.known.warlock.level >= 12 && What('Class Features Remember').indexOf('warlock,pact boon,pact of the blade') !== -1"
+	prereqeval : "wasm_character.get_subclass('warlock') === 'warlock-the big bad wolf' && wasm_character.get_class_level('warlock') >= 12 && What('Class Features Remember').indexOf('warlock,pact boon,pact of the blade') !== -1"
 });
 AddWarlockInvocation("Pack of the Wolf (prereq: level 15 warlock, the Big, Bad Wolf patron, Pact of the Chain)", {
 	name : "Pack of the Wolf",
 	description : "\n   " + "I gain adv. on attacks vs. targets when my familiar is within 5 ft of it, not incapacitated",
 	source : ["ATC:BBW", 3],
-	prereqeval : "classes.known.warlock.subclass === 'warlock-the big bad wolf' && classes.known.warlock.level >= 15 && What('Class Features Remember').indexOf('warlock,pact boon,pact of the chain') !== -1"
+	prereqeval : "wasm_character.get_subclass('warlock') === 'warlock-the big bad wolf' && wasm_character.get_class_level('warlock') >= 15 && What('Class Features Remember').indexOf('warlock,pact boon,pact of the chain') !== -1"
 });
 AddWarlockInvocation("Wisdom of the Wolf (prereq: level 15 warlock, the Big, Bad Wolf patron, Pact of the Tome)", {
 	name : "Wisdom of the Wolf",
@@ -221,5 +221,5 @@ AddWarlockInvocation("Wisdom of the Wolf (prereq: level 15 warlock, the Big, Bad
 		spells : ["counterspell"],
 		selection : ["counterspell"]
 	}],
-	prereqeval : "classes.known.warlock.subclass === 'warlock-the big bad wolf' && classes.known.warlock.level >= 15 && What('Class Features Remember').indexOf('warlock,pact boon,pact of the tome') !== -1"
+	prereqeval : "wasm_character.get_subclass('warlock') === 'warlock-the big bad wolf' && wasm_character.get_class_level('warlock') >= 15 && What('Class Features Remember').indexOf('warlock,pact boon,pact of the tome') !== -1"
 });

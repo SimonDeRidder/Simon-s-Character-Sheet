@@ -128,13 +128,13 @@ ClassList["dawnforgedcast-alchemist"] = {
 			minlevel : 1,
 			description : "\n   " + "I can throw a number of bombs using Dexterity for my attack and damage rolls",
 			usages : "Int mod + 1/2 lvl per ",
-			usagescalc : "event.value = Math.floor(classes.known['dawnforgedcast-alchemist'].level/2) + wasm_character.get_ability_modifier('Int');",
+			usagescalc : "event.value = Math.floor(wasm_character.get_class_level('dawnforgedcast-alchemist')/2) + wasm_character.get_ability_modifier('Int');",
 			action : [["action", ""]],
 			recovery : "long rest",
 			eval : "AddWeapon('Bomb');",
 			removeeval : "RemoveWeapon('Bomb');",
 			calcChanges : {
-				atkCalc : ["if (WeaponName === 'bomb') { output.die = output.die.replace('1d6', Math.ceil(classes.known['dawnforgedcast-alchemist'].level / 3) + 'd6'); }; ", ""]
+				atkCalc : ["if (WeaponName === 'bomb') { output.die = output.die.replace('1d6', Math.ceil(wasm_character.get_class_level('dawnforgedcast-alchemist') / 3) + 'd6'); }; ", ""]
 			}
 		},
 		"swiftalchemy" : {
@@ -408,7 +408,7 @@ ClassSubList["dawnforgedcast-alchemist-grenadier"] = {
 			minlevel : 3,
 			description : "\n   " + "I can throw a number of explosives per day" + "\n   " + "As a Grenadier I gain an additional 3 bombs",
 			usages : "Int mod + 3 + 1/2 lvl per ",
-			usagescalc : "event.value = Math.floor(classes.known['dawnforgedcast-alchemist'].level/2) + 3 + wasm_character.get_ability_modifier('Int');",
+			usagescalc : "event.value = Math.floor(wasm_character.get_class_level('dawnforgedcast-alchemist')/2) + 3 + wasm_character.get_ability_modifier('Int');",
 			action : [["action", ""]],
 			recovery : "long rest",
 			eval : "AddWeapon(\"Bomb\");",
@@ -472,7 +472,7 @@ ClassSubList["dawnforgedcast-alchemist-grenadier"] = {
 				source : ["DFC:AC", 8],
 				description : "\n   " + "Instead of base d6 damage, my bombs now deal d8",
 				calcChanges : {
-					atkCalc : ["if (WeaponName === 'bomb') { output.die = output.die.replace('1d6', Math.ceil(classes.known['dawnforgedcast-alchemist'].level/3) + 'd8'); }; ", ""]
+					atkCalc : ["if (WeaponName === 'bomb') { output.die = output.die.replace('1d6', Math.ceil(wasm_character.get_class_level('dawnforgedcast-alchemist')/3) + 'd8'); }; ", ""]
 				}
 			},
 			"mad bomber" : {

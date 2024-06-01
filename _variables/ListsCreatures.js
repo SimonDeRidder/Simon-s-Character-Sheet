@@ -1639,7 +1639,7 @@ var Base_CreatureList = {
 		}],
 		actions : [{
 			name : "Slam",
-			description : "Target of the golem's slam attack must make a DC 15 Con save or have their HP maximum reduced by the damage taken. This can be restored by the Greater Restoration" + (typePF ? " or other magic." : ".")
+			description : "Target of the golem's slam attack must make a DC 15 Con save or have their HP maximum reduced by the damage taken. This can be restored by the Greater Restoration or other magic."
 		}, {
 			name : "Haste (Recharge 5-6)",
 			description : "As an Action, the golem can magically gain, until the end of its next turn, +2 to its AC, advantage on Dex saves, and can use its slam attack as a bonus action."

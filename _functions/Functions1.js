@@ -1,46 +1,14 @@
-function MakeDocName() {
-	return "MorePurpleMoreBetter's D&D 5th edition " + (tDoc.info.SpellsOnly ? "Complete " + tDoc.info.SpellsOnly.capitalize() + " Spell Sheet" : (tDoc.info.AdvLogOnly ? "Adventure Logsheet" : "Character Record Sheet")) + " v" + semVers + " (" + tDoc.info.SheetType + ")";
-};
-
 function MakeButtons() {
 	CreateIcons();
 	try {
 		if (!tDoc.info.SpellsOnly) {
 			app.addToolButton({
 				cName : "LayoutButton",
-				cExec : minVer ? "MakeAdvLogMenu_AdvLogOptions();" : "MakePagesMenu().then(() => {PagesOptions();});",
+				cExec : "MakePagesMenu().then(() => {PagesOptions();});",
 				oIcon : allIcons.layout,
 				cTooltext : toUni("Set Pages Layout") + "\nSelect which pages are visible in the sheet and set the different lay-out options on those pages. Some pages might offer extra options on the page itself.\n\nNote that you can have multiple instances of the following pages:\n   \u2022  Companion page;\n   \u2022  Notes page;\n   \u2022  Wild Shapes page;\n   \u2022  Spell Sheet page.;\n   \u2022  Adventure Logsheet.\n\nIf you add more pages or you hide/show the pages many times, the file size might increase.",
 				nPos : 0,
 				cLabel : "Layout"
-			});
-		}
-		if (!minVer) {
-			app.addToolButton({
-				cName : "ResetButton",
-				cExec : "ResetAll();",
-				oIcon : allIcons.reset,
-				cTooltext : toUni("Reset") + "\nReset the entire sheet and all form fields to their initial value.",
-				nPos : 1,
-				cLabel : "Reset"
-			});
-		}
-		if (!tDoc.info.AdvLogOnly) {
-			app.addToolButton({
-				cName : "ImportExportButton",
-				cExec : "ImportExport_Button();",
-				oIcon : allIcons.import,
-				cTooltext :  minVer ? toUni("Add Custom Script") + "\nAdd a script to add new spells, modify spells and more, see FAQ." : toUni("Import / Export") + "\n \u2022  Import all the information from an old sheet directly;\n \u2022  Add custom script, see FAQ;\n \u2022  Alternatively, you can import or export data with the .xfdf file format. This method is depreciated, but might still be interesting if you only want to import the equipment sections or only the description sections.\n\nThe description sections include the top of first page, background page, notes, and companion description.",
-				nPos : 2,
-				cLabel : "Import"
-			});
-			app.addToolButton({
-				cName : "SourcesButton",
-				cExec : "resourceDecisionDialog();",
-				oIcon : allIcons.sources,
-				cTooltext : toUni("Select Sources") + "\nOpen a dialog where you can select which sourcebooks and materials the sheet is allowed to use and which it has to excluded from the automation." + (this.info.SpellsOnly ? "\n\nHere you can select which sources are used for the spells or even exclude certain spells or spell schools. After you have set this, you will have to manually re-generate the spell sheet using the 'Spells' button/bookmark." : "\n\nHere you can make the sheet include all Unearthed Arcana material or even have the sheet exclude certain classes, races, spells, etc. etc.\n\nYou are advised to set the sources before filling out the sheet as it may cause certain fields to be reset."),
-				nPos : 3,
-				cLabel : "Sources"
 			});
 		}
 
@@ -49,29 +17,13 @@ function MakeButtons() {
 				cName : "SetTextOptionsButton",
 				cExec : "MakeTextMenu_TextOptions();",
 				oIcon : allIcons.textsize,
-				cTooltext : toUni("Text Options") + "\nWith this button you can:\n   \u2022  Set the font of all fillable fields" + "\n   \u2022  Set the font size of fields with multiple lines;\n   \u2022  Hide\/show the text lines on all pages" + (!typePF ? "" : ";\n   \u2022  Switch between boxes or lines for single-line fields."),
+				cTooltext : toUni("Text Options") + "\nWith this button you can:\n   \u2022  Set the font of all fillable fields" + "\n   \u2022  Set the font size of fields with multiple lines;\n   \u2022  Hide\/show the text lines on all pages;\n   \u2022  Switch between boxes or lines for single-line fields.",
 				nPos : 4,
 				cLabel : "Text"
 			});
 		}
 
 		if (!minVer) {
-			app.addToolButton({
-				cName : "ClassesButton",
-				cExec : "SelectClass();",
-				oIcon : allIcons.classes,
-				cTooltext : toUni("Set Character Classes") + "\nOpen a pop-up dialog where you can set the classes, subclasses, and levels the character has.\n\nYou get drop-down boxes for selecting a class and its subclass, and can test what text you enter is being recognized as what class/subclass.",
-				nPos : 5,
-				cLabel : "Class"
-			});
-			app.addToolButton({
-				cName : "SetToManualButton",
-				cExec : "SetToManual_Button();",
-				oIcon : allIcons.automanual,
-				cTooltext : toUni("Auto / Manual") + "\nSwitch between manual or automatic calculation\/implementation of:\n   \u2022  Attacks;\n   \u2022  Background;\n   \u2022  Class;\n   \u2022  Feats;\n   \u2022  Race.",
-				nPos : 6,
-				cLabel : "Manual"
-			});
 			app.addToolButton({
 				cName : "WeightToCalcButton",
 				cExec : "WeightToCalc_Button();",
@@ -96,7 +48,7 @@ function MakeButtons() {
 				cName : "SpellsButton",
 				cExec : "MakeSpellMenu_SpellOptions();",
 				oIcon : allIcons.spells,
-				cTooltext : toUni("Spells Options") + "\nGet a menu with the options to:\n   \u2022  Create a Spell Sheet;\n   \u2022  Select the sources for that Spell Sheet;\n   \u2022  Delete an existing Spell Sheet;" + (!typePF ? "\n   \u2022  Set the visibility of the Spell Slot check boxes to the Spell Sheet, the Limited Feature section, or both;" : "") + "\n   \u2022  Set the sheet to use Spell Points instead of Spell Slots.\n\nGenerating a Spell Sheet will involve filling out a dialog for each spellcasting class/race/feat. After that you can select which is included in the Spell Sheet and in what order.", //\n\nAlternatively you can create an empty Spell Sheet which you can fill out manually.",
+				cTooltext : toUni("Spells Options") + "\nGet a menu with the options to:\n   \u2022  Create a Spell Sheet;\n   \u2022  Select the sources for that Spell Sheet;\n   \u2022  Delete an existing Spell Sheet;\n   \u2022  Set the sheet to use Spell Points instead of Spell Slots.\n\nGenerating a Spell Sheet will involve filling out a dialog for each spellcasting class/race/feat. After that you can select which is included in the Spell Sheet and in what order.", //\n\nAlternatively you can create an empty Spell Sheet which you can fill out manually.",
 				nPos : 10,
 				cLabel : "Spells"
 			});
@@ -107,7 +59,7 @@ function MakeButtons() {
 				cName : "AdventureLeagueButton",
 				cExec : "MakeAdventureLeagueMenu();AdventureLeagueOptions();",
 				oIcon : allIcons.league,
-				cTooltext : toUni("Adventurers League") + "\nHide\/show fields for Adventurers League play:\n   \u2022  'DCI' on the 1st page;\n   \u2022  'Faction Rank' and 'Renown' on the Background page;\n   \u2022  Sets HP value on the 1st page to 'always fixed';" + (typePF ? "" : "\n   \u2022  Removes the action options from the DMG on the 1st page;") + "\n   \u2022  Adds asterisks for action options taken from the DMG in the reference section.\n\nThis button can also make the \"Adventurers Logsheet\" visible if it isn't already.\n\nNote that this Character Generator\/Sheet offers some options that are not legal in Adventurer's League play regardless of enabling this button or not.",
+				cTooltext : toUni("Adventurers League") + "\nHide\/show fields for Adventurers League play:\n   \u2022  'DCI' on the 1st page;\n   \u2022  'Faction Rank' and 'Renown' on the Background page;\n   \u2022  Sets HP value on the 1st page to 'always fixed';\n   \u2022  Adds asterisks for action options taken from the DMG in the reference section.\n\nThis button can also make the \"Adventurers Logsheet\" visible if it isn't already.\n\nNote that this Character Generator\/Sheet offers some options that are not legal in Adventurer's League play regardless of enabling this button or not.",
 				cMarked : "Number(tDoc.getField('League Remember').submitName)",
 				nPos : 11,
 				cLabel : "League"
@@ -133,7 +85,7 @@ function MakeButtons() {
 			cName : "ColorButton",
 			cExec : "MakeColorMenu(); ColoryOptions();",
 			oIcon : allIcons.colors,
-			cTooltext : !typePF ? toUni("Set Color Theme") + "\nControl the color theme of the sheet in the following ways:\n   \u2022  Color of the Headers;\n   \u2022  Color of the Dragon Heads;" + (minVer ? "" : "\n   \u2022  Color of the HP Dragons;\n   \u2022  Color of the Ability Save DCs;") + "\n   \u2022  Color of the form field highlighting.\n\nNote that the color of the highlighting might affect other PDFs you currently have opened. It will revert to normal once you close this sheet, but will be applied again once you open this sheet." : toUni("Set Highlighting Color") + "\nSet the color of the form field highlighting.\n\nYou can select several colors, the adobe default color, or turn form field highlighting off.\n\nNote that the color of the highlighting might affect other PDFs you currently have opened. It will revert to normal once you close this sheet, but will be applied again once you open this sheet.",
+			cTooltext : toUni("Set Highlighting Color") + "\nSet the color of the form field highlighting.\n\nYou can select several colors, the adobe default color, or turn form field highlighting off.\n\nNote that the color of the highlighting might affect other PDFs you currently have opened. It will revert to normal once you close this sheet, but will be applied again once you open this sheet.",
 			nPos : 15,
 			cLabel : "Color"
 		});
@@ -155,135 +107,6 @@ function MakeButtons() {
 			cName : "MakeItAppear"
 		});
 	}
-};
-
-async function OpeningStatement() {
-	var reminders = Number(tDoc.getField("Opening Remember").submitName);
-	if (!app.viewerVersion || !reminders || (app.viewerVersion < 15 && reminders <= 3)) {
-		CurrentSources.globalExcl = ["UA:RR", "UA:TMC"];
-		var oldVerAlert = app.alert({
-			nIcon : 0,
-			cTitle : "Please update your Adobe Acrobat",
-			cMsg : "This version of Adobe Acrobat is not supported for use with MPMB's D&D 5e Character Tools. You need at least Adobe Acrobat DC (Reader, Pro, or Standard) to use this PDF's full automation. Please know that if you continue to use the sheet with this outdated version of Adobe Acrobat, some features will not work (correctly) and others might produce errors (e.g. the Source Selection and the Mystic class).\n\nDo you want to close this pdf and visit the Adobe website where you can download the latest version of Adobe Acrobat Reader for free (https://get.adobe.com/reader/)?\n\nPlease understand that if you choose 'No', there will be no support if anything doesn't work.\n\n" + (!reminders ? "As you aren't using Adobe Acrobat to view this PDF, you will not be redirected to the website to download Adobe Acrobat Reader for free. Please go there manually.\n\nhttps://get.adobe.com/reader/" : reminders == 1 ? "You will get this warning again the next two times that you open this sheet in an unsupported version of Adobe Acrobat." : reminders == 2 ? "You will get this warning again the next time you open this sheet in an unsupported version of Adobe Acrobat." : "This is the last time this pdf character sheet shows this warning."),
-			nType : 2
-		});
-		if (oldVerAlert === 4) {
-			app.launchURL("https://get.adobe.com/reader/", true);
-			tDoc.closeDoc();
-			return;
-		};
-		tDoc.getField("Opening Remember").submitName += 1;
-	};
-	if (What("Opening Remember") === "No") {
-		tDoc.dirty = false;
-		tDoc.pane = "bookmarks"; //open the bookmarks so that on the first opening people can see its existence
-		var sheetTitle = "MorePurpleMoreBetter's " + (tDoc.info.SpellsOnly ? "Complete " + tDoc.info.SpellsOnly.capitalize() + " Spell Sheet" : (tDoc.info.AdvLogOnly ? "Adventure Logsheet" : "Character Record Sheet")) + " (" + tDoc.info.SheetType + ") v" + semVers;
-		var Text = "[Can't see the 'OK' button at the bottom? Use ENTER to close this dialog]\n\n";
-		Text += "Welcome to " + toUni(sheetTitle);
-		Text += " (get the latest version using the bookmark).";
-		Text += patreonVersion ? "" : "\n\n" + toUni("Only SRD") + ": This sheet is only allowed to contain content from the System Reference Document and no other Wizards of the Coast publications, as they are protected by copyright. If you want to get more content to use with the sheet, see the \"Add Extra Materials\" bookmark.";
-		Text += "\n\n" + toUni("Tooltips") + ": This sheet makes extensive use of tooltips (mouseover texts). Hover your cursor over a field to find how you can enter things into the field, reference to the source, explanatory text, or even a list of options your selection offers you.";
-		Text += "\n\n" + toUni("Functions") + ": Check out the buttons in the \'JavaScript Window\'-toolbar and the bookmarks. Hover your cursor over a button in the \'JavaScript Window\'-toolbar to see what it does.";
-		Text += minVer ? "" : "\n\n" + toUni("Modifiers") + ": With the \"Mods\" button you can add modifiers to the calculated values.";
-		Text += tDoc.info.SpellsOnly ? "" : "\n\n" + toUni("Layout") + ": With the \"Layout\" button you can hide, add, and remove certain pages.";
-		Text += tDoc.info.AdvLogOnly ? "" : "\n\n" + toUni("Spells") + ": With the \"Spells\" button you can have the sheet generate a spell sheet based on your character, or manually create one.";
-		Text += !typePF ? "\n\n" + toUni("Color Options") + ": With the \"Color\" button or the top right logo on the first page, you can change the graphical elements of this sheet to 11 different colors." : "";
-		Text += tDoc.info.AdvLogOnly ? "" : "\n\n" + toUni("Sources") + ": With the \"Sources\" button you can set which resources you want the sheet to use, including most Unearthed Arcana material (e.g. the Revised Ranger). You can also get more using the \"Get Additional Content\" bookmark, like the Gunslinger, Blood Hunter, College of the Maestro by Matthew Mercer, and many others...";
-		Text += "\n\nHave fun with the sheet and the adventures you embark on with its help!\n - MorePurpleMoreBetter - ";
-		var oCk = {
-			bInitialValue : true,
-			bAfterValue : false
-		};
-		app.alert({
-			cMsg : Text,
-			nIcon : 3,
-			cTitle : "Before you get started with MPMB's " + (tDoc.info.SpellsOnly ? "Complete Spell Sheet" : (tDoc.info.AdvLogOnly ? "Adventure Logsheet" : "Character Record Sheet")),
-			oCheckbox : oCk
-		});
-		if (oCk.bAfterValue) {
-			Value("Opening Remember", "Yes");
-		};
-		if (!minVer && CurrentSources.firstTime && app.viewerVersion >= 15) await resourceDecisionDialog(true);
-	};
-	if (tDoc.getField("SaveIMG.Patreon").submitName !== "") {
-		var patreonStatementTimeOut = app.setTimeOut("PatreonStatement();", 66000);
-	};
-};
-
-function ResetTooltips() {
-	var TooltipArray = [
-		"Proficiency Armor Light",
-		"Proficiency Armor Medium",
-		"Proficiency Armor Heavy",
-		"Proficiency Shields",
-		"Proficiency Weapon Simple",
-		"Proficiency Weapon Martial",
-		"Proficiency Weapon Other",
-		"AC Misc Mod 1 Description",
-		"AC Misc Mod 2 Description",
-		"Speed",
-		"Speed encumbered",
-		"Highlighting",
-		"Saving Throw advantages / disadvantages",
-		"Vision"
-	];
-	var clearSubmits = [
-		"All ST Bonus",
-		"Init Bonus",
-		"Passive Perception Bonus",
-		"All Skills Bonus",
-		"Spell DC 1 Bonus",
-		"Spell DC 2 Bonus"
-	]
-	var clearCalcs = [];
-	for (var i = 1; i <= FieldNumbers.langstools; i++) {
-		TooltipArray.push("Tool " + i);
-		TooltipArray.push("Language " + i);
-	}
-	for (i = 1; i <= FieldNumbers.actions; i++) {
-		TooltipArray.push("Bonus Action " + i);
-		TooltipArray.push("Reaction " + i);
-	}
-	for (i = 1; i <= FieldNumbers.trueactions; i++) {
-		TooltipArray.push("Action " + i);
-	}
-	for (i = 0; i <= AbilityScores.abbreviations.length; i++) {
-		TooltipArray.push((i === AbilityScores.abbreviations.length ? "HoS" : AbilityScores.abbreviations[i]) + " ST Prof");
-		clearSubmits.push((i === AbilityScores.abbreviations.length ? "HoS" : AbilityScores.abbreviations[i]) + " ST Bonus");
-	}
-	for (i = 1; i <= FieldNumbers.limfea; i++) {
-		TooltipArray.push("Limited Feature " + i);
-		clearCalcs.push("Limited Feature Max Usages " + i);
-	}
-	for (i = 1; i <= 6; i++) {
-		TooltipArray.push("Resistance Damage Type " + i);
-	}
-	for (i = 1; i <= FieldNumbers.attacks; i++) {
-		var fld = "BlueText.Attack." + i;
-		clearSubmits.push(fld + ".To Hit Bonus");
-		clearSubmits.push(fld + ".Damage Bonus");
-		clearSubmits.push(fld + ".Damage Die");
-	}
-	for (i = 1; i <= FieldNumbers.magicitems; i++) {
-		clearSubmits.push("Extra.Magic Item Attuned " + i);
-	}
-
-	//remove the tooltips from every fieldname in the array
-	for (i = 0; i < TooltipArray.length; i++) {
-		AddTooltip(TooltipArray[i], "", "");
-	};
-	for (i = 0; i < clearSubmits.length; i++) {
-		AddTooltip(clearSubmits[i], undefined, "");
-	};
-	for (i = 0; i < clearCalcs.length; i++) {
-		AddTooltip(clearCalcs[i], undefined, "");
-		tDoc.getField(clearCalcs[i]).setAction("Calculate", "");
-	};
-	AddTooltip("Equipment.menu", "Click here to add equipment to the adventuring gear section, or to reset it (this button does not print).\n\nIt is recommended to pick a pack first before you add any background's items.");
-	AddTooltip("Background Extra", 'First fill out a background in the field to the left.\n\nOnce a background is recognized that offers additional options, those additional options will be displayed here. For example, the "Origin" for the "Outlander" background.');
-	SetHPTooltip("reset");
-	setSkillTooltips(true);
-	correctMIattunedVisibility();
 };
 
 function AddResistance(input, tooltip, replaceThis, replaceMatch) {
@@ -366,17 +189,6 @@ function ToggleWhiteout(toggle) {
 	var logTemps = What("Template.extras.ALlog").split(",").splice(1);
 	var templateA = compTemps.concat(noteTemps).concat(wildTemps).concat(logTemps);
 
-	// Show/hide the whiteout field on page 3 depending on the state of the layers
-	if (!typePF && !minVer) {
-		if (nowWhat) {
-			if (CurrentVars.vislayers[0] === "notes") Show("Extra.Notes Whiteout");
-			if (CurrentVars.vislayers[1] === "equipment") Show("Extra.Other Holdings Whiteout");
-		} else {
-			Hide("Extra.Notes Whiteout");
-			Hide("Extra.Other Holdings Whiteout");
-		}
-	}
-
 	// Show/hide the whiteout fields as per the array
 	for (var i = 0; i < templateA.length; i++) {
 		var whiteFld = templateA[i] + "Whiteout";
@@ -390,446 +202,6 @@ function ToggleWhiteout(toggle) {
 
 	CurrentVars.whiteout = nowWhat;
 	SetStringifieds("vars"); // Save the settings to a field
-
-	thermoM(thermoTxt, true); // Stop progress bar
-};
-
-async function ResetAll(GoOn, noTempl, deleteImports) {
-	var oCk = {
-		cMsg : "Also delete all imported scripts, both files and manual input (i.e. permanently delete everything but the SRD content)",
-		bInitialValue : false,
-		bAfterValue : false
-	};
-	var ResetDialog = {
-		cTitle : "Reset the whole sheet",
-		cMsg : "Are you sure you want to reset all fields and functions to their initial value?\n\nThis will undo any changes you have made, including page layout and imported images.\n\nThis cannot be undone!",
-		nIcon : 1, //Warning
-		nType : 2, //Yes, No
-		oCheckbox : oCk
-	};
-	if (!GoOn && app.alert(ResetDialog) !== 4) return;
-	var keepImports = GoOn && deleteImports ? false : !oCk.bAfterValue;
-	if (keepImports) {
-		var userScriptString = What("User Script");
-	};
-	// Start progress bar and stop calculations
-	var thermoTxt = thermoM("Resetting the sheet" + (GoOn ? ' "' + tDoc.documentFileName + '"' : '') + "...");
-	calcStop(true);
-	IsNotReset = false;
-
-	//make a variable of the current state of location columns in the equipment sections
-	var locColumns = What("Gear Location Remember").split(",");
-
-	thermoM(1/9); //increment the progress dialog's progress
-
-	//delete any extra templates and make any template that is invisible, visible
-	await RemoveSpellSheets(); //first do all the Spell Sheets
-	var defaultShowTempl = ["ASfront", "ASbackgr", "PRsheet"];
-	for (var R in TemplateDep) {
-		if (R === "SSfront" || R === "SSmore" || (!typePF && R === "PRsheet")) continue; //don't do this for the spell sheets, they have their own function; also don't do it for the player reference sheet in not the Printer Friendly version, as it doesn't exist
-		//first see if the template is visible
-		var isTempVisible = isTemplVis(R);
-		var tempExtras = What("Template.extras." + R);
-
-		//if invisible, and one of the defaultShowTempl, make it visible
-		if (!isTempVisible && defaultShowTempl.indexOf(R) !== -1) {
-			await DoTemplate(R, "Add");
-		} else if (tempExtras) { //if there can be multiples of a template, remove them
-			await DoTemplate(R, "RemoveAll", false, true); //remove all of them
-		} else if (isTempVisible && defaultShowTempl.indexOf(R) === -1) {
-			await DoTemplate(R, "Remove"); //remove all of them
-		};
-	};
-
-	setListsUnitSystem("imperial"); //reset the values of some variables to the right unit system
-
-	thermoM(2/9); //increment the progress dialog's progress
-
-	// Reset of all the form field values
-	tDoc.resetForm();
-	thermoM(3/9); //increment the progress dialog's progress
-	tDoc.resetForm(); // do this twice so that all variables based on fields are also reset
-	for (var i = 1; i <= FieldNumbers.limfea; i++) {
-		tDoc.getField("Limited Feature Max Usages " + i).setAction("Calculate", "");
-		tDoc.getField("Limited Feature Max Usages " + i).submitName = "";
-	};
-	tDoc.getField("AC Misc Mod 1 Description").submitName = "";
-	tDoc.getField("AC Misc Mod 2 Description").submitName = "";
-	tDoc.getField("Opening Remember").submitName = 1;
-	tDoc.getField("Character Level").submitName = 0;
-	thermoM(4/9); //increment the progress dialog's progress
-
-	//Reset the color scheme to red
-	setColorThemes(true);
-	thermoM(5/9); //increment the progress dialog's progress
-
-	//reset some global variables
-	CurrentClasses = {};
-	classes.known = {};
-	classes.old = {};
-	CurrentRace = {};
-	CurrentBackground = {};
-	CurrentCompRace = {};
-	CurrentUpdates = {types : []};
-	GetStringifieds(keepImports);
-
-	if (keepImports) { // keep the imports and reset the sources
-		SetStringifieds("sources");
-		SetStringifieds("scriptfiles");
-		Value("User Script", userScriptString);
-	} else { // re-apply the imports and keep the sources setting
-		InitiateLists();
-		await resourceDecisionDialog(true, true); //to make sure that even if the sheet is used before re-opening, the resources are set to default
-		UpdateDropdown("resources");
-		spellsAfterUserScripts(true);
-	};
-
-	// Reset the calculation order
-	ResetTooltips();
-	setCalcOrder();
-
-	thermoM(6/9); //increment the progress dialog's progress
-
-	// Call upon some functions to reset other stuff than field values
-	await ConditionSet(null, true);
-	ShowCalcBoxesLines();
-	ToggleWhiteout(false);
-	ChangeFont();
-	ToggleTextSize();
-	ToggleAttacks(false);
-	ToggleBlueText(false);
-	Toggle2ndAbilityDC("hide");
-	await AdventureLeagueOptions("advleague#all#0");
-	SetSpellSlotsVisibility();
-	ShowHonorSanity();
-	delete CurrentVars.vislayers; LayerVisibilityOptions();
-	ShowCompanionLayer();
-	if (locColumns[0] === "true") HideInvLocationColumn("Adventuring Gear ", true);
-	if (locColumns[1] === "true") HideInvLocationColumn("Extra.Gear ", true);
-	ShowAttunedMagicalItems(true); // in equipment section
-	SetHighlighting();
-	UpdateALdateFormat();
-	DnDlogo();
-
-	thermoM(7/9); //increment the progress dialog's progress
-
-	//Reset portrait & symbol to original blank
-	ClearIcons("HeaderIcon", true);
-	ClearIcons("AdvLog.HeaderIcon", true);
-	ClearIcons("Portrait", true);
-	ClearIcons("Symbol", true);
-	ClearIcons("Comp.img.Portrait", true);
-
-	//re-apply the rich text (deleted because of resetting the form fields)
-	await MakeSkillsMenu_SkillsOptions(["skills", "alphabeta"]);
-	SetRichTextFields();
-
-	thermoM(8/9); //increment the progress dialog's progress
-
-	//generate an instance of the AScomp and ASnotes templates
-	if (!noTempl) {
-		await DoTemplate("AScomp", "Add");
-		await DoTemplate("ASnotes", "Add");
-	};
-	// now move the focus to the first page
-	tDoc.getField(BookMarkList["CSfront"]).setFocus();
-
-	// Set global variable to reflect end of reset
-	IsNotReset = true;
-	await InitializeEverything(true, true);
-	thermoM(thermoTxt, true); // Stop progress bar
-	tDoc.dirty = true;
-};
-
-// Select the text size to use (0 for auto), or if left empty, select the default text size of 5.74 (7 for Printer Friendly)
-function ToggleTextSize(size) {
-	if (CurrentVars.fontsize == undefined) CurrentVars.fontsize = typePF ? 7 : 5.74;
-	var fontSize = size == undefined || isNaN(size) ? (typePF ? 7 : 5.74) : parseFloat(size);
-	if (fontSize == CurrentVars.fontsize) return;
-
-	// Start progress bar and stop calculations
-	var thermoTxt = thermoM("Changing the font size to " + (fontSize ? fontSize : "'Auto'") + "...");
-	calcStop();
-
-	if (!tDoc.info.AdvLogOnly) {
-		var LinesFld = [
-			"Vision",
-			"Saving Throw advantages / disadvantages",
-			"HP Current",
-			"Racial Traits",
-			"Class Features",
-			"Background Feature Description",
-			"Personality Trait",
-			"Ideal",
-			"Bond",
-			"Flaw",
-			"Extra.Notes",
-			"Extra.Other Holdings",
-			"Background_History",
-			"Background_Appearance",
-			"Background_Enemies",
-			"MoreProficiencies"
-		].concat(typePF ?
-			["Background_Organisation.Left", "Background_Organisation.Right"] :
-			["Background_Organisation"]
-		);
-		for (var i = 1; i <= FieldNumbers.magicitems; i++) {
-			LinesFld.push("Extra.Magic Item Description " + i);
-		};
-		for (var i = 1; i <= FieldNumbers.feats; i++) {
-			LinesFld.push("Feat Description " + i);
-		};
-
-		//add the lines for all the companion pages
-		var compTemps = What("Template.extras.AScomp").split(",");
-		for (var T = 0; T < compTemps.length; T++) {
-			var prefix = compTemps[T];
-			LinesFld = LinesFld.concat([
-				prefix + "Comp.Use.HP.Current",
-				prefix + "Comp.Use.Senses",
-				prefix + "Comp.Use.Features",
-				prefix + "Comp.Use.Traits",
-				prefix + "Cnote.Left",
-				prefix + "Cnote.Right"
-			]);
-		}
-
-		//add the lines for all the notes pages
-		var noteTemps = What("Template.extras.ASnotes").split(",");
-		for (var T = 0; T < noteTemps.length; T++) {
-			var prefix = noteTemps[T];
-			LinesFld = LinesFld.concat([
-				prefix + "Notes.Left",
-				prefix + "Notes.Right"
-			]);
-		}
-
-		//add the lines for all the wild shapes pages
-		var wildTemps = What("Template.extras.WSfront").split(",");
-		for (var T = 0; T < wildTemps.length; T++) {
-			var prefix = wildTemps[T];
-			for (var W = 1; W <= 4; W++) {
-				LinesFld = LinesFld.concat([
-					prefix + "Wildshape." + W + ".HP Current",
-					prefix + "Wildshape." + W + ".Traits"
-				]);
-			}
-		}
-	} else {
-		var LinesFld = []
-	}
-
-	//add the lines for all the logsheet pages
-	var logTemps = What("Template.extras.ALlog").split(",");
-	for (var T = 0; T < logTemps.length; T++) {
-		var prefix = logTemps[T];
-		for (var L = 1; L <= FieldNumbers.logs; L++) {
-			LinesFld.push(prefix + "AdvLog." + L + ".notes");
-		}
-	}
-
-	for (var i = 0; i < LinesFld.length; i++) {
-		tDoc.getField(LinesFld[i]).textSize = fontSize;
-		thermoM((i+1)/LinesFld.length); // Increment the progress bar
-	};
-
-	CurrentVars.fontsize = fontSize;
-	SetStringifieds("vars"); // Save the settings to a field
-	thermoM(thermoTxt, true); // Stop progress bar
-};
-
-//set the visibility of the layers on the third page. Input is true if a menu is to be created, or false if the remembered setting is to be taken.
-function show3rdPageNotes() {
-	if (typePF || !What("Extra.Notes")) return;
-	LayerVisibilityOptions(false, ['notes', false]);
-}
-function LayerVisibilityOptions(showMenu, useSelect) {
-	if (typePF || minVer) return; //don't do this function in the Printer-Friendly version
-
-	var isReset = false;
-	if (CurrentVars.vislayers === undefined) {
-		isReset = !showMenu;
-		CurrentVars.vislayers = ["rules", "equipment"];
-	}
-
-	var possibleOptions = ["notes", "rules", "equipment"];
-	if (!useSelect || useSelect === "justMenu") {
-		Menus.chooselayers = [{
-			cName : "Rules left - Equipment right",
-			cReturn : "3rdpage#rules#equipment",
-			bMarked : CurrentVars.vislayers[0] === "rules" && CurrentVars.vislayers[1] === "equipment"
-		}, {
-			cName : "Notes left - Equipment right",
-			cReturn : "3rdpage#notes#equipment",
-			bMarked : CurrentVars.vislayers[0] === "notes" && CurrentVars.vislayers[1] === "equipment"
-		}, {
-			cName : "Notes left - Rules right",
-			cReturn : "3rdpage#notes#rules",
-			bMarked : CurrentVars.vislayers[0] === "notes" && CurrentVars.vislayers[1] === "rules"
-		}];
-		if (useSelect === "justMenu") return;
-	};
-
-	var selection = useSelect ? useSelect : showMenu ? getMenu("chooselayers") : CurrentVars.vislayers;
-	if (!selection || selection[0] == "nothing") return;
-
-	if (selection[0] === "3rdpage") selection.shift();
-	if (!selection[0] || possibleOptions.indexOf(selection[0]) == -1) selection[0] = CurrentVars.vislayers[0];
-	if (!selection[1] || possibleOptions.indexOf(selection[1]) == -1) selection[1] = CurrentVars.vislayers[1];
-
-	if (!isReset && selection[0] == CurrentVars.vislayers[0] && selection[1] == CurrentVars.vislayers[1]) return; // nothing changed
-
-	// Start progress bar and stop calculations
-	var thermoTxt = thermoM("Show the 3rd page " + selection[0] + " and " + selection[1] + " sections...");
-	calcStop();
-
-	var LNotesFlds = [
-		"Text.Header.Notes.Left",
-		"Extra.Notes",
-	];
-	var HideShowLNotesFlds = "Hide";
-	var LRulesFlds = [
-		"Text.Header.Rules.Left",
-		"Image.Rules.Left"
-	];
-	var HideShowLRulesFlds = "Hide";
-	var RRulesFlds = [
-		"Text.Header.Rules.Right",
-		"Image.Header.RightRules",
-		"Image.DragonheadRightRules",
-		"Image.DragonheadshadowRightRules",
-		"Image.Rules.Right"
-	];
-	var HideShowRRulesFlds = "Hide";
-	var REquipFlds = [
-		"Text.Header.Equip.Right",
-		"Image.Equip.Right",
-		"Image.DividerExtraGear",
-		"Image.DragonheadExtraGear",
-		"Display.Weighttxt.LbKgPage3",
-		"Extra.Gear Weight Subtotal Left",
-		"Extra.Gear Weight Subtotal Right",
-		"Extra.Other Holdings"
-	];
-	var HideShowREquipFlds = "Hide";
-	var REquipFldsNP = [];
-	var HideShowREquipFldsNP = "Hide";
-	for (i = 1; i <= FieldNumbers.extragear; i++) {
-		REquipFldsNP.push("Extra.Gear Button " + i);
-		REquipFlds.push("Extra.Gear Row " + i);
-		REquipFlds.push("Extra.Gear Amount " + i);
-		REquipFlds.push("Extra.Gear Weight " + i);
-	};
-
-	// Hide/show the whiteout fields on the right and left side depending on the visible layer and the settings of text line visibility
-	if (CurrentVars.whiteout && selection[0] === "notes") {
-		Show("Extra.Notes Whiteout");
-	} else {
-		Hide("Extra.Notes Whiteout");
-	}
-	if (CurrentVars.whiteout && selection[1] === "equipment") {
-		Show("Extra.Other Holdings Whiteout");
-	} else {
-		Hide("Extra.Other Holdings Whiteout");
-	}
-
-	//do something with the input
-	switch (selection[0]) {
-		case "notes":
-			HideShowLNotesFlds = "Show";
-			break;
-		case "rules":
-			HideShowLRulesFlds = "Show";
-			break;
-	}
-
-	switch (selection[1]) {
-		case "rules":
-			HideShowRRulesFlds = "Show";
-			Hide("Extra.Gear Location");
-			break;
-		case "equipment":
-			HideShowREquipFlds = "Show";
-			HideShowREquipFldsNP = "DontPrint";
-			if (What("Gear Location Remember").split(",")[1] === "true") {
-				Show("Extra.Gear Location");
-			}
-			break;
-	}
-
-	//set the visibility of the fields
-	for (var L = 0; L < LNotesFlds.length; L++) {
-		tDoc[HideShowLNotesFlds](LNotesFlds[L]);
-	}
-	for (L = 0; L < LRulesFlds.length; L++) {
-		tDoc[HideShowLRulesFlds](LRulesFlds[L]);
-	}
-	for (var R = 0; R < RRulesFlds.length; R++) {
-		tDoc[HideShowRRulesFlds](RRulesFlds[R]);
-	}
-	for (R = 0; R < REquipFlds.length; R++) {
-		tDoc[HideShowREquipFlds](REquipFlds[R]);
-	}
-	for (R = 0; R < REquipFldsNP.length; R++) {
-		tDoc[HideShowREquipFldsNP](REquipFldsNP[R]);
-	}
-
-	CurrentVars.vislayers = selection;
-	SetStringifieds("vars"); // Save the settings to a field
-	thermoM(thermoTxt, true); // Stop progress bar
-}
-
-// Toggle between calculated (Toggle = false) and manual (Toggle = true) attack fields
-function ToggleAttacks(Toggle) {
-	// Start progress bar and stop calculations
-	var thermoTxt = thermoM("Changing the attacks to " + (Toggle === "Yes" ? "calculated" : "manual") + "...");
-	calcStop();
-
-	CurrentVars.manual.attacks = Toggle;
-	var VisibleHidden = !Toggle ? "Show" : "Hide";
-	var HiddenVisible = !Toggle ? "Hide" : "Show";
-	var NoPrintHidden = !Toggle ? "DontPrint" : "Hide";
-	var ReadOnly = !Toggle ? "Uneditable" : "Editable";
-	var compTemps = What("Template.extras.AScomp").split(",");
-	var incr = compTemps.length * 4 + FieldNumbers.attacks * 2;
-
-	for (var i = 1; i <= FieldNumbers.attacks; i++) {
-		tDoc[HiddenVisible]("Attack." + i + ".Weapon");
-		tDoc[ReadOnly]("Attack." + i + ".To Hit");
-		tDoc[ReadOnly]("Attack." + i + ".Damage");
-		tDoc[VisibleHidden]("Attack." + i + ".Weapon Selection");
-		tDoc[VisibleHidden]("Attack." + i + ".Proficiency");
-		tDoc[VisibleHidden]("Attack." + i + ".Mod");
-		thermoM(i/incr); //increment the progress dialog's progress
-	}
-
-	for (var T = 0; T < compTemps.length; T++) {
-		for (var i = 1; i <= 3; i++) {
-			var prefix = compTemps[T];
-			tDoc[HiddenVisible](prefix + "Comp.Use.Attack." + i + ".Weapon");
-			tDoc[ReadOnly](prefix + "Comp.Use.Attack." + i + ".To Hit");
-			tDoc[ReadOnly](prefix + "Comp.Use.Attack." + i + ".Damage");
-			tDoc[VisibleHidden](prefix + "Comp.Use.Attack." + i + ".Weapon Selection");
-			tDoc[VisibleHidden](prefix + "Comp.Use.Attack." + i + ".Proficiency");
-			tDoc[VisibleHidden](prefix + "Comp.Use.Attack." + i + ".Mod");
-			thermoM((i * (T + 1) + FieldNumbers.attacks)/incr); //increment the progress dialog's progress
-		}
-		tDoc[VisibleHidden](prefix + "Attack.Titles");
-	}
-
-	if (CurrentVars.bluetxt) {
-		tDoc[NoPrintHidden]("BlueText.Attack");
-		for (var T = 0; T < compTemps.length; T++) {
-			prefix = compTemps[T];
-			tDoc[NoPrintHidden](prefix + "BlueText.Comp.Use.Attack");
-			thermoM((T + 1 + FieldNumbers.attacks + compTemps.length * 3)/incr); //increment the progress dialog's progress
-		}
-		for (var i = 1; i <= FieldNumbers.attacks; i++) {
-			DontPrint("BlueText.Attack." + i + ".Weight Title");
-			DontPrint("BlueText.Attack." + i + ".Weight");
-			thermoM((i + FieldNumbers.attacks + compTemps.length * 4)/incr); //increment the progress dialog's progress
-		};
-	}
 
 	thermoM(thermoTxt, true); // Stop progress bar
 };
@@ -903,21 +275,17 @@ function ToggleBlueText(toggle) {
 		"AmmoRightDisplay.Weight"
 	];
 
-	if (typePF) {
-		BlueTxt.push("Init Bonus");
-		// BlueTxt.push("Comp.Use.Combat.Init.Bonus");
-		BlueTxt.push("AC Stealth Disadvantage");
-		BlueTxt.push("AC Stealth Disadvantage Title");
-	}
+	BlueTxt.push("Init Bonus");
+	// BlueTxt.push("Comp.Use.Combat.Init.Bonus");
+	BlueTxt.push("AC Stealth Disadvantage");
+	BlueTxt.push("AC Stealth Disadvantage Title");
 
 	//add the fields for all the companion template pages into the array
 	var compTemps = What("Template.extras.AScomp").split(",");
 	compTemps.splice(compTemps.indexOf(""), 1);
 	for (var T = 0; T < compTemps.length; T++) {
 		BlueTxt.push(compTemps[T] + "BlueText");
-		if (typePF) {
-			BlueTxt.push(compTemps[T] + "Comp.Use.Combat.Init.Bonus");
-		}
+		BlueTxt.push(compTemps[T] + "Comp.Use.Combat.Init.Bonus");
 	}
 
 	for (var i = 0; i < BlueTxt.length; i++) {
@@ -930,15 +298,6 @@ function ToggleBlueText(toggle) {
 		tDoc[HiddenNoPrint]("Spell DC 2 Bonus");
 	}
 
-	//undo the showing of certain blue text fields depending on the manual settings
-	if (CurrentVars.manual.attacks) {
-		Hide("BlueText.Attack");
-		Hide("BlueText.Comp.Use.Attack");
-		for (var T = 0; T < compTemps.length; T++) {
-			Hide(compTemps[T] + "BlueText.Comp.Use.Attack");
-		}
-	};
-
 	//because of the above, some fields may be hidden even though they should be visible
 	for (var i = 1; i <= FieldNumbers.attacks; i++) {
 		tDoc[HiddenNoPrint]("BlueText.Attack." + i + ".Weight Title");
@@ -949,12 +308,7 @@ function ToggleBlueText(toggle) {
 	var SSarray = What("Template.extras.SSfront").split(",");
 	var SSvisible = SSarray.length > 1;
 	var SSpresuffix = [];
-	if (!typePF) {
-		var showSlots = eval_ish(What("SpellSlotsRemember"));
-		if (showSlots[0]) SSpresuffix.push(["", ".0"]); //show the ones on the first page
-		if (showSlots[1]) SSpresuffix.push(["", ".1"]); //show the ones on the spell sheet template page
-		if (showSlots[1] && SSvisible) SSpresuffix.push([SSarray[1], ""]); //show the ones on the spell sheet page, if visible
-	} else if (What("SpellSlotsRemember") !== "[false,false]") { //only do something if not currently using spell points
+	if (What("SpellSlotsRemember") !== "[false,false]") { //only do something if not currently using spell points
 		SSpresuffix = [["", ""]];
 		if (SSvisible) SSpresuffix.push([SSarray[1], ""]); //show the ones on the spell sheet page, if visible
 	}
@@ -965,15 +319,10 @@ function ToggleBlueText(toggle) {
 	};
 
 	for (var i = 1; i <= FieldNumbers.magicitems; i++) {
-		if (!typePF) {
-			tDoc[HiddenNoPrint]("Extra.Magic Item Weight Title " + i);
-		}
 		tDoc[HiddenNoPrint]("Extra.Magic Item Weight " + i);
 		thermoM((BlueTxt.length + i)/(BlueTxt.length + FieldNumbers.magicitems)); //increment the progress dialog's progress
 	};
-	if (typePF) {
-		tDoc[HiddenNoPrint]("Extra.Magic Item Weight Title");
-	};
+	tDoc[HiddenNoPrint]("Extra.Magic Item Weight Title");
 
 	//now go through all the spell sheets and show the correct blueText fields
 	SSarray = SSarray.concat(What("Template.extras.SSmore").split(","));
@@ -1018,15 +367,12 @@ function ToggleBlueText(toggle) {
 function MakeAdventureLeagueMenu() {
 	var submenuItems = [
 		["Set the HP on the 1st page to automatically use fixed values", "hp", tDoc.getField("HP Max").submitName.split(",")[3] === "fixed"], // 0
-		["Show DCI field on 1st page", "dci", isDisplay("DCI.Text") === display.visible] // 1
-	].concat(typePF ?
-		[["Show Renown on the Background page", "renown", isDisplay("Background_Renown.Text") === display.visible]] : // 2
-		[["Remove DMG actions from 1st page (not legal in AL play)", "actions", true]] // 2
+	].concat(
+		[["Show Renown on the Background page", "renown", isDisplay("Background_Renown.Text") === display.visible]] // 2
 	).concat([
-		[typePF ? "Show space for Faction Rank on the Background page" : "Show space for Faction, Faction Rank, and Renown on the Background page", "factionrank", isDisplay("Background_FactionRank.Text") === display.visible], // 3
-	]).concat(typePF ?
-		[["Mark actions on the Player Reference page that are not legal in AL play", "asterisks", isDisplay("Text.PRsheet.AL.asterisk") === display.visible]] : //4
-		[]
+		["Show space for Faction Rank on the Background page", "factionrank", isDisplay("Background_FactionRank.Text") === display.visible], // 3
+	]).concat(
+		[["Mark actions on the Player Reference page that are not legal in AL play", "asterisks", isDisplay("Text.PRsheet.AL.asterisk") === display.visible]] //4
 	).concat([
 		["Use the fixed carrying capacity rules", "encumbrance", tDoc.getField("Weight Carrying Capacity.Field").display === display.visible], // 5
 		["-", "-", false], // 6
@@ -1035,15 +381,6 @@ function MakeAdventureLeagueMenu() {
 		["Prepare the sheet for Adventurers League play (i.e. do all of the above)", "all#1", false], // 9
 		["Undo all of those marked above", "all#0", false] // 10
 	]);
-
-	if (!typePF) {
-		for (var i = 1; i <= FieldNumbers.trueactions; i++) {
-			if ((/^(?=.*overrun)(?=.*tumble).*$/i).test(What("Action " + i))) {
-				submenuItems[2][2] = false;
-				break;
-			};
-		};
-	};
 
 	var AdvLeagueMenu = [];
 	for (i = 0; i < submenuItems.length; i++) {
@@ -1116,64 +453,24 @@ async function ToggleAdventureLeague(Setting) {
 		};
 	};
 
-	//Show the DCI field
-	if (Setting.dci !== undefined) {
-		tDoc[Setting.dci ? "Show" : "Hide"]("DCI.Title");
-		tDoc[Setting.dci ? "Show" : "Hide"]("DCI.Text");
-		if (!typePF) {
-			tDoc[Setting.dci ? "Hide" : "Show"]("Class and Levels.0");
-			tDoc[Setting.dci ? "Show" : "Hide"]("Class and Levels.1");
-		};
-	};
-
 	//Show the Faction and Renown fields
 	if (Setting.factionrank !== undefined) {
 		var VisibleHidden = Setting.factionrank ? "Show" : "Hide";
 		var HiddenVisible = Setting.factionrank ? "Hide" : "Show";
-		if (!typePF) {
-			var FactionList = [
-				"Background_Organisation.1",
-				"Background_Faction.Title",
-				"Background_Faction.Text",
-				"Background_FactionRank.Title",
-				"Background_FactionRank.Text",
-				"Background_Renown.Title",
-				"Background_Renown.Text"
-			];
-			if (isBackgrVisible) {
-				FactionList.push("Background_Organisation.3");
-				tDoc[HiddenVisible]("Background_Organisation.2");
-			};
-			for (var i = 0; i < FactionList.length; i++) {
-				tDoc[VisibleHidden](FactionList[i]);
-			};
-		} else {
-			tDoc[VisibleHidden]("Background_FactionRank.Text");
-			tDoc[VisibleHidden]("Image.Background_FactionRank");
-			tDoc[HiddenVisible]("Background_Organisation.Right");
-		};
+		tDoc[VisibleHidden]("Background_FactionRank.Text");
+		tDoc[VisibleHidden]("Image.Background_FactionRank");
+		tDoc[HiddenVisible]("Background_Organisation.Right");
 	};
 
 	//Show the Renown field
-	if (typePF && Setting.renown !== undefined) {
+	if (Setting.renown !== undefined) {
 		tDoc[Setting.renown ? "Show" : "Hide"]("Background_Renown.Title");
 		tDoc[Setting.renown ? "Show" : "Hide"]("Background_Renown.Text");
 	};
 
 	//Show the asterisks on the reference sheet field
-	if (typePF && Setting.asterisks !== undefined) {
+	if (Setting.asterisks !== undefined) {
 		tDoc[Setting.asterisks ? "Show" : "Hide"]("Text.PRsheet.AL");
-	};
-
-	//Remove the DMG actions on the 1st page
-	if (!typePF && Setting.actions !== undefined) {
-		if (Setting.actions) {
-			RemoveAction("action", "Overrun / Tumble (or as bonus action)", "Default action");
-			AddAction("action", "Grapple / Shove (instead of 1 attack)", "Default action", "As 1 attack: Disarm / Grapple / Shove");
-		} else {
-			AddAction("action", "Overrun / Tumble (or as bonus action)", "Default action");
-			AddAction("action", "As 1 attack: Disarm / Grapple / Shove", "Default action", "Grapple / Shove (instead of 1 attack)");
-		};
 	};
 
 	//Set the HP to using fixed values
@@ -1427,172 +724,15 @@ function ApplyShield(input) {
 //Change advantage or disadvantage of saves, skills, checks, attacks, etc. based on condition
 async function ConditionSet(fieldName, isReset) {
 	if (!isReset && !IsNotConditionSet) return;
-	if (typePF) { // only the stealth disadvantage is part of the printer friendly version
-		// Start progress bar and stop calculations
-		var thermoTxt = thermoM("Armor stealth disadvantage...");
-		calcStop();
-		IsNotConditionSet = false;
-		var thisFld = "ArmDis";
-		var thisChck = !isReset && tDoc.getField("AC Stealth Disadvantage").isBoxChecked(0) ? true : false;
-		await SetProf("advantage", thisChck, ["Ste", false], "Armor");
-		IsNotConditionSet = true;
-		thermoM(thermoTxt, true); // Stop progress bar
-		return;
-	}
-	var cFlds = {
-		Exh1 : { name : "Extra.Exhaustion Level 1" },
-		Exh2 : { name : "Extra.Exhaustion Level 2" },
-		Exh3 : { name : "Extra.Exhaustion Level 3" },
-		Exh4 : { name : "Extra.Exhaustion Level 4" },
-		Exh5 : { name : "Extra.Exhaustion Level 5" },
-		Exh6 : { name : "Extra.Exhaustion Level 6" },
-		Blinded : { name : "Extra.Condition 1" },
-		Deafened : { name : "Extra.Condition 3" },
-		Frightened : { name : "Extra.Condition 4" },
-		Grappled : { name : "Extra.Condition 5" },
-		Incapacitated : { name : "Extra.Condition 6" },
-		Invisible : { name : "Extra.Condition 7" },
-		Paralyzed : { name : "Extra.Condition 8" },
-		Petrified : { name : "Extra.Condition 9" },
-		Poisoned : { name : "Extra.Condition 10" },
-		Prone : { name : "Extra.Condition 11" },
-		Restrained : { name : "Extra.Condition 12" },
-		Stunned : { name : "Extra.Condition 13" },
-		Unconscious : { name : "Extra.Condition 14" },
-		ArmDis : { name : "AC Stealth Disadvantage" }
-	}
-
-	var thisFld = "ArmDis";
-	for (var aFld in cFlds) {
-		if (!tDoc.getField(cFlds[aFld].name)) continue;
-		cFlds[aFld].checked = tDoc.getField(cFlds[aFld].name).isBoxChecked(0);
-		if (fieldName && cFlds[aFld].name == fieldName) thisFld = aFld;
-		if ((/Exh\d/).test(aFld)) cFlds[aFld].origchecked = thisFld === aFld ? !cFlds[aFld].checked : cFlds[aFld].checked;
-	}
-	var thisChck = !isReset && thisFld && cFlds[thisFld].checked ? true : false;
-	if (!isReset && (!thisFld || !tDoc.getField(cFlds[aFld].name))) return;
-
 	// Start progress bar and stop calculations
-	var thermoTxt = thermoM("Applying the conditions...");
+	var thermoTxt = thermoM("Armor stealth disadvantage...");
 	calcStop();
 	IsNotConditionSet = false;
-
-	// Do something with other fields dependent on the selection
-	//var stealthLoc = Who("Text.SkillsNames") === "alphabeta" ? "Ste" : "Ath";
-	if (isReset || (/Exh\d/).test(thisFld)) {
-		// If this is an exhaustion level, check the ones below and/or uncheck the ones above
-		if (!isReset) {
-			var exhNmbr = Number(thisFld.slice(-1));
-			var strtNmbr = thisChck ? 1 : exhNmbr;
-			var endNmbr = thisChck ? exhNmbr : 7;
-			for (var X = strtNmbr; X < endNmbr; X++) {
-				Checkbox("Extra.Exhaustion Level " + X, thisChck);
-				cFlds["Exh" + X].checked = thisChck;
-			}
-		}
-		// if the level 2 changes, set the current speed
-		if (isReset || cFlds.Exh2.origchecked != cFlds.Exh2.checked || cFlds.Exh5.origchecked != cFlds.Exh5.checked) {
-			await SetProf("speed", cFlds.Exh5.checked ? false : cFlds.Exh2.checked, { allModes : "/2" }, "Exhaustion level 2 (condition)");
-		}
-		// if the level 3 changed, set all the saving throws to adv/dis
-		if (isReset || cFlds.Exh3.origchecked != cFlds.Exh3.checked) {
-			for (var B = 0; B < AbilityScores.abbreviations.length; B++) {
-				await SetProf("advantage", cFlds.Exh3.checked, [AbilityScores.abbreviations[B], false], "Exhaustion level 2 (condition)");
-			};
-		}
-		// if the level 4 changes, set the current HP max
-		if (!isReset && cFlds.Exh4.origchecked != cFlds.Exh4.checked) {
-			var maxHP = What("HP Max");
-			var halfMaxHP = Math.floor(maxHP / 2);
-			var curMaxHP = What("HP Max Current");
-			if (cFlds.Exh4.checked) {
-				var extraMin = curMaxHP ? maxHP - curMaxHP : 0;
-				Value("HP Max Current", halfMaxHP - extraMin);
-			} else if (curMaxHP == halfMaxHP || !halfMaxHP) {
-				Value("HP Max Current", "");
-			} else {
-				var extraMin = halfMaxHP - curMaxHP;
-				Value("HP Max Current", maxHP - extraMin);
-			}
-		}
-	}
-	if (isReset || (/Unconscious|Paralyzed|Petrified|Stunned/).test(thisFld)) {
-		if (thisFld == "Unconscious" && thisChck) {
-			// if unconscious, also check prone, but don't automatically stand up when no longer unconscious
-			Checkbox(cFlds.Prone.name, true);
-			cFlds.Prone.checked = true;
-		} else if (isReset || thisFld == "Petrified") {
-			await SetProf("resistance", thisChck, "All", "Petrified (condition)", "All (petrified)");
-			await SetProf("savetxt", thisChck, { immune : ["poison", "disease"] }, "Petrified (condition)");
-		}
-		// Incapacitated and fail str/dex saves if any of these are checked, but only undo if none are
-		var anyChecked = cFlds.Paralyzed.checked || cFlds.Petrified.checked || cFlds.Stunned.checked || cFlds.Unconscious.checked;
-		Checkbox(cFlds.Incapacitated.name, anyChecked);
-		cFlds.Incapacitated.checked = anyChecked;
-		await SetProf("savetxt", anyChecked, { text : ["Fail Str/Dex saves"] }, "Conditions (paralyzed, petrified, stunned, or unconscious)");
-	}
-	if (isReset || thisFld == "Blinded") {
-		await SetProf("vision", thisChck, "Blinded: fail checks involving sight", "Blinded (condition)", 0);
-	}
-	if (isReset || thisFld == "Deafened") {
-		await SetProf("vision", thisChck, "Deafened: fail checks involving hearing", "Deafened (condition)", 0);
-	}
-	if (isReset || thisFld == "Restrained") {
-		await SetProf("advantage", thisChck, ["Dex", false], "Restrained (condition)");
-	}
-	if (isReset || thisFld == "Invisible") {
-		await SetProf("advantage", thisChck, ["Att", true], "Invisible (condition)");
-	}
-	if (!isReset && thisFld == "Incapacitated" && (cFlds.Unconscious.checked || cFlds.Paralyzed.checked || cFlds.Petrified.checked || cFlds.Stunned.checked)) {
-		Checkbox(cFlds.Incapacitated.name, true);
-		cFlds.Incapacitated.checked = true;
-	}
-	if (isReset || thisFld == "ArmDis") {
-		await SetProf("advantage", thisChck, ["Ste", false], "Armor");
-	}
-	thermoM(0.25); //increment the progress dialog's progress
-
-	// Ability checks disadvantage
-	if (isReset || (/Exh|Frightened|Poisoned/).test(thisFld)) {
-		var abiDisadv = cFlds.Exh1.checked || cFlds.Frightened.checked || cFlds.Poisoned.checked;
-		for (var S = 0; S < SkillsList.abbreviations.length; S++) {
-			await SetProf("advantage", abiDisadv, [SkillsList.abbreviations[S], false], "Exhaustion, Frightened, or Poisoned (conditions)");
-		};
-	}
-	thermoM(0.5); //increment the progress dialog's progress
-
-	// Attack disadvantage
-	if (isReset || (/Exh|Blinded|Frightened|Poisoned|Prone|Restrained/).test(thisFld)) {
-		var attDisadv = cFlds.Exh3.checked || cFlds.Frightened.checked || cFlds.Poisoned.checked || cFlds.Prone.checked || cFlds.Restrained.checked || (cFlds.Blinded.checked && What("Class Features").toLowerCase().indexOf("feral senses") === -1);
-		await SetProf("advantage", attDisadv, ["Att", false], "Exhaustion, Blinded, Frightened, Poisoned, Prone, or Restrained (conditions)");
-	}
-	thermoM(0.75); //increment the progress dialog's progress
-
-	// Set movement speed
-	if (isReset || (/Exh|Grappled|Paralyzed|Petrified|Restrained|Stunned|Unconscious/).test(thisFld)) {
-		var spdFormat = cFlds.Exh5.checked || cFlds.Grappled.checked || cFlds.Paralyzed.checked || cFlds.Petrified.checked || cFlds.Restrained.checked || cFlds.Stunned.checked || cFlds.Unconscious.checked ? "event.value = '0 " + (What("Unit System") == "imperial" ? "ft" : "m") + "';" :"";
-		var spdFlds = ["Speed", "Speed encumbered"];
-		for (var i = 0; i < spdFlds.length; i++) {
-			tDoc.getField(spdFlds[i]).setAction("Format", spdFormat);
-			Value(spdFlds[i], What(spdFlds[i]));
-		}
-	}
-
+	var thisChck = !isReset && tDoc.getField("AC Stealth Disadvantage").isBoxChecked(0) ? true : false;
+	await SetProf("advantage", thisChck, ["Ste", false], "Armor");
 	IsNotConditionSet = true;
 	thermoM(thermoTxt, true); // Stop progress bar
 };
-
-// apply the Class and Levels field change (field validation)
-async function classesFieldVal(value, remVal) {
-	// if you ctrl/shift click into the field, any changes in it must be ignored as the class selection dialog is opened
-	if (remVal !== undefined) {
-		value = remVal;
-		remVal = undefined;
-	} else {
-		await ApplyClasses(value, true);
-	};
-	return [value, remVal];
-}
 
 // search the string for possible class and subclass
 function ParseClass(input) {
@@ -1658,129 +798,22 @@ function ParseClass(input) {
 };
 
 // detects classes entered and parses information to global classes variable
-async function FindClasses(NotAtStartup, isFieldVal, value) {
-	if (!NotAtStartup) classes.field = What("Class and Levels"); // called from startup
-	if (CurrentVars.manual.classes) classes.field = CurrentVars.manual.classes;
+async function FindClasses(oldClasses, oldPrimary, newClasses, newPrimary, NotAtStartup) {
 
 	// Initialize some variables
-	var primeClass = "", gatherVars, deletedCurrentSpells = [];
-
-	// Put the old classes.known in classes.old so the differences in level can be queried later
-	classes.old = {};
-	classes.oldprimary = classes.primary;
-	classes.oldspellcastlvl = classes.spellcastlvl;
-	for (var aClass in classes.known) {
-		classes.old[aClass] = {
-			classlevel : classes.known[aClass].level,
-			subclass : classes.known[aClass].subclass,
-			fullname : CurrentClasses[aClass].fullname
-		}
-	}
-
-	// Remove starting numbers and clean the start/end of the string
-	classes.field = classes.field.replace(/^[ \-.,\\/:;\d]+|[ \-.,\\/:;]+$/g, '');
-	classes.totallevel = 0;
-
-	// Get the different classes from the class field string
-	classes.parsed = [];
-	if (classes.field != "") {
-		var ClDelimiter = clean(What("Delimiter"));
-		var fieldRem = classes.field;
-		var fieldSplit = fieldRem.match(/\D+|(\d+(\.|,))?\d+/g);
-		var tempLevel = fieldSplit.length > 2 ? 1 : Math.max(Number(What("Character Level")), 1);
-		// now loop through the found elements and add them to the classes.parsed array
-		for (var i = 0; i < fieldSplit.length; i = i+2) {
-			if (ClDelimiter) fieldSplit[i].replace(RegExp("^" + ClDelimiter.RegEscape(), "i"), '');
-			var fieldLevel = fieldSplit[i+1] !== undefined ? parseFloat(fieldSplit[i+1]) : tempLevel;
-			classes.parsed.push([clean(fieldSplit[i]), fieldLevel]);
-			classes.totallevel += fieldLevel;
-		}
-	}
+	var deletedCurrentSpells = [];
 
 	// Reset the global classes variables
 	classes.oldhd = eval_ish(classes.hd.toSource());
 	classes.hd = {};
 	classes.hp = 0;
 
-	//find known classes and push them into known array, add hd
-	var classesTemp = {};
-	for (i = 0; i < classes.parsed.length; i++) {
-		var tempLevel = classes.parsed[i][1];
-		var tempFound = ParseClass(classes.parsed[i][0]);
-
-		if (!tempFound) continue; // class not detected
-		var tempClass = tempFound[0];
-		var tempSubClass = tempFound[1];
-		var tempSubClassOld = classes.old[aClass] && classes.old[aClass].subclass ? classes.old[aClass].subclass : false;
+	// add hd
+	for (let tempClass in newClasses) {
+		var tempLevel = newClasses[tempClass].classlevel;
+		var tempSubClass = newClasses[tempClass].subclass;
 		var tempClObj = ClassList[tempClass];
 
-		// see if the found class isn't a prestige class and if all prereqs are met. If not, skip this class (only if not a reset, import, or load on startup)
-		var tempPrereq = !ignorePrereqs && tempClObj.prestigeClassPrereq ? tempClObj.prestigeClassPrereq : tempClObj.prereqeval ? tempClObj.prereqeval : false;
-		if (tempPrereq && IsNotReset && IsNotImport && NotAtStartup) {
-			if (!isNaN(tempPrereq)) {
-				tempPrereq = Number(tempPrereq) <= (classes.totallevel - tempLevel);
-			} else {
-				try {
-					if (typeof tempPrereq == "string") {
-						tempPrereq = eval(tempPrereq);
-					} else if (typeof tempPrereq == 'function') {
-						if (!gatherVars) gatherVars = gatherPrereqevalVars();
-						gatherVars['class'] = tempClass;
-						gatherVars.subclass = tempSubClass;
-						gatherVars.classlevel = tempLevel;
-						tempPrereq = tempPrereq(gatherVars);
-					}
-				} catch (err) {
-					tempPrereq = true;
-				}
-			}
-			// ask the user if we should apply this class or skip it if the prereqeval returned "skip"
-			if (tempPrereq === "skip") {
-				continue;
-			} else if (tempPrereq === false) {
-				var prestClMsg = {
-					nType : 2, // Yes,No
-					nIcon : 1, // Warning
-					cTitle : "(Prestige) Class prerequisites not met!",
-					cMsg : "The (prestige) class '" + tempClObj.name + "' has a prerequisite which wasn't met. Apply this class anyway?\n\nIf you select 'No', the " + tempLevel + " level(s) of this class will be counted towards the total character level, but none of its features will be added."
-				};
-				if (app.alert(prestClMsg) === 3) continue; // user decided not to apply the class
-			}
-		}
-
-		// set the primary class if not yet defined and this is not a prestige class
-		if (primeClass === "" && !tempClObj.prestigeClassPrereq) primeClass = tempClass;
-
-		// set the object for this class (later to be set to classes.known)
-		classesTemp[tempClass] = {
-			name : tempClass,
-			level : tempLevel,
-			subclass : tempSubClass,
-			string : classes.parsed[i][0]
-		};
-
-		// Ask for subclass if none is defined and this is not a reset, import, or a sheet startup event and not after just removing a subclass
-		if (IsNotReset && IsNotImport && NotAtStartup && !tempSubClass && tempClObj.subclasses[1].length && !tempSubClassOld) {
-			// first check at what level this class gets it subclass and if we are at that level yet
-			var enoughLevel = false;
-			for (var propKey in tempClObj.features) {
-				var tempProp = tempClObj.features[propKey];
-				if (propKey.indexOf("subclassfeature") == -1 || !tempProp.minlevel || tempProp.minlevel > tempLevel) continue;
-				enoughLevel = true;
-				break;
-			}
-			if (enoughLevel) {
-				var newSubClass = await PleaseSubclass(tempClass, classesTemp[tempClass].string);
-				if (newSubClass) {
-					classesTemp[tempClass].subclass = newSubClass[0];
-					classesTemp[tempClass].string = newSubClass[1];
-					classes.field = classes.field.replace(classes.parsed[i][0], newSubClass[1]);
-					classes.parsed[i][0] = newSubClass[1];
-				}
-			}
-		}
-
-		// add hd
 		var tempDie = tempSubClass && ClassSubList[tempSubClass].die ? ClassSubList[tempSubClass].die : tempClObj.die;
 		if (!classes.hd[tempDie]) classes.hd[tempDie] = 0;
 		classes.hd[tempDie] += tempLevel;
@@ -1788,30 +821,13 @@ async function FindClasses(NotAtStartup, isFieldVal, value) {
 		if (classes.hp === 0) classes.hp = tempDie;
 	};
 
-	// if there is only a single class, remove the level from the classes.field (if present)
-	if (classes.parsed.length == 1 && classes.field.indexOf(classes.parsed[0][1]) !== -1) {
-		classes.field = clean(classes.field.replace(classes.parsed[0][1], ''));
-	}
-
-	// if any of the above changed the classes.field set it
-	if (NotAtStartup && !isFieldVal && What("Class and Levels") != classes.field) {
-		tDoc.getField("Class and Levels").remVal = classes.field;
-		Value("Class and Levels", classes.field);
-	} else if (NotAtStartup && isFieldVal && value != classes.field) {
-		value = classes.field;
-	}
-
-	// if the found classes are the exact same as the classes.known, don't do anything
-	var isChange = primeClass !== classes.primary;
+	// if the new classes are the exact same as the oldClasses, don't do anything further if not at startup
+	let isChange = newPrimary !== oldPrimary;
 	if (!isChange) {
-		var testArray = [];
-		for (var testCl in classesTemp) testArray.push(testCl);
-		for (var testCl in classes.known) testArray.push(testCl);
-		for (var t = 0; t < testArray.length; t++) {
-			var theKcl = classes.known[testArray[t]];
-			var theNcl = classesTemp[testArray[t]];
-			if (theKcl && theNcl && theNcl.name === theKcl.name && theNcl.level === theKcl.level && theNcl.subclass === theKcl.subclass) {
-				theKcl.string = theNcl.string; // because otherwise we skip this change, if it is the only thing that changes
+		for (let testCl of (new Set(Object.keys(newClasses))).union(new Set(Object.keys(oldClasses)))) {
+			let theOldClass = oldClasses[testCl];
+			let theNewClass = newClasses[testCl];
+			if (theNewClass && theOldClass && theNewClass.classlevel === theOldClass.classlevel && theNewClass.subclass === theOldClass.subclass) {
 				continue;
 			}
 			isChange = true;
@@ -1819,34 +835,33 @@ async function FindClasses(NotAtStartup, isFieldVal, value) {
 		};
 	};
 	if (!isChange && NotAtStartup) {
-		await ApplyClassLevel(true);
-		return [true, value];
+		return true;
 	};
 
 	// Check every class in classes old and if they are not in classesTemp, remove their features
 	if (NotAtStartup) {
-		var classesRemove = {};
-		for (var oClass in classes.old) {
+		var classesRemove = [];
+		for (var oClass in oldClasses) {
 			// if this class exists, was the primary class, and is no longer, change things up
-			if (classesTemp[oClass] && classes.primary === oClass && primeClass !== classes.primary) {
+			if ((oClass in newClasses) && oldPrimary === oClass && newPrimary !== oldPrimary) {
 				// first remove its primary class attributes
 				await ApplyClassBaseAttributes(false, oClass, true);
 				// then add its non-primary class attributes
 				await ApplyClassBaseAttributes(true, oClass, false);
 			}
 
-			if (!classesTemp[oClass]) {
+			if (!(oClass in newClasses)) {
 				// remove the class base features if removing the class
-				await ApplyClassBaseAttributes(false, oClass, classes.primary == oClass);
+				await ApplyClassBaseAttributes(false, oClass, oldPrimary == oClass);
 				// reset the tooltip of the equipment menu if this was the primary class
-				if (classes.primary == oClass) AddTooltip("Equipment.menu", "Click here to add equipment to the adventuring gear section, or to reset it (this button does not print).\n\nIt is recommended to pick a pack first before you add any background's items.");
+				if (oldPrimary == oClass) AddTooltip("Equipment.menu", "Click here to add equipment to the adventuring gear section, or to reset it (this button does not print).\n\nIt is recommended to pick a pack first before you add any background's items.");
 				// remove the class from the CurrentSpells variable
 				delete CurrentSpells[oClass];
-			} else if (classesTemp[oClass].subclass !== classes.old[oClass].subclass) {
+			} else if (newClasses[oClass].subclass !== oldClasses[oClass].subclass) {
 				// when only changing the subclass, or adding a new one, remove the base features of the subclass and add those of the new class
-				await ApplyClassBaseAttributes([classes.old[oClass].subclass, classesTemp[oClass].subclass], oClass, classes.primary == oClass);
+				await ApplyClassBaseAttributes([oldClasses[oClass].subclass, newClasses[oClass].subclass], oClass, oldPrimary == oClass);
 				// if the class doesn't have spellcasting, but the old subclass did, remove it from the CurrentSpells variable (if the new subclass has spellcasting, we will create that again below)
-				var oldSubClass = classes.old[oClass].subclass ? ClassSubList[classes.old[oClass].subclass] : false;
+				var oldSubClass = oldClasses[oClass].subclass ? ClassSubList[oldClasses[oClass].subclass] : false;
 				if (oldSubClass && oldSubClass.spellcastingFactor && !ClassList[oClass].spellcastingFactor) {
 					deletedCurrentSpells.push(oClass);
 					delete CurrentSpells[oClass];
@@ -1854,76 +869,36 @@ async function FindClasses(NotAtStartup, isFieldVal, value) {
 			}
 
 			// update things when removing a whole class or when removing a subclass
-			if (!classesTemp[oClass] || (classesTemp[oClass].subclass !== classes.old[oClass].subclass && classes.old[oClass].subclass)) {
+			if (!(oClass in newClasses) || (newClasses[oClass].subclass !== oldClasses[oClass].subclass && oldClasses[oClass].subclass)) {
 				// Indicate that this class should be removed
-				classesRemove[oClass] = classes.known[oClass];
-				classesRemove[oClass].level = 0;
-
-				// If removing the (sub)class, also remove the class from the SubClass Remember field, so that the pop-up to pick a subclass appears again
-				if (!classesTemp[oClass] || !classesTemp[oClass].subclass) {
-					RemoveString("SubClass Remember", oClass, false);
-				}
+				classesRemove.push(oClass);
 			}
 		}
 		// Remove the class' features of those removed, if any
-		if (ObjLength(classesRemove)) {
-			// Temporarily set the classes.known to the ones that need removing
-			classes.known = classesRemove;
-			// Remove all the features of the class (remember, new level is set to 0 above)
-			await UpdateLevelFeatures("class");
+		if (classesRemove.length) {
+			// Remove all the features of the class
+			await UpdateLevelFeatures("class", undefined, classesRemove);
 
 			// Loop through these removed classes and set old class' level to 0 if class was removed, so all features are added again in full
-			for (var oClass in classesRemove) {
-				if (classesTemp[oClass]) classes.old[oClass].classlevel = 0;
+			for (var oClass of classesRemove) {
+				if ((oClass in newClasses)) oldClasses[oClass].classlevel = 0;
 			}
 		}
 	}
-
-	classes.known = classesTemp;
-	classes.primary = primeClass;
 
 	var multiCaster = {default : 0, warlock : 0};
 
 	temp = [1];
 	//lookup classes and subclasses and put their attributes in CurrentClasses global variable
-	for (var aClass in classes.known) {
+	for (let aClass in newClasses) {
 
 		//define new global variable based on the known classes
-		CurrentClasses[aClass] = {
-			name : "", //must exist
-			subname : "", //must exist
-			fullname : "", //must exist
-			source : "", //must exist
-			attacks : [1], //must exist
-			features : {}, //must exist
-			equipment : "", //must exist
-			prereqs : "", //must exist
-			primaryAbility : "", //must exist
-			improvements : [0] //must exist
-		};
+		CurrentClasses[aClass] = {features : {},  attacks : [1]};
 
 		var Temps = CurrentClasses[aClass];
-		var classObj = ClassList[aClass];
-		var subClObj = classes.known[aClass].subclass && ClassSubList[classes.known[aClass].subclass] ? ClassSubList[classes.known[aClass].subclass] : false;
-
-		// Fill in the properties of this newly defined global variable and prefer subclass attributes over class attributes
-		for (var prop in classObj) { // the class
-			if ((/^(subname|features)$/i).test(prop)) continue;
-			Temps[prop] = classObj[prop];
-		}
-		if (subClObj) { // the subclass, if it exists
-			for (var prop in subClObj) {
-				if ((/^(name|features|prereqs|primaryAbility)$/i).test(prop)) continue;
-				Temps[prop] = subClObj[prop];
-			}
-			// --- backwards compatibility --- //
-			// if an old attribute exists in the subclass, but the ClassList object uses the new attribute name, make sure the subclass's version is used
-			var backwardsAttr = [["armor", "armorProfs"], ["weapons", "weaponProfs"]];
-			for (var i = 0; i < backwardsAttr.length; i++) {
-				var aBW = backwardsAttr[i];
-				if (subClObj[aBW[0]] && subClObj[aBW[1]] == undefined && classObj[aBW[1]]) delete Temps[aBW[1]];
-			}
-		}
+		let classObj = ClassList[aClass];
+		let subclass = newClasses[aClass].subclass ? newClasses[aClass].subclass : null;
+		let subClObj = subclass && ClassSubList[subclass] ? ClassSubList[subclass] : false;
 
 		var fAB = [];
 		var fTrans = {};
@@ -1945,7 +920,7 @@ async function FindClasses(NotAtStartup, isFieldVal, value) {
 				var fNm = ("0" + csPropAtt.minlevel).slice(-2) + csPropAtt.name;
 				if (fNm.toString().length > 2) {
 					fAB.push(fNm);
-					fTrans[fNm] = {name: prop, list: "ClassSubList", item: classes.known[aClass].subclass};
+					fTrans[fNm] = {name: prop, list: "ClassSubList", item: subclass};
 				}
 			}
 		}
@@ -1962,28 +937,25 @@ async function FindClasses(NotAtStartup, isFieldVal, value) {
 			}
 		}
 
-		//make fullname if not defined by subclass
-		if (Temps.fullname === "") {
-			Temps.fullname = Temps.name + (Temps.subname ? " (" + Temps.subname + ")" : "");
-		}
-
 		//see if this class is a spellcaster and what we need to do with that
-		if (Temps.spellcastingFactor) {
-			var casterType = !isNaN(Temps.spellcastingFactor) ? "default" : Temps.spellcastingFactor.replace(/\d/g, "");
-			var casterFactor = !isNaN(Temps.spellcastingFactor) ? Number(Temps.spellcastingFactor) : (/\d/g).test(Temps.spellcastingFactor) ? Number(Temps.spellcastingFactor.match(/\d/g).join("")) : 1;
+		let classSpellcastingFactor = adapter_helper_get_class_property(aClass, "spellcastingFactor", subclass);
+		if (classSpellcastingFactor) {
+			var casterType = !isNaN(classSpellcastingFactor) ? "default" : classSpellcastingFactor.replace(/\d/g, "");
+			var casterFactor = !isNaN(classSpellcastingFactor) ? Number(classSpellcastingFactor) : (/\d/g).test(classSpellcastingFactor) ? Number(classSpellcastingFactor.match(/\d/g).join("")) : 1;
 			// now only continue if the class level is the factor or higher
+			let spellcastingTable = adapter_helper_get_class_property(aClass, "spellcastingTable", subclass);
 			var isCasterAtLvl = function(lvl) {
 				var theRe = Math.max(casterFactor, 1) <= lvl;
 				// or if the class has its own spell slot progression, check against that
-				if (!theRe && Temps.spellcastingTable && Temps.spellcastingTable[lvl]) {
-					theRe = 0 < Temps.spellcastingTable[lvl].reduce(function (total, num) {
+				if (!theRe && spellcastingTable && spellcastingTable[lvl]) {
+					theRe = 0 < spellcastingTable[lvl].reduce(function (total, num) {
 						return total + num;
 					});
 				}
 				return theRe;
 			}
-			var casterAtCurLvl = isCasterAtLvl(classes.known[aClass].level);
-			var casterAtOldLvl = classes.old[aClass] ? isCasterAtLvl(classes.old[aClass].classlevel) : 0;
+			var casterAtCurLvl = isCasterAtLvl(newClasses[aClass].classlevel);
+			var casterAtOldLvl = oldClasses[aClass] ? isCasterAtLvl(oldClasses[aClass].classlevel) : 0;
 			if (casterAtCurLvl) {
 				// add one to the casterType for seeing if this casterType is multiclassing later on
 				if (multiCaster[casterType]) {
@@ -1992,22 +964,25 @@ async function FindClasses(NotAtStartup, isFieldVal, value) {
 					multiCaster[casterType] = 1;
 				}
 				// create the base object (or recreate if subclass changed or added)
-				if (NotAtStartup && (casterAtCurLvl != casterAtOldLvl || classes.known[aClass].subclass !== classes.old[aClass].subclass)) {
+				if (NotAtStartup && (casterAtCurLvl != casterAtOldLvl || subclass !== oldClasses[aClass].subclass)) {
 					var cSpells = await CreateCurrentSpellsEntry("class", aClass);
 					// then update this base object so that it is a spellcasting class with options
 					if (cSpells) {
-						cSpells.list = Temps.spellcastingList ? Temps.spellcastingList : {class : aClass};
-						cSpells.known = Temps.spellcastingKnown ? Temps.spellcastingKnown : "";
+						let spellcastingList = adapter_helper_get_class_property(aClass, "spellcastingList", subclass);
+						cSpells.list = spellcastingList ? spellcastingList : {class : aClass};
+						let spellcastingKnown = adapter_helper_get_class_property(aClass, "spellcastingKnown", subclass);
+						cSpells.known = spellcastingKnown ? spellcastingKnown : "";
 						cSpells.typeSp = !cSpells.known || !cSpells.known.spells || isArray(cSpells.known.spells) || !isNaN(cSpells.known.spells) ? "known" : cSpells.known.spells;
 						cSpells.factor = [casterFactor, casterType];
-						cSpells.spellsTable = Temps.spellcastingTable ? Temps.spellcastingTable : false;
-						if (Temps.spellcastingExtra && deletedCurrentSpells.indexOf(aClass) !== -1) {
+						cSpells.spellsTable = spellcastingTable ? spellcastingTable : false;
+						let spellcastingExtra = adapter_helper_get_class_property(aClass, "spellcastingExtra", subclass);
+						if (spellcastingExtra && deletedCurrentSpells.indexOf(aClass) !== -1) {
 							// Set the extra (and extraSpecial) attributes if we had to recreate this CurrentSpells object
-							processSpellcastingExtra(true, aClass, 0, "", Temps.spellcastingExtra, Temps.spellcastingExtraApplyNonconform);
+							processSpellcastingExtra(true, aClass, 0, "", spellcastingExtra, adapter_helper_get_class_property(aClass, "spellcastingExtraApplyNonconform", subclass));
 						};
 					}
 				} else if (NotAtStartup && CurrentSpells[aClass]) {
-					CurrentSpells[aClass].level = classes.known[aClass].level;
+					CurrentSpells[aClass].level = newClasses[aClass].classlevel;
 				}
 			} else if (NotAtStartup && CurrentSpells[aClass] && !ObjLength(CurrentSpells[aClass].bonus)) {
 				// not high enough level to be a spellcaster anymore and no bonus spells, so remove the object if it exists
@@ -2017,7 +992,7 @@ async function FindClasses(NotAtStartup, isFieldVal, value) {
 		}
 
 		//add number of attacks to temp array
-		temp.push(Temps.attacks[Math.min(classes.known[aClass].level, Temps.attacks.length) - 1]);
+		temp.push(Temps.attacks[Math.min(newClasses[aClass].classlevel, Temps.attacks.length) - 1]);
 	}
 	//pick highest number of attacks in temp array and put that into global classes variable
 	classes.attacks = Math.max.apply(Math, temp);
@@ -2025,54 +1000,73 @@ async function FindClasses(NotAtStartup, isFieldVal, value) {
 	//reset the global variable for spellcasting levels
 	classes.spellcastlvl = {default : 0, warlock : 0, spellpoints : 0};
 	//loop through the classes to find the new spellcasting level totals (can't be done in previous loop, because we need to know the total amount of casters of each type, which is set in previous loop)
-	for (var aClass in classes.known) {
-		var Temps = CurrentClasses[aClass];
+	for (let aClass in newClasses) {
 		var cSpells = CurrentSpells[aClass];
+		let subclass = newClasses[aClass].subclass ? newClasses[aClass].subclass : null;
+		let spellcastingTable = adapter_helper_get_class_property(aClass, "spellcastingTable", subclass);
+		let spellcastingFactorRoundupMulti = adapter_helper_get_class_property(aClass, "spellcastingFactorRoundupMulti", subclass);
 		// don't go on if this is not a spellcaster or its factor is lower than its level (thus, no spell slots at this level)
-		if (!cSpells || !cSpells.factor || (!Temps.spellcastingTable && cSpells.factor[0] > cSpells.level)) continue;
+		if (!cSpells || !cSpells.factor || (!spellcastingTable && cSpells.factor[0] > cSpells.level)) continue;
 		var casterFactor = cSpells.factor[0];
 		var casterType = cSpells.factor[1];
 		// Now calculate the effective caster level and add it to the casterType
-		if (Temps.spellcastingTable && multiCaster[casterType] === 1) {
-			var casterLvl = Math.min(Temps.spellcastingTable.length - 1, classes.known[aClass].level);
+		if (spellcastingTable && multiCaster[casterType] === 1) {
+			var casterLvl = Math.min(spellcastingTable.length - 1, newClasses[aClass].classlevel);
 			// Sum the values in the row at the current caster level and add it to the otherTables
-			classes.spellcastlvl.otherTables = !classes.spellcastlvl.otherTables ? Temps.spellcastingTable[casterLvl] : classes.spellcastlvl.otherTables.map(function (num, idx) {
-				return num + Temps.spellcastingTable[casterLvl][idx];
+			classes.spellcastlvl.otherTables = !classes.spellcastlvl.otherTables ? spellcastingTable[casterLvl] : classes.spellcastlvl.otherTables.map(function (num, idx) {
+				return num + spellcastingTable[casterLvl][idx];
 			});
 		} else {
 			if (classes.spellcastlvl[casterType] == undefined) classes.spellcastlvl[casterType] = 0;
-			classes.spellcastlvl[casterType] += Math[multiCaster[casterType] > 1 && !Temps.spellcastingFactorRoundupMulti ? "floor" : "ceil"](cSpells.level / casterFactor);
+			classes.spellcastlvl[casterType] += Math[multiCaster[casterType] > 1 && !spellcastingFactorRoundupMulti ? "floor" : "ceil"](cSpells.level / casterFactor);
 		}
-		if (casterType === "default") classes.spellcastlvl.spellpoints += Math[!Temps.spellcastingFactorRoundupMulti ? "floor" : "ceil"](cSpells.level / casterFactor);
+		if (casterType === "default") classes.spellcastlvl.spellpoints += Math[!spellcastingFactorRoundupMulti ? "floor" : "ceil"](cSpells.level / casterFactor);
 	}
 
 	if (!NotAtStartup) { // add the current classes.known into classes.old on startup of the sheet
-		for (var aClass in classes.known) {
+		for (let aClass in newClasses) {
 			classes.old[aClass] = {
-				classlevel : classes.known[aClass].level,
-				subclass : classes.known[aClass].subclass,
-				fullname : CurrentClasses[aClass].fullname
+				classlevel : newClasses[aClass].classlevel,
+				subclass : newClasses[aClass].subclass,
+				fullname : adapter_helper_get_class_property(aClass, "fullname")
 			}
 		}
 		classes.oldspellcastlvl = classes.spellcastlvl;
-		classes.oldprimary = classes.primary;
+		classes.oldprimary = newPrimary;
 		classes.oldhd = eval_ish(classes.hd.toSource());
 	} else { // if not a startup event, update the field with the CurrentSpells variable
 		SetStringifieds("spells");
 	}
 
-	return [false, value];
+	return false;
 };
 
 // apply the effect of the classes
-async function ApplyClasses(inputclasstxt, isFieldVal) {
-	isFieldVal = isFieldVal ? isFieldVal : false;
-	classes.field = inputclasstxt;
+async function ApplyClasses(old_classes, new_classes) {
+	// set classes.old global variable because some things still depend on it
+	classes.old = {};
+	classes.oldprimary = old_classes.length == 0 ? "" : old_classes[0].id;
+	classes.oldspellcastlvl = classes.spellcastlvl;
+	for (let aClass of old_classes) {
+		classes.old[aClass.id] = {
+			classlevel : aClass.level,
+			subclass : aClass.subclass_id,
+			fullname : aClass.name
+		}
+	}
+	
+	let newClasses = {}
+	let newPrimary = new_classes.length == 0 ? "" : new_classes[0].id;
+	for (let aClass of new_classes) {
+		newClasses[aClass.id] = {
+			classlevel : aClass.level,
+			subclass : aClass.subclass_id,
+			fullname : aClass.name
+		}
+	}
 
-	// Stop if class is set to manual or if the entered classes are the same as classes.known
-	let fcResult = await FindClasses(true, isFieldVal, classes.field);
-	classes.field = fcResult[1];
-	if (CurrentVars.manual.classes || fcResult[0]) return;
+	let fcResult = await FindClasses(classes.old, classes.oldprimary, newClasses, newPrimary, true);
+	if (fcResult) return;
 
 	// Start progress bar and stop calculations
 	var thermoTxt = thermoM("Applying the class(es)...");
@@ -2088,15 +1082,15 @@ async function ApplyClasses(inputclasstxt, isFieldVal) {
 	thermoM(2/4); // Increment the progress bar
 
 	// Add attributes of each class, if we didn't do so already
-	var primaryChange = !classes.oldprimary || classes.oldprimary !== classes.primary;
-	for (var aClass in classes.known) {
+	var primaryChange = !classes.oldprimary || classes.oldprimary !== newPrimary;
+	for (let aClass in newClasses) {
 		// don't process this class if it already existed, but do process it if it became the new primary class
-		if (classes.old[aClass] && (!primaryChange || classes.primary !== aClass)) continue;
+		if (classes.old[aClass] && (!primaryChange || newPrimary !== aClass)) continue;
 		// process its attributes
-		await ApplyClassBaseAttributes(true, aClass, classes.primary == aClass);
+		await ApplyClassBaseAttributes(true, aClass, newPrimary == aClass);
 		// set the tooltip if the new primary class
-		if (classes.primary == aClass) {
-			AddTooltip("Equipment.menu", "Click here to add equipment to the adventuring gear section, or to reset it (this button does not print).\n\nIt is recommended to pick a pack first before you add any background's items.\n\n" + CurrentClasses[classes.primary].equipment);
+		if (newPrimary == aClass) {
+			AddTooltip("Equipment.menu", "Click here to add equipment to the adventuring gear section, or to reset it (this button does not print).\n\nIt is recommended to pick a pack first before you add any background's items.\n\n" + adapter_helper_get_class_property(wasm_character.get_primary_class(), "equipment"));
 		}
 	}
 
@@ -2203,144 +1197,11 @@ function ClassMenuVisibility() {
 }
 
 // a function to apply the class level depending on how it was changed
-async function ApplyClassLevel(noChange) {
-	if (IsCharLvlVal !== false) { // called during a Level field change event
-		IsCharLvlVal = classes.totallevel;
-	} else if (Number(What("Character Level")) != classes.totallevel) {
-		Value("Character Level", classes.totallevel);
-	} else if (!noChange) { // the classes changed, but the total level didn't, so:
-		// call to update the class features
-		await UpdateLevelFeatures("class");
-		// tell UpdateSheetWeapons that a level change took place
-		CurrentUpdates.types.push('classchange');
-	}
-}
-
-// apply the Character Level field change (field validation)
-async function levelFieldVal(name, value) {
-	var lvlOld = Number(What(name));
-	var lvl = Number(value);
-	if (lvlOld == lvl) { // no level change, but it could be an empty string changed to '0' or vice versa
-		return lvl > 0 ? lvl : '';
-	}
-
-	IsCharLvlVal = lvl; // save level to global variable
-
-	if (lvl != classes.totallevel && IsNotReset && IsNotImport) { // new level not the same as total level for found classes, so ask how to allocate this level to a (new) class
-		await AskMulticlassing();
-	}
-
-	if (IsCharLvlVal != lvl) { // the above might have changed the total level, so correct that
-		lvl = IsCharLvlVal;
-	}
-
-	await UpdateLevelFeatures("all", Math.max(1,lvl)); // update all level features and use the set level
-
-	IsCharLvlVal = false; // reset global variable
-
-	// make sure to update the experience points (or similar system) and alert the user
-	CurrentUpdates.types.push("xp");
-
-	return lvl > 0 ? lvl : '';
-}
-
-function getCurrentLevelByXP(level, exp) {
-	level = Number(level);
-	exp = Number(exp.replace(",", "."));
-	var LVLbyXP = ExperiencePointsList.reduce(function(acc, val) { return acc += exp >= Number(val) ? 1 : 0; }, 0);
-	var XPforLVL = !level || isNaN(level) || level < 2 ? 0 : ExperiencePointsList[Math.min(ExperiencePointsList.length - 1, level - 1)];
-	return [LVLbyXP, XPforLVL];
-}
-
-//Check if the level or XP entered matches the XP or level
-async function CalcExperienceLevel() {
-	// initialise some variables
-	var Level = Number(What("Character Level"));
-	var exp = What("Total Experience");
-	var getLvlXp = getCurrentLevelByXP(Level, exp);
-	var LVLbyXP = getLvlXp[0];
-	var XPforLVL = getLvlXp[1];
-
-	// if the level and experience points match or both are 0, stop this function
-	// also stop this function if the level is higher than the xp table allows (> 20)
-	// also stop this function if the experience points are more than the xp table allows (> 1000000000)
-	if (Level === LVLbyXP || (!Level && !exp) || Level >= ExperiencePointsList.length || LVLbyXP >= (ExperiencePointsList.length)) return;
-
-	// create the strings for the dialog
-	var LVLtxt = Level >= ExperiencePointsList.length ? "a level higher than 20" : "level " + Level;
-	var XPtxt = !exp ? "no" : "only " + exp;
-	var StringHigherLvl = "This character has " + XPtxt + " experience points. This is not enough to attain the level is currently has (" + Level + "). You need at least " + XPforLVL + " experience points for " + LVLtxt + ".\n\nYou can upgrade the experience points to " + XPforLVL + ", downgrade the level to " + LVLbyXP + ", or leave it as it is.";
-	var StringHigherXP = "This character is level " + Level + ", but already has " + exp + " experience points. This amount is enough to attain level " + LVLbyXP + ".\n\nYou can upgrade the level to " + LVLbyXP + ", downgrade the experience points to " + XPforLVL + ", or leave it as it is.";
-
-	var Experience_Dialog = {
-		//when pressing the ok button
-		commit : function (dialog) {
-			dialog.end(Level > LVLbyXP ? "XPre" : "LVLr");
-		},
-		//when pressing the other button
-		other : function (dialog) {
-			dialog.end(Level > LVLbyXP ? "LVLr" : "XPre");
-		},
-		description : {
-			name : "EXPERIENCE POINTS DIALOG",
-			elements : [{
-				type : "view",
-				elements : [{
-					type : "static_text",
-					name : "Level and Experience Points do not match!",
-					item_id : "head",
-					alignment : "align_top",
-					font : "heading",
-					bold : true,
-					height : 21,
-					char_width : 45
-				}, {
-					type : "static_text",
-					item_id : "text",
-					alignment : "align_fill",
-					font : "dialog",
-					char_width : 45,
-					wrap_name : true,
-					name : Level > LVLbyXP ? StringHigherLvl : StringHigherXP
-				}, {
-					type : "ok_cancel_other",
-					ok_name : Level > LVLbyXP ? "Upgrade XP to " + XPforLVL : "Upgrade level to " + LVLbyXP,
-					other_name : Level > LVLbyXP ? "Downgrade level to " + LVLbyXP : "Downgrade XP to " + XPforLVL,
-				}]
-			}]
-		}
-	};
-
-	let dia = await app.execDialog(Experience_Dialog);
-	switch (dia) {
-		case "LVLr":
-			Value("Character Level", LVLbyXP);
-			break;
-		case "XPre":
-			Value("Total Experience", XPforLVL);
-			break;
-	};
-};
-
-function AddExperiencePoints() {
-	if (!What("Add Experience")) return;
-	var XPS = Number(What("Total Experience").replace(/,/g, "."));
-	var AddXP = Number(What("Add Experience").replace(/,/g, "."));
-	Value("Total Experience", RoundTo(XPS + AddXP, 0.01));
-	Value("Add Experience", "");
-	CalcExperienceLevel(true);
-};
-
-// apply the Race field change (field validation)
-async function raceFieldVal(field) {
-	if (field.remVal === undefined) {
-		await ApplyRace(field.value);
-	}
-	// Now check if it is still undefined, as the previous could have changed that
-	if (field.remVal !== undefined) {
-		field.value = field.remVal;
-		field.deleteRemVal();
-	}
+async function ApplyClassLevel() {
+	// call to update the class features
+	await UpdateLevelFeatures("class");
+	// tell UpdateSheetWeapons that a level change took place
+	CurrentUpdates.types.push('classchange');
 }
 
 function ParseRace(input) {
@@ -2410,178 +1271,19 @@ function ParseRace(input) {
 	return resultArray;
 };
 
-//detects race entered and put information to global CurrentRace variable
-async function FindRace(inputracetxt, novardialog, aOldRace) {
-	var tempString = inputracetxt !== undefined ? inputracetxt : CurrentVars.manual.race ? CurrentVars.manual.race[0] : What("Race Remember");
-
-	if (inputracetxt !== undefined && CurrentVars.manual.race) return; // don't do the rest of this function if race is set to manual and this is not a startup event
-
-	var tempFound = ParseRace(tempString);
-	if (!aOldRace && CurrentVars.oldRace) {
-		aOldRace = CurrentVars.oldRace;
-	} else if (IsNotImport && aOldRace && (!CurrentVars.oldRace || CurrentVars.oldRace[0] !== aOldRace[0])) {
-		// only change if the known is new or changes, not just the variant
-		CurrentVars.oldRace = aOldRace;
-		SetStringifieds("vars");
-	}
-
-	CurrentRace = {
-		known : tempFound[0],
-		knownOld : aOldRace ? aOldRace[0] : "",
-		variant : tempFound[1],
-		variantOld : aOldRace ? aOldRace[1] : "",
-		variants : tempFound[2],
-		level : 0,
-		name : "", //must exist
-		source : "", //must exist
-		plural : "", //must exist
-		size : 3, //must exist
-		age : "", //must exist
-		height : "", //must exist
-		weight : "", //must exist
-		trait : "", //must exist
-		features : "" //must exist
-	};
-
-
-	//show the option button if the race has selectable variants
-	if (!tempFound[2].length) {
-		Hide("Race Features Menu");
-	} else {
-		DontPrint("Race Features Menu");
-		// if no variant was found, ask the user if he wants to select one
-		if (!novardialog && IsNotImport && inputracetxt && !tempFound[1] && !CurrentVars.manual.race) {
-			var aRace = RaceList[tempFound[0]];
-			var rSource = stringSource(aRace, 'first,abbr', "    [", "]");
-			var aBasic = "Basic " + aRace.name.toLowerCase() + rSource;
-			var rVarNames = [aBasic];
-			var rVarObj = {};
-			rVarObj[aBasic] = "";
-			for (var i = 0; i < tempFound[2].length; i++) {
-				var varR = tempFound[2][i];
-				var varRobj = RaceSubList[tempFound[0] + "-" + varR];
-				var varRname = varRobj.sortname ? varRobj.sortname : varRobj.name ? varRobj.name : varR.capitalize() + " " + aRace.name.toLowerCase();
-				var varRsrc = varRobj && varRobj.source ? stringSource(varRobj, 'first,abbr', "    [", "]") : rSource;
-				rVarNames.push(varRname + varRsrc);
-				rVarObj[varRname + varRsrc] = varR;
-			}
-			var aResp = await AskUserOptions("Select Racial Variant", "The '" + aRace.name + "' race offers a choice of variants. Note that variants are not the same as subraces. If you want to select a different subrace, use the drop-down box in the Race field.\n\nYou can change the selected variant by typing the full name of another variant into the Race field, or with the Racial Options button in the Racial Traits section on the second page.\n\nThe name on the first page will be changed to the selected variant's name.", rVarNames, "radio", true);
-			if (rVarObj[aResp]) {
-				CurrentRace.variant = rVarObj[aResp];
-				// Change the Race field on the 1st page to the selected variant's name (if any)
-				varRobj = RaceSubList[tempFound[0] + "-" + CurrentRace.variant];
-				if (varRobj.name) {
-					tDoc.getField("Race").remVal = varRobj.name;
-				}
-			}
-		}
-	}
-
-	// set the properties of the CurrentRace object
-	if (CurrentRace.known) {
-		var rxIgnoreProps = /^(known(Old)?|variants?(Old)?|level|features)$/i;
-		// the properties of the main race
-		for (var prop in RaceList[CurrentRace.known]) {
-			if (rxIgnoreProps.test(prop)) continue;
-			CurrentRace[prop] = RaceList[CurrentRace.known][prop];
-		}
-		// Do the features separately, so we don't merge them with the subrace later
-		if (RaceList[CurrentRace.known].features) {
-			CurrentRace.features = {};
-			for (var feature in RaceList[CurrentRace.known].features) {
-				CurrentRace.features[feature] = RaceList[CurrentRace.known].features[feature];
-			}
-		}
-		// the properties of the variant (overriding anything from the main)
-		if (CurrentRace.variant) {
-			var subrace = CurrentRace.known + "-" + CurrentRace.variant;
-			for (var prop in RaceSubList[subrace]) {
-				if (rxIgnoreProps.test(prop)) continue;
-				CurrentRace[prop] = RaceSubList[subrace][prop];
-			}
-			// merge features, if any
-			if (RaceSubList[subrace].features) {
-				if (!CurrentRace.features) {
-					CurrentRace.features = RaceSubList[subrace].features;
-				} else {
-					for (var feature in RaceSubList[subrace].features) {
-						CurrentRace.features[feature] = RaceSubList[subrace].features[feature];
-						if (!CurrentRace.features[feature]) {
-							// This feature is not valid, possibly because it is set to `null` to deliberately invalidate a feature from the parent RaceList. Thus, delete this entry from the CurrentRace.features
-							delete CurrentRace.features[feature];
-						} 
-					}
-				}
-			}
-			// --- backwards compatibility --- //
-			// if an old attribute exists in the racial variant, but the RaceList object uses the new attribute name, make sure the variant's version is used
-			var backwardsAttr = [["improvements", "scorestxt"], ["armor", "armorProfs"], ["addarmor", "armorAdd"], ["weaponprofs", "weaponProfs"], ["weapons", "weaponsAdd"]];
-			for (var i = 0; i < backwardsAttr.length; i++) {
-				var aBW = backwardsAttr[i];
-				if (RaceSubList[subrace][aBW[0]] && RaceSubList[subrace][aBW[1]] == undefined && RaceList[CurrentRace.known][aBW[1]]) CurrentRace[aBW[1]] = RaceSubList[subrace][aBW[0]];
-			}
-		}
-		// the properties from a previous race (overriding anything from the main) (inputracetxt === undefined at startup)
-		if (CurrentRace.useFromPreviousRace) {
-			CurrentRace = newObj(CurrentRace);
-			var bSkipDialogAndForce = inputracetxt && IsNotImport ? undefined : CurrentVars.oldRaceAmendRemember ? true : false;
-			AmendOldToNewRace(CurrentRace.useFromPreviousRace, bSkipDialogAndForce);
-		}
-		// if set, apply some generic defaults (age/height/weight/scores/languages) if nothing was set for those attributes. These defaults were added with the introduction of VRGtR
-		if (CurrentRace.scoresGeneric) {
-			if (!CurrentRace.scores && !CurrentRace.scorestxt) {
-				// No fixed stat increases, so list the generic one
-				CurrentRace.scorestxt = "+2 to one ability score and +1 to a different score, -or- +1 to three different scores";
-				CurrentRace.abilityChecksum = 3;
-				CurrentRace.abilitySubset = null;
-			}
-			var genericHeightWeight = " vary in size. If you'd like to determine your character's height or weight randomly, consult the Random Height and Weight table in the PHB, and choose the row in the table that best represents the build you imagine for your character.";
-			if (!CurrentRace.height) CurrentRace.height = genericHeightWeight;
-			if (!CurrentRace.weight) CurrentRace.weight = genericHeightWeight;
-			if (!CurrentRace.age) CurrentRace.age = " typically live to be around 100 years old";
-			if (!CurrentRace.languageProfs) CurrentRace.languageProfs = ["Common", 1];
-		}
-		// if the abilitySave is an array, have the user select which one to use and remember that
-		if (CurrentRace.abilitySave && (isArray(CurrentRace.abilitySave) || isNaN(CurrentRace.abilitySave))) {
-			if (CurrentVars.raceAbilitySave !== undefined) {
-				CurrentRace.abilitySave = CurrentVars.raceAbilitySave;
-			} else {
-				if (!IsNotImport) {
-					CurrentRace.abilitySave = CurrentRace.abilitySave[0];
-				} else {
-					CurrentRace.abilitySave = await ReturnSpellcastingAbility(CurrentRace.name, CurrentRace.abilitySave, true);
-				}
-				CurrentVars.raceAbilitySave = CurrentRace.abilitySave;
-				SetStringifieds("vars");
-			}
-		}
-	}
-
-	// set the current race level when loading the sheet
-	if (inputracetxt === undefined && CurrentRace.known) CurrentRace.level = CurrentVars.manual.race ? CurrentVars.manual.race[1] : What("Character Level") ? Number(What("Character Level")) : 1;
-};
-
 //apply the effect of the player's race
-async function ApplyRace(inputracetxt, novardialog, newLvlForce) {
+async function ApplyRace(raceId, oldRaceID) {
 	if (IsSetDropDowns) return; // when just changing the dropdowns, don't do anything
 
-	var newRace = ParseRace(inputracetxt);
-	var oldRace = [CurrentRace.known, CurrentRace.variant];
 	var isMetric = What("Unit System") === "metric";
-
-	if (CurrentVars.manual.race) {
-		// if race is set to manual, just put the text in the Race Remember
-		Value("Race Remember", newRace[0] + (newRace[1] ? "-" + newRace[1]  : ""));
-		return;
-	}
 
 	// Start progress bar and stop calculations
 	var thermoTxt = thermoM("Applying race...");
 	calcStop();
 
-	if (newRace[0] !== oldRace[0] || newRace[1] !== oldRace[1]) {
-		if (CurrentRace.known) {// remove the old race if one was detected
-			thermoTxt = thermoM("Removing the " + CurrentRace.name + " features...", false); //change the progress dialog text
+	if (raceId != oldRaceID) {
+		if (oldRaceID) {// remove the old race if one was detected
+			thermoTxt = thermoM("Removing the " + adapter_helper_get_race_property("name", oldRaceID) + " features...", false); //change the progress dialog text
 
 			// Remove tooltips from some fields
 			var tooltipRemove = ["Height", "Weight", "Age"];
@@ -2591,39 +1293,56 @@ async function ApplyRace(inputracetxt, novardialog, newLvlForce) {
 			AddTooltip("Size Category", "Selected size category will effect encumbrance on the second page.");
 			Value("Racial Traits", "", "");
 
-			// Remove the common attributes from the CurrentRace object and remove the CurrentRace features
-			await UpdateLevelFeatures("race", 0);
+			// Remove the common attributes
+			await UpdateLevelFeatures("race", 0, undefined, wasm_character.get_level(), oldRaceID);
 
 			// Remove the remembered ability save, if any
 			if (CurrentVars.raceAbilitySave !== undefined) delete CurrentVars.raceAbilitySave;
 		}
-		await FindRace(inputracetxt, novardialog, oldRace);
-		Value("Race Remember", CurrentRace.known + (CurrentRace.variant ? "-" + CurrentRace.variant : ""));
-	}
 
-	if (CurrentRace.known && (CurrentRace.known !== oldRace[0] || CurrentRace.variant !== oldRace[1])) {
-		thermoTxt = thermoM("Applying the " + CurrentRace.name + " features...", false); //change the progress dialog text
+		// trigger choice of abilitySave if there is a choice
+		let abilitySave = undefined;
+		if (RaceList[raceId] && RaceList[raceId].abilitySave) {
+			abilitySave = RaceList[raceId].abilitySave;
+		} else if (RaceSubList[raceId]) {
+			let baseID = raceId.split("-")[0];
+			abilitySave = RaceSubList[raceId].abilitySave ? RaceSubList[raceId].abilitySave : RaceList[baseID].abilitySave ? RaceList[baseID].abilitySave : undefined;
+		}
+		// if the abilitySave is an array, have the user select which one to use and remember that
+		if (abilitySave && (isArray(abilitySave) || isNaN(abilitySave))) {
+			CurrentVars.raceAbilitySave = await ReturnSpellcastingAbility(adapter_helper_get_race_property("name", raceId), abilitySave, true);;
+			SetStringifieds("vars");
+		}
+
+		let raceName = adapter_helper_get_race_property("name", raceId);
+		thermoTxt = thermoM("Applying the " + raceName + " features...", false); //change the progress dialog text
 		thermoM(1/10); //increment the progress dialog's progress
 
+		let racePlural = adapter_helper_get_race_property("plural", raceId);
 		// Add race height
-		var theHeight = (isMetric || !CurrentRace.height) && CurrentRace.heightMetric ? CurrentRace.heightMetric : CurrentRace.height;
-		if (theHeight) AddTooltip("Height", CurrentRace.plural + theHeight);
+		let raceHeight = adapter_helper_get_race_property("height", raceId);
+		let raceHeightMetric = adapter_helper_get_race_property("heightMetric", raceId);
+		var theHeight = (isMetric || !raceHeight) && raceHeightMetric ? raceHeightMetric : raceHeight;
+		if (theHeight) AddTooltip("Height", racePlural + theHeight);
 		// Add race weight
-		var theWeight = (isMetric || !CurrentRace.weight) && CurrentRace.weightMetric ? CurrentRace.weightMetric : CurrentRace.weight;
-		if (theWeight) AddTooltip("Weight", CurrentRace.plural + theWeight);
+		let raceWeight = adapter_helper_get_race_property("weight", raceId);
+		let raceWeightMetric = adapter_helper_get_race_property("weightMetric", raceId);
+		var theWeight = (isMetric || !raceWeight) && raceWeightMetric ? raceWeightMetric : raceWeight;
+		if (theWeight) AddTooltip("Weight", racePlural + theWeight);
 		// Add race age
-		AddTooltip("Age", CurrentRace.plural + CurrentRace.age);
+		AddTooltip("Age", racePlural + adapter_helper_get_race_property("age", raceId));
 		// Add race size
-		await SetCreatureSize(false, [inputracetxt, CurrentRace.plural], CurrentRace.size);
+		await SetCreatureSize(false, [raceName, racePlural], adapter_helper_get_race_property("size", raceId));
 		// Add racial traits
-		var tempString = stringSource(CurrentRace, "full,page", CurrentRace.name + " is found in ", ".");
-		var theTraits = !isMetric ? CurrentRace.trait : ConvertToMetric(CurrentRace.trait, 0.5);
+		var tempString = stringSource({source: adapter_helper_get_race_property("source", raceId)}, "full,page", raceName + " is found in ", ".");
+		let raceTrait = adapter_helper_get_race_property("trait", raceId);
+		var theTraits = !isMetric ? raceTrait : ConvertToMetric(raceTrait, 0.5);
 		Value("Racial Traits", theTraits, tempString);
 
 		thermoM(2/6); //increment the progress dialog's progress
 
-		// Process the common attributes from the CurrentRace object and its features
-		await UpdateLevelFeatures("race", newLvlForce);
+		// Process the common attributes
+		await UpdateLevelFeatures("race", undefined, undefined, 0, raceId);
 
 		thermoM(3/4); //increment the progress dialog's progress
 	};
@@ -2635,227 +1354,6 @@ async function ApplyRace(inputracetxt, novardialog, newLvlForce) {
 
 	thermoM(thermoTxt, true); // Stop progress bar
 };
-
-// Use parts of the old race to amend to the newrace, using CurrentRace.known(Old) and CurrentRace.variant(Old)
-function AmendOldToNewRace(oInstr, bSkipDialogAndForce) {
-	// If the knownOld race doesn't exist, fix the variable
-	if (CurrentRace.knownOld && !RaceList[CurrentRace.knownOld]) {
-		CurrentRace.knownOld = "";
-		CurrentRace.variantOld = "";
-	}
-	var iAskUser = 3; // No
-	var oOldRace = RaceList[CurrentRace.knownOld];
-	var oOldVariant = RaceSubList[CurrentRace.knownOld + "-" + CurrentRace.variantOld];
-	// Check if there is a new and old race known and they aren't identical and they don't also have the useFromPreviousRace feature
-	if (!CurrentRace.known || !CurrentRace.knownOld || CurrentRace.known === CurrentRace.knownOld || (oOldRace && oOldRace.useFromPreviousRace) || (oOldVariant && oOldVariant.useFromPreviousRace)) {
-		// Show a message for how this type of race works
-		if (bSkipDialogAndForce === undefined && !CurrentRace.knownOld) {
-			app.alert({
-				nIcon : 3, // Status
-				cTitle : "Tip for using the " + CurrentRace.name + " race",
-				cMsg : "The " + CurrentRace.name + " race has the option to use some specific traits from another race, its 'base race'. To use this option, first select a race as normal, and then change it to " + CurrentRace.name + ". If you do that, you will be prompted wheter or not you want to use the race you had selected first as the base race. This base race can't also have the option to use traits from another race." + (oInstr.message ? "\n\n" + oInstr.message : "")
-			})
-		}
-	} else if (bSkipDialogAndForce === undefined) {
-		// Ask the user if they want to use the previous race as a base for the new race
-		var sOldRaceName = oOldVariant && oOldVariant.name ? oOldVariant.name : oOldRace.name;
-		iAskUser = app.alert({
-			nIcon : 2, // Question
-			nType : 2, // Yes (return = 4), No (return = 3)
-			cTitle : "Use traits from " + sOldRaceName + " for " + CurrentRace.name,
-			cMsg : "The " + CurrentRace.name + " race has the option to use some specific traits from another race. As you had previously selected " + sOldRaceName + " as the race, would you want to use its features?\n\n" + toUni("Press 'Yes' to use traits from " + sOldRaceName + " or\npress 'No' to use the default traits for " + CurrentRace.name + ".") + (oInstr.message ? "\n\n" + oInstr.message : "")
-		});
-		CurrentVars.oldRaceAmendRemember = iAskUser === 4;
-		SetStringifieds("vars");
-	} else if (bSkipDialogAndForce) {
-		iAskUser = 4; // Yes
-	}
-	if (iAskUser === 4) { // Use the traits fromt he previous race
-		// First make the base race combined object
-		var oBaseRace = newObj(oOldRace);
-		var bMergeEverything = false;
-		if (oOldVariant) {
-			oOldVariant = newObj(oOldVariant);
-			for (var prop in oOldVariant) {
-				oBaseRace[prop] = oOldVariant[prop];
-			}
-			// --- backwards compatibility --- //
-			// if an old attribute exists in the racial variant, but the RaceList object uses the new attribute name, make sure the variant's version is used
-			var backwardsAttr = [["improvements", "scorestxt"], ["armor", "armorProfs"], ["addarmor", "armorAdd"], ["weaponprofs", "weaponProfs"], ["weapons", "weaponsAdd"]];
-			for (var i = 0; i < backwardsAttr.length; i++) {
-				var aBW = backwardsAttr[i];
-				if (oOldVariant[aBW[0]] && oOldVariant[aBW[1]] == undefined && oBaseRace[aBW[1]]) oBaseRace[aBW[1]] = oOldVariant[aBW[0]];
-			}
-		}
-		// Merge the source
-		if (oBaseRace.source) CurrentRace.source = CurrentRace.source.concat(oBaseRace.source);
-		// Now have the CurrenRace object inheret the defined traits
-		if (oInstr.gainTraits) {
-			bMergeEverything = oInstr.gainTraits.find(/^(all|everything|complete|full)$/i) !== -1;
-			// Define a function to handle the merging
-			var mergeAttr = function(aProp, oFrom, oTo) {
-				var oBaseRef = oFrom;
-				var oCurRef = oTo;
-				var oCurRefCreated;
-				for (var p = 0; p < aProp.length; p++) {
-					var sProp = aProp[p];
-					if (oBaseRef[sProp]) {
-						if (p === (aProp.length - 1)) { // last in the array
-							if (isArray(oCurRef[sProp])) {
-								// merge arrays instead of overwriting
-								if (isArray(oBaseRef[sProp])) {
-									oCurRef[sProp] = oCurRef[sProp].concat(oBaseRef[sProp]);
-								} else {
-									// some attributes can be both singular and an array
-									oCurRef[sProp].push(oBaseRef[sProp]);
-								}
-							} else {
-								// either oTo doesn't have this property and it's not an array, so overwrite it
-								oCurRef[sProp] = oBaseRef[sProp];
-							}
-							return true;
-						} else if (typeof oBaseRef[sProp] === "object") {
-							// move the reference objects one step deeper
-							oBaseRef = newObj(oBaseRef[sProp]);
-							if (!oCurRef[sProp]) {
-								oCurRef[sProp] = {};
-								if (!oCurRefCreated) oCurRefCreated = aProp[0];
-							}
-							oCurRef = oCurRef[sProp];
-						}
-					} else {
-						// This (sub)property doesn't exist, so skip this whole entry in the gainTraits array, but first delete any stuff we created from the CurrentRace as its an empty object
-						if (oCurRefCreated && CurrentRace[oCurRefCreated]) {
-							var toClean = CleanObject(CurrentRace[oCurRefCreated]);
-							if (!ObjLength(CurrentRace[oCurRefCreated])) delete CurrentRace[oCurRefCreated];
-						}
-						return false;
-					}
-				}
-			}
-			// The attributes to never overwrite in the CurrentRace object (either stored references or handled differently)
-			var rxNeverOverwrite = /^(known(Old)?|variants?(Old)?|level|source|name|plural|useFromPreviousRace|features)$/;
-			if (bMergeEverything) {
-				// Merge every attribute from the base race to the CurrentRace object
-				for (var attribute in oBaseRace) {
-					if (rxNeverOverwrite.test(attribute)) continue;
-					mergeAttr([attribute], oBaseRace, CurrentRace);
-				}
-			} else {
-				for (var i = 0; i < oInstr.gainTraits.length; i++) {
-					var aProp = oInstr.gainTraits[i].split(".");
-					if (rxNeverOverwrite.test(aProp[0])) continue;
-					// Merge the attribute of the base race to the CurrentRace
-					mergeAttr(aProp, oBaseRace, CurrentRace);
-				}
-			}
-			// Merge the traits in the features, if any exist and match the criteria
-			if (oBaseRace.features) {
-				var bMergeAllFeatures = bMergeEverything || oInstr.gainTraits.indexOf("features") !== -1;
-				for (var sFea in oBaseRace.features) {
-					var oFea = oBaseRace.features[sFea], oTemp, bAddFeature = false;
-					if (!bMergeAllFeatures) {
-						// Add only features from the base race that have an attribute defined in `gainTraits`
-						var rxFeatureAttrSkip = /^(known(Old)?|variants?(Old)?|level|source|name|plural|useFromPreviousRace|features|minlevel|limfeaname|usages|recovery|action)$/;
-						oTemp = {
-							name : oFea.name,
-							minlevel : oFea.minlevel,
-							limfeaname : oFea.limfeaname,
-							usages : oFea.usages,
-							recovery : oFea.recovery,
-							action : oFea.action,
-							source : oFea.source ? oFea.source : oBaseRace.source
-						};
-						for (var i = 0; i < oInstr.gainTraits.length; i++) {
-							aProp = oInstr.gainTraits[i].split(".");
-							if (rxFeatureAttrSkip.test(aProp[0])) continue;
-							if (mergeAttr(aProp, oFea, oTemp)) bAddFeature = true;
-						}
-					}
-					if (bMergeAllFeatures || bAddFeature) {
-						if (!CurrentRace.features) CurrentRace.features = {};
-						var sAttrName = sFea;
-						while (CurrentRace.features[sAttrName]) {
-							sAttrName += " bonus";
-						}
-						CurrentRace.features[sAttrName] = bMergeAllFeatures ? oFea : oTemp;
-						// Add the source if it doesn't exist (bMergeAllFeatures only)
-						if (!CurrentRace.features[sAttrName].source) {
-							CurrentRace.features[sAttrName].source = oBaseRace.source;
-						}
-					}
-				}
-			}
-		}
-		// Merge the name and plural and replace it in the trait
-		if ((oInstr.replaceNameInTrait || oInstr.updateName) && oBaseRace.name) {
-			if (!oInstr.updateName && oInstr.replaceNameInTrait) {
-				// Backwards compatibility: `replaceNameInTrait` has been deprecated in v13.1.13
-				var sCurName = oInstr.replaceNameInTrait[0];
-				var sAction = oInstr.replaceNameInTrait[1] ? oInstr.replaceNameInTrait[1].toLowerCase() : "";
-			} else {
-				// `updateName` is new since v13.1.13. A string that can be "replace", "prefix", or "suffix"
-				var sCurName = CurrentRace.name;
-				var sAction = oInstr.updateName.toLowerCase();
-			}
-			var sNameInTrait = !bMergeEverything && oInstr.gainTraits.indexOf("trait") === -1 ? sCurName : oBaseRace.name;
-			var rxBaseName = RegExp(sNameInTrait.toLowerCase(), "i");
-			switch (sAction) {
-				case "replace" :
-					CurrentRace.name = oBaseRace.name;
-					if (oBaseRace.plural) CurrentRace.plural = oBaseRace.plural;
-					break;
-				case "prefix" :
-					CurrentRace.name = oBaseRace.name.capitalize() + " " + sCurName;
-					if (CurrentRace.plural) CurrentRace.plural = oBaseRace.name.capitalize() + " " + CurrentRace.plural;
-					break;
-				case "insert" :
-					if (Instr.replaceNameInTrait && Instr.replaceNameInTrait[2]) {
-						CurrentRace.name = sCurName + " " + oBaseRace.name + " " + oInstr.replaceNameInTrait[2];
-						break;
-					}
-				case "suffix" :
-				default :
-					CurrentRace.name   = sCurName + " " + oBaseRace.name;
-					CurrentRace.plural = sCurName + " " + oBaseRace.plural;
-			}
-			// Replace the name in the trait with the new one
-			if ( rxBaseName.test(CurrentRace.trait) ) {
-				CurrentRace.trait = CurrentRace.trait.replace(rxBaseName, CurrentRace.name);
-			}
-		}
-		// Run a custom function, if defined
-		if (oInstr.evalAfterMerge) {
-			try {
-				/* Pass to this function:
-					1. `oBaseRace` the base race object
-					2. `rxNeverOverwrite` a regex of CurrentRace attributes that should never be merged, because they are used by the code to store references or would cause an error.
-					3. `oInstr.gainTraits` the array of already merged traits (if any).
-				*/
-				oInstr.evalAfterMerge(oBaseRace, rxNeverOverwrite, oInstr.gainTraits);
-			} catch (error) {
-				var raceObject = CurrentRace.variant && RaceSubList[CurrentRace.known + '-' + CurrentRace.variant].useFromPreviousRace ? 'RaceSubList["' + CurrentRace.known + '-' + CurrentRace.variant + '"]' : 'RaceList["' + CurrentRace.known + '"]';
-				var baseRaceObject = oOldVariant ? 'RaceSubList["' + CurrentRace.knownOld + '-' + CurrentRace.variantOld + '"]' : 'RaceList["' + CurrentRace.knownOld + '"]';
-				var eText = 'The function call to `' + raceObject + '.useFromPreviousRace.evalAfterMerge` when creating the merged "' + CurrentRace.name + '" from `' + baseRaceObject + '` produced an error!\nPlease contact the author of `' + raceObject + '` to correct this issue:\n ' + error;
-				for (var e in error) eText += "\n " + e + ": " + error[e];
-				console.println(eText);
-				console.show();
-			}
-		}
-	} else if (oInstr.defaultTraits) { // Use the defaultTraits
-		for (var prop in oInstr.defaultTraits) {
-			if ((/^(known(Old)?|variants?(Old)?|level|source)$/i).test(prop)) continue;
-			if (prop === "features") { // merge instead of replace
-				if (!CurrentRace.features) CurrentRace.features = {};
-				for (var fea in oInstr.defaultTraits.features) {
-					CurrentRace.features = oInstr.defaultTraits.features[fea];
-				}
-				continue;
-			}
-			CurrentRace[prop] = oInstr.defaultTraits[prop];
-		}
-	}
-}
 
 //search the string for possible weapon
 function ParseWeapon(input, onlyInv) {
@@ -3203,63 +1701,13 @@ function SetArmordropdown(forceTooltips) {
 	Value("AC Armor Description", theFldVal, tempString);
 };
 
-function SetBackgrounddropdown(forceTooltips) {
-	var ArrayDing = [""];
-	var tempString = toUni("Background") + "\nType in the name of the background (or select it from the drop-down menu) and its features and proficiencies will be filled out automatically, provided that its a recognized background.";
-	tempString += "\n\n" + toUni("Changing background") + "\nIf you change the background, all the features of the previous background will be removed and the features of the new background will be applied.";
-
-	for (var key in BackgroundList) {
-		if (testSource(key, BackgroundList[key], "backgrExcl")) continue;
-		var backNm = BackgroundList[key].name;
-		if (ArrayDing.indexOf(backNm) === -1) ArrayDing.push(backNm);
-		var varArr = BackgroundList[key].variant ? BackgroundList[key].variant : [];
-		for (var i = 0; i < varArr.length; i++) {
-			var varKey = varArr[i];
-			if (testSource(varKey, BackgroundSubList[varKey], "backgrExcl")) continue;
-			backNm = BackgroundSubList[varKey].name;
-			if (ArrayDing.indexOf(backNm) === -1) ArrayDing.push(backNm);
-		}
-	};
-	ArrayDing.sort();
-	if (tDoc.getField("Background").submitName === ArrayDing.toSource()) {
-		if (forceTooltips) AddTooltip("Background", tempString);
-		return; //no changes, so no reason to do this
-	}
-	tDoc.getField("Background").submitName = ArrayDing.toSource();
-	var theFldVal = What("Background");
-	tDoc.getField("Background").setItems(ArrayDing);
-	Value("Background", theFldVal, tempString);
-};
-
-function SetRacesdropdown(forceTooltips) {
-	var ArrayDing = [""];
-	var tempString = toUni("Race") + "\nType in the name of the race (or select it from the drop-down menu) and its traits and features will be filled out automatically, provided that its a recognized race. You are not limited by the names in the list. Just typing \"Drow\" will also be recognized, for example.";
-	tempString += "\n\n" + toUni("Alternative spelling") + "\nDifferent, setting-dependent race names are recognized as well. For example, typing \"Moon Elf\" will result in all the traits and features of the \"High Elf\" from the Player's Handbook.";
-	tempString += "\n\n" + toUni("Changing race") + "\nIf you change the race, all the features of the previous race will be removed and the features of the new race will be applied.";
-
-	for (var key in RaceList) {
-		if (testSource(key, RaceList[key], "racesExcl")) continue;
-		var raceNm = RaceList[key].sortname ? RaceList[key].sortname : RaceList[key].name.capitalize();
-		if (ArrayDing.indexOf(raceNm) === -1) ArrayDing.push(raceNm);
-	}
-	ArrayDing.sort();
-	if (tDoc.getField("Race").submitName === ArrayDing.toSource()) {
-		if (forceTooltips) AddTooltip("Race", tempString);
-		return; //no changes, so no reason to do this
-	}
-	tDoc.getField("Race").submitName = ArrayDing.toSource();
-	var theFldVal = What("Race");
-	tDoc.getField("Race").setItems(ArrayDing);
-	Value("Race", theFldVal, tempString);
-};
-
 //parse the results from the menu into an array
 async function getMenu(menuname) {
 	if (
 		![
 			"actions", "attacks", "background", "classfeatures", "companion", "faq", "feats", "gearline", "glossary",
-			"hp", "icon", "limfea", "importexport", "importscripts", "inventory", "magicitems", "pages", "raceoptions",
-			"skills", "spells", "spellsLine", "spellsPrepared", "sources", "texts", "wildshape"
+			"hp", "icon", "limfea", "inventory", "magicitems", "pages",
+			"skills", "spells", "spellsLine", "spellsPrepared", "texts", "wildshape"
 		].includes(menuname)
 		) {  // TODO: remove when all done
 		throw "error: unknown context menu: '" + menuname + "', make sure it is async";
@@ -3420,13 +1868,13 @@ function AddToInv(area, column, item, amount, weight, location, searchRegex, Add
 	var maxRow = FieldNumbers[(/adventuring|gear|magic/).test(area) ? "gear" : area.indexOf("extra") !== -1 ? "extragear" : area.indexOf("comp") !== -1 ? "compgear" : false];
 	if (!maxRow) return;
 	column = column ? column.toLowerCase() : "";
-	var columnCalc = !column ? false : typePF && (/adventuring|gear/).test(area) ? (column.indexOf("r") !== -1 ? 1.5 : column.indexOf("m") !== -1 ? 3 : false) : (column.indexOf("r") !== -1 ? 2 : false);
+	var columnCalc = !column ? false : (/adventuring|gear/).test(area) ? (column.indexOf("r") !== -1 ? 1.5 : column.indexOf("m") !== -1 ? 3 : false) : (column.indexOf("r") !== -1 ? 2 : false);
 	var startRow = area.indexOf("magic") !== -1 ? FieldNumbers.gearMIrow + 1 : columnCalc ? Math.round(maxRow / columnCalc + 1) : 1;
 	var endRow = (/adventuring|gear/).test(area) && !What("Adventuring Gear Remember") ? maxRow - 4 : maxRow;
 
 	//set start and end row for searching
 	var startSearch = column.indexOf("only") !== -1 ? startRow : 1;
-	var endSearch = column.indexOf("only") === -1 ? endRow : typePF && (/adventuring|gear/).test(area) ? (!columnCalc ? Math.round(maxRow / 3) : columnCalc === 3 ? Math.round(maxRow / 1.5) : endRow) : (columnCalc ? endRow : Math.round(maxRow / 2));
+	var endSearch = column.indexOf("only") === -1 ? endRow : (/adventuring|gear/).test(area) ? (!columnCalc ? Math.round(maxRow / 3) : columnCalc === 3 ? Math.round(maxRow / 1.5) : endRow) : (columnCalc ? endRow : Math.round(maxRow / 2));
 
 	//define the names
 	var rowNm = prefix + (area.indexOf("extra") !== -1 ? "Extra.Gear " :  area.indexOf("comp") !== -1 ? "Comp.eqp.Gear " : "Adventuring Gear ");
@@ -3594,7 +2042,8 @@ function SetGearVariables() {
 function MakeInventoryMenu() {
 	var InvMenu = [];
 
-	var backgroundKn = CurrentBackground.name ? CurrentBackground.name : "Background";
+	let backgroundName = adapter_helper_get_background_property("name");
+	var backgroundKn = backgroundName ? backgroundName : "Background";
 
 	//first make the top three entries (Pack, Gear, Tool)
 	var itemMenu = function(menu, name, array, object) {
@@ -3626,7 +2075,6 @@ function MakeInventoryMenu() {
 		["To middle column", "monly"],
 		["To right column", "ronly"]
 	];
-	if (!typePF) menuExtraTypes.splice(1, 1);
 	itemMenu(InvMenu, "Pack", menuExtraTypes, GearMenus.packs);
 	itemMenu(InvMenu, "Gear", menuExtraTypes, GearMenus.gear);
 	itemMenu(InvMenu, "Tool", menuExtraTypes, GearMenus.tools);
@@ -3680,7 +2128,7 @@ async function InventoryOptions(input) {
 	if (MenuSelection[0] === "pack") {
 		var thePack = PacksList[MenuSelection[1]];
 		thermoTxt = thermoM("Adding pack " + thePack.name + "...", false); //change the progress dialog text
-		var columnCalc = typePF ? (MenuSelection[2].indexOf("r") !== -1 ? 1.5 : MenuSelection[2].indexOf("m") !== -1 ? 3 : false) : (MenuSelection[2].indexOf("r") !== -1 ? 2 : false);
+		var columnCalc = MenuSelection[2].indexOf("r") !== -1 ? 1.5 : MenuSelection[2].indexOf("m") !== -1 ? 3 : false;
 		var startRow = columnCalc ? Math.round(FieldNumbers.gear / columnCalc + 1) : 1;
 		if (What("Adventuring Gear Row " + startRow)) InvInsert("Adventuring ", startRow);
 		for (var i = 0; i < thePack.items.length; i++) {
@@ -3694,10 +2142,6 @@ async function InventoryOptions(input) {
 	} else if (MenuSelection[0] === "reset") {
 		thermoTxt = thermoM("Resetting the equipment section...", false); //change the progress dialog text
 		var tempArray = ["Platinum Pieces", "Gold Pieces", "Electrum Pieces", "Silver Pieces", "Copper Pieces"];
-		if (!typePF) {
-			for (var i = 1; i < 5; i++) { tempArray.push("Valuables" + i); };
-			tempArray = tempArray.concat(["Lifestyle", "Lifestyle daily cost"]);
-		};
 		for (var i = 1; i <= FieldNumbers.gear; i++) {
 			tempArray.push("Adventuring Gear Row " + i);
 			tempArray.push("Adventuring Gear Location.Row " + i);
@@ -3731,15 +2175,18 @@ async function InventoryOptions(input) {
 };
 
 function AddInvBackgroundItems() {
-	if (!CurrentBackground.known) return;
-	if (CurrentBackground.gold) Value("Gold Pieces", Number(What("Gold Pieces").replace(",", ".")) + CurrentBackground.gold);
+	if (!wasm_character.get_background_id()) return;
+	let currentBackgroundGold = adapter_helper_get_background_property("gold");
+	if (currentBackgroundGold) Value("Gold Pieces", Number(What("Gold Pieces").replace(",", ".")) + currentBackgroundGold);
 	var addEquip = function (array, LR) {
 		for (var i = 0; i < array.length; i++) {
 			AddToInv("gear", LR, array[i][0], array[i][1], array[i][2]);
 		};
 	};
-	if (CurrentBackground.equipleft) addEquip(CurrentBackground.equipleft, "l");
-	if (CurrentBackground.equipright) addEquip(CurrentBackground.equipright, "r");
+	let currentBackgroundEquipleft = adapter_helper_get_background_property("equipleft");
+	if (currentBackgroundEquipleft) addEquip(currentBackgroundEquipleft, "l");
+	let currentBackgroundEquipright = adapter_helper_get_background_property("equipright");
+	if (currentBackgroundEquipright) addEquip(currentBackgroundEquipright, "r");
 };
 
 function AddInvArmorShield() {
@@ -3879,8 +2326,8 @@ function MakeInventoryLineMenu(fldName) {
 	var upRow = lineNmbr === 1 ? false : magic ? lineNmbr !== FieldNumbers.gearMIrow + 1 : true;
 	var downRow = lineNmbr === maxRow ? false : hasMagic ? lineNmbr !== FieldNumbers.gearMIrow - 1 : true;
 
-	var numColumns = typePF && type === "Adventuring " ? 3 : 2;
-	var curCol = typePF && type.indexOf("Comp.") !== -1 ? 1 : Math.ceil(lineNmbr / Math.round(maxRow / numColumns));
+	var numColumns = type === "Adventuring " ? 3 : 2;
+	var curCol = type.indexOf("Comp.") !== -1 ? 1 : Math.ceil(lineNmbr / Math.round(maxRow / numColumns));
 	var moveCol = curCol > 1 ? "left" : numColumns === 3 ? "middle" : "right";
 	var moveCol2 = numColumns !== 3 ? false : curCol === 3 ? "middle" : "right";
 
@@ -3956,7 +2403,7 @@ function MakeInventoryLineMenu(fldName) {
 		["Move down", "down"],
 		["-", "-"]
 	]);
-	if (!typePF || type.indexOf("Comp.") === -1) menuLVL1(gearMenu, [["Move to " + moveCol + " column", "movecol#" + moveCol.substr(0, 1) + "only"]]);
+	if (type.indexOf("Comp.") === -1) menuLVL1(gearMenu, [["Move to " + moveCol + " column", "movecol#" + moveCol.substr(0, 1) + "only"]]);
 	if (moveCol2) menuLVL1(gearMenu, [["Move to " + moveCol2 + " column", "movecol#" + moveCol2.substr(0, 1) + "only"]]);
 
 	gearMenu.push({cName : "-"});
@@ -4119,9 +2566,9 @@ function InvInsert(type, slot, extraPre) {
 function InvDelete(type, slot) {
 	var isComp = type.indexOf("Comp.") !== -1;
 	var lastslot = isComp ? FieldNumbers.compgear : (type === "Adventuring " ? FieldNumbers.gear : FieldNumbers.extragear);
-	var numColumns = typePF && type === "Adventuring " ? 3 : 2;
+	var numColumns = type === "Adventuring " ? 3 : 2;
 	var perColumn = Math.round(lastslot / numColumns);
-	var endslot = isComp && typePF ? lastslot : perColumn * Math.ceil(slot / perColumn);
+	var endslot = isComp ? lastslot : perColumn * Math.ceil(slot / perColumn);
 	if (type === "Adventuring " && endslot === FieldNumbers.gear && What("Adventuring Gear Remember") === false && slot <= FieldNumbers.gearMIrow) {
 		endslot = FieldNumbers.gearMIrow;
 	}
@@ -4146,167 +2593,62 @@ function InvDelete(type, slot) {
 
 /* ---- INVENTORY FUNCTIONS END ---- */
 
-//see if text contains a background
-function ParseBackground(input) {
-	var resultArray = ["", ""];
-	if (!input) return resultArray;
-
-	input = removeDiacritics(input);
-	var foundLen = 0;
-	var foundDat = 0;
-
-	for (var key in BackgroundList) {
-		var kObj = BackgroundList[key];
-
-		// first we look for background variants
-		if (kObj.variant) {
-			var matchedThisSub = false;
-			for (var i = 0; i < kObj.variant.length; i++) { // scan string for all variants of the background
-				var bVars = BackgroundSubList[kObj.variant[i]];
-				if (!bVars) {
-					console.println("The variant '" + kObj.variant[i] + "' for the background '" + kObj.name + "' is missing from the BackgroundSubList object. Please contact its author to have this issue corrected. The variant will be ignored for now.");
-					console.show();
-					// Remove this array entry, but make sure we don't skip an entry
-					kObj.variant.splice(i, 1);
-					i--;
-					continue;
-				}
-
-				if (!(bVars.regExpSearch).test(input) // see if background variant regex matches
-					|| testSource(kObj.variant[i], bVars, "backgrExcl") // test if the background variant or its source isn't excluded
-				) continue;
-
-				// only go on with this entry if:
-				// we are using the search length (default) and this entry has a longer name or this entry has an equal length name but has a newer source
-				// or if we are not using the search length, just look at the newest source date
-				var tempDate = sourceDate(bVars.source);
-				if ((!ignoreSearchLength && bVars.name.length < foundLen) || (!ignoreSearchLength && bVars.name.length == foundLen && tempDate < foundDat) || (ignoreSearchLength && tempDate <= foundDat)) continue;
-
-				// we have a match, set the values
-				resultArray = [key, kObj.variant[i]];
-				foundLen = bVars.name.length;
-				foundDat = tempDate;
-				matchedThisSub = true;
-			}
-		}
-
-		// continue with the background object, maybe it is a (better) match
-		if (!(kObj.regExpSearch).test(input) // see if regex matches
-			|| testSource(key, kObj, "backgrExcl") // test if the background or its source isn't excluded
-		) continue;
-
-		// only go on with this entry if:
-		// we are using the search length (default) and this entry has a longer name or this entry has an equal length name but has a newer source
-		// or if we are not using the search length, just look at the newest source date
-		var tempDate = sourceDate(kObj.source);
-		if ((!ignoreSearchLength && kObj.name.length < foundLen) || (!ignoreSearchLength && kObj.name.length == foundLen && tempDate < foundDat) || (ignoreSearchLength && tempDate <= foundDat)) continue;
-
-		// we have a match, set the values
-		resultArray = [key, matchedThisSub ? resultArray[1] : ""];
-		foundLen = kObj.name.length;
-		foundDat = tempDate;
-	}
-	return resultArray;
-};
-
-//detects background entered and put information to global CurrentBackground variable
-function FindBackground(input) {
-	var tempString = input !== undefined ? input : CurrentVars.manual.background ? CurrentVars.manual.background : What("Background");
-	var tempFound = ParseBackground(tempString);
-	CurrentBackground = {
-		known : tempFound[0],
-		variant : tempFound[1],
-		name : "", //must exist
-		source : [], //must exist
-		trait : [], //must exist
-		ideal : [], //must exist
-		bond : [], //must exist
-		flaw : [] //must exist
-	};
-
-	// set the properties of the CurrentBackground object
-	if (tempFound[0]) {
-		// the properties of the main background
-		for (var prop in BackgroundList[tempFound[0]]) {
-			if ((/^(known|variants?|level)$/i).test(prop)) continue;
-			CurrentBackground[prop] = BackgroundList[tempFound[0]][prop];
-		}
-		// the properties of the variant (overriding anything from the main)
-		if (tempFound[1]) {
-			for (var prop in BackgroundSubList[tempFound[1]]) {
-				if ((/^(known|variants?|level)$/i).test(prop)) continue;
-				CurrentBackground[prop] = BackgroundSubList[tempFound[1]][prop];
-			}
-		}
-	}
-};
-
 //apply the various attributes of the background
-async function ApplyBackground(input) {
-	if (IsSetDropDowns || CurrentVars.manual.background) return; // when just changing the dropdowns or if background is set to manual, don't do anything
+async function ApplyBackground(new_background_id, old_background_id) {
+	if (IsSetDropDowns) return; // when just changing the dropdowns or if background is set to manual, don't do anything
 
 	// Start progress bar and stop calculations
 	var thermoTxt = thermoM("Applying background...");
 	calcStop();
 
-	var xtrFld = tDoc.getField("Background Extra");
-	var newBackground = ParseBackground(input);
-	var oldBackground = [CurrentBackground.known, CurrentBackground.variant];
-	if (newBackground[0] !== oldBackground[0] || newBackground[1] !== oldBackground[1]) {
-		if (CurrentBackground.known) {
-			thermoTxt = thermoM("Removing the " + CurrentBackground.name + " background features...", false); //change the progress dialog text
+	if (new_background_id !== old_background_id) {
+		if (old_background_id) {
+			let oldBackgroundName = adapter_helper_get_background_property("name", old_background_id);
+			thermoTxt = thermoM("Removing the " + oldBackgroundName + " background features...", false); //change the progress dialog text
 
 			// remove the background common attributes
 			var Fea = await ApplyFeatureAttributes(
 				"background", // type
-				CurrentBackground.known, // fObjName [aParent, fObjName]
+				old_background_id, // fObjName [aParent, fObjName]
 				[1, 0, false], // lvlA [old-level, new-level, force-apply]
 				false, // choiceA [old-choice, new-choice, "only"|"change"]
 				false // forceNonCurrent
 			);
 
 			// reset the background feature
-			if (CurrentBackground.feature && What("Background Feature") === CurrentBackground.feature) Value("Background Feature", "");
-
-			// reset the background extra field
-			xtrFld.clearItems();
-			xtrFld.userName = "First fill out a background in the field " + (typePF ? "above" : "to the left") + '.\n\nOnce a background is recognized that offers additional options (e.g. the "Origin" of the "Outlander" background), those additional options will be available here.';
+			let oldBackgroundFeature = adapter_helper_get_background_property("feature", old_background_id);
+			if (oldBackgroundFeature && What("Background Feature") === oldBackgroundFeature) Value("Background Feature", "");
 
 			// reset the lifestyle
-			if (CurrentBackground.lifestyle && What("Lifestyle") === CurrentBackground.lifestyle) Value("Lifestyle", "");
+			let oldBackgroundLifestyle = adapter_helper_get_background_property("lifestyle", old_background_id);
+			if (oldBackgroundLifestyle && What("Lifestyle") === oldBackgroundLifestyle) Value("Lifestyle", "");
 
 			thermoM(2/5); //increment the progress dialog's progress
 		};
-		FindBackground(input);
-	}
 
-	if (CurrentBackground.known && (CurrentBackground.known !== oldBackground[0] || CurrentBackground.variant !== oldBackground[1])) {
-		thermoTxt = thermoM("Applying the " + CurrentBackground.name + " background features...", false); //change the progress dialog text
+		if (new_background_id) {
+			let newBackgroundName = adapter_helper_get_background_property("name", new_background_id);
+			thermoTxt = thermoM("Applying the " + newBackgroundName + " background features...", false); //change the progress dialog text
 
-		// Apply the background feature
-		if (CurrentBackground.feature) Value("Background Feature", CurrentBackground.feature);
+			// Apply the background feature
+			let newBackgroundFeature = adapter_helper_get_background_property("feature", new_background_id);
+			if (newBackgroundFeature) Value("Background Feature", newBackgroundFeature);
 
-		// Apply the background extra
-		if (CurrentBackground.extra) {
-			xtrFld.setItems([""].concat(CurrentBackground.extra.slice(1)));
-			xtrFld.userName = CurrentBackground.extra[0] + "\n(" + CurrentBackground.name + " background)";
-		} else {
-			xtrFld.userName = "There are no extra choices defined for your " + CurrentBackground.name + " background.\nThus, this drop-down box is empty.\n\nFeel free to use it for additional background comments.";
-		};
+			// Apply the lifestyle, if defined
+			let newBackgroundLifestyle = adapter_helper_get_background_property("lifestyle", new_background_id);
+			if (newBackgroundLifestyle) Value("Lifestyle", newBackgroundLifestyle);
 
-		// Apply the lifestyle, if defined
-		if (CurrentBackground.lifestyle) Value("Lifestyle", CurrentBackground.lifestyle);
+			thermoM(3/5); //increment the progress dialog's progress
 
-		thermoM(3/5); //increment the progress dialog's progress
-
-		// Apply the background common attributes
-		var Fea = await ApplyFeatureAttributes(
-			"background", // type
-			CurrentBackground.known, // fObjName [aParent, fObjName]
-			[0, 1, false], // lvlA [old-level, new-level, force-apply]
-			false, // choiceA [old-choice, new-choice, "only"|"change"]
-			false // forceNonCurrent
-		);
+			// Apply the background common attributes
+			var Fea = await ApplyFeatureAttributes(
+				"background", // type
+				new_background_id, // fObjName [aParent, fObjName]
+				[0, 1, false], // lvlA [old-level, new-level, force-apply]
+				false, // choiceA [old-choice, new-choice, "only"|"change"]
+				false // forceNonCurrent
+			);
+		}
 	}
 
 	thermoM(thermoTxt, true); // Stop progress bar
@@ -4343,11 +2685,12 @@ function MakeBackgroundMenu() {
 		menu.push(temp);
 	};
 
-	if (CurrentBackground.known) {
-		menuLVL2(backMenu, "Personality Trait", CurrentBackground.trait);
-		menuLVL2(backMenu, "Ideal", CurrentBackground.ideal);
-		menuLVL2(backMenu, "Bond", CurrentBackground.bond);
-		menuLVL2(backMenu, "Flaw", CurrentBackground.flaw);
+	let backgroundID = wasm_character.get_background_id();
+	if (backgroundID) {
+		menuLVL2(backMenu, "Personality Trait", adapter_helper_get_background_property("trait", backgroundID));
+		menuLVL2(backMenu, "Ideal", adapter_helper_get_background_property("ideal", backgroundID));
+		menuLVL2(backMenu, "Bond", adapter_helper_get_background_property("bond", backgroundID));
+		menuLVL2(backMenu, "Flaw", adapter_helper_get_background_property("flaw", backgroundID));
 	} else {
 		menuLVL1(backMenu, [["No background entry has been detected on the first page", "nothing"]]);
 	};
@@ -4362,13 +2705,13 @@ async function BackgroundOptions() {
 	var MenuSelection = await getMenu("background");
 	if (!MenuSelection || MenuSelection[0] == "nothing") return;
 	if (MenuSelection[0] === "personality trait") {
-		AddString("Personality Trait", CurrentBackground.trait[MenuSelection[1]], " ");
+		AddString("Personality Trait", adapter_helper_get_background_property("trait")[MenuSelection[1]], " ");
 	} else if (MenuSelection[0] === "ideal") {
-		Value("Ideal", CurrentBackground.ideal[MenuSelection[1]][1]);
+		Value("Ideal", adapter_helper_get_background_property("ideal")[MenuSelection[1]][1]);
 	} else if (MenuSelection[0] === "bond") {
-		Value("Bond", CurrentBackground.bond[MenuSelection[1]]);
+		Value("Bond", adapter_helper_get_background_property("bond")[MenuSelection[1]]);
 	} else if (MenuSelection[0] === "flaw") {
-		Value("Flaw", CurrentBackground.flaw[MenuSelection[1]]);
+		Value("Flaw", adapter_helper_get_background_property("flaw")[MenuSelection[1]]);
 	} else if (MenuSelection[1] === "reset") {
 		tDoc.resetForm(["Personality Trait", "Ideal", "Bond", "Flaw"]);
 	}
@@ -4583,7 +2926,6 @@ function ReplaceString(field, inputstring, newline, theoldstring, alreadyRegExp)
 		AddString(field, inputstring, multilines);
 		return;
 	};
-	if (field == "Extra.Notes") show3rdPageNotes();
 };
 
 // add (change === true) or remove (change === false) a skill proficiency with or without expertise; If expertise === "only", only add/remove the expertise, considering the skill already has proficiency; If expertise === "increment", only add/remove the expertise, considering the skill already has proficiency, otherwise add proficiency
@@ -4600,35 +2942,23 @@ function AddSkillProf(SkillName, change, expertise, returnSkillName, bonus, comp
 	};
 	if (SkillsList.abbreviations.indexOf(tempString) == -1) return; // skill not found, so nothing to do
 	var alphaB = Who("Text.SkillsNames") === "alphabeta";
-	if ((QI || typePF) && !alphaB) tempString = SkillsList.abbreviations[SkillsList.abbreviationsByAS.indexOf(tempString)];
-	if (!QI && !typePF) {
-		var skFld = prefix + "Text.Comp.Use.Skills." + tempString + ".Prof";
-		var curProf = What(skFld);
-		if ((/only|increment/i).test(expertise)) {
-			var newval = change && curProf == "proficient" ? "expertise" : !change && curProf == "expertise" ? "proficient" : expertise == "only" ? curProf : change && curProf == "nothing" ? "proficient" : "nothing";
-		} else {
-			var newval = !change ? "nothing" : expertise ? "expertise" : "proficient";
-		}
-		Value(skFld, newval);
-		if (bonus !== undefined && bonus !== false) Value(prefix + "BlueText.Comp.Use.Skills." + tempString + ".Bonus", bonus);
+	if (!alphaB) tempString = SkillsList.abbreviations[SkillsList.abbreviationsByAS.indexOf(tempString)];
+	var profFld = QI ? tempString + " Prof" : prefix + "Comp.Use.Skills." + tempString + ".Prof";
+	var expFld = QI ? tempString + " Exp" : prefix + "Comp.Use.Skills." + tempString + ".Exp";
+	var bonusFld = QI ? tempString + " Bonus" : prefix + "BlueText.Comp.Use.Skills." + tempString + ".Bonus";
+	var curProf = tDoc.getField(profFld).isBoxChecked(0);
+	var curExp = tDoc.getField(expFld).isBoxChecked(0);
+	var exp, prof;
+	if ((/only|increment/i).test(expertise)) {
+		exp = change && curProf ? true : false;
+		prof = expertise == "only" ? curProf : !change && curExp;
 	} else {
-		var profFld = QI ? tempString + " Prof" : prefix + "Comp.Use.Skills." + tempString + ".Prof";
-		var expFld = QI ? tempString + " Exp" : prefix + "Comp.Use.Skills." + tempString + ".Exp";
-		var bonusFld = QI ? tempString + " Bonus" : prefix + "BlueText.Comp.Use.Skills." + tempString + ".Bonus";
-		var curProf = tDoc.getField(profFld).isBoxChecked(0);
-		var curExp = tDoc.getField(expFld).isBoxChecked(0);
-		var exp, prof;
-		if ((/only|increment/i).test(expertise)) {
-			exp = change && curProf ? true : false;
-			prof = expertise == "only" ? curProf : !change && curExp;
-		} else {
-			exp = change && expertise;
-			prof = change;
-		}
-		Checkbox(expFld, exp);
-		Checkbox(profFld, prof);
-		if (bonus !== undefined && bonus !== false) Value(bonusFld, bonus);
+		exp = change && expertise;
+		prof = change;
 	}
+	Checkbox(expFld, exp);
+	Checkbox(profFld, prof);
+	if (bonus !== undefined && bonus !== false) Value(bonusFld, bonus);
 	// return the skill name if concerning a companion page
 	if (returnSkillName) return SkillsList.names[SkillsList.abbreviations.indexOf(tempString)];
 };
@@ -4704,7 +3034,7 @@ function CalcAllSkills(name, isCompPage) {
 		var sk = SkillsList.abbreviations[i];
 		isInit = sk == "Init";
 		if (sk == "Too" && pr) continue;
-		var skFld = alphaB || (pr && !typePF) ? sk : SkillsList.abbreviations[SkillsList.abbreviationsByAS.indexOf(sk)];
+		var skFld = alphaB ? sk : SkillsList.abbreviations[SkillsList.abbreviationsByAS.indexOf(sk)];
 		var setFld = !pr ? (isInit ? "Initiative bonus" : skFld) : pr + "Comp.Use." + (isInit ? "Combat.Init" : "Skills." + skFld) + ".Mod";
 		var theAbi = SkillsList.abilityScores[i];
 		var doPass = sk == "Perc";
@@ -4733,17 +3063,10 @@ function CalcAllSkills(name, isCompPage) {
 			} else if (jackOf && !modFldHasProf) {
 				addProf = Math.floor(profB / 2);
 			}
-		} else if ((doPass || !profDie) && typePF) {
+		} else if (doPass || !profDie) {
 			if (tDoc.getField(pr + "Comp.Use.Skills." + skFld + ".Prof").isBoxChecked(0)) {
 				addProf = profB;
 				if (tDoc.getField(pr + "Comp.Use.Skills." + skFld + ".Exp").isBoxChecked(0)) addProf += profB;
-			}
-		} else if (doPass || !profDie) {
-			var profType = What(pr + "Text.Comp.Use.Skills." + skFld + ".Prof");
-			if (profType == "expertise") {
-				addProf = profB * 2;
-			} else if (profType == "proficient") {
-				addProf = profB;
 			}
 		}
 		if (!profDie) setVals[setFld] += addProf;
@@ -4755,12 +3078,8 @@ function CalcAllSkills(name, isCompPage) {
 			setVals[passPercFld] += EvalBonus(What(!pr ? "Passive Perception Bonus" : pr + "BlueText.Comp.Use.Skills.Perc.Pass.Bonus"), !pr ? true : pr);
 			if (!pr) {
 				// advantage/disadvantage on the 1st page
-				if (!typePF) {
-					setVals[passPercFld] += tDoc.getField(setFld + " Adv").isBoxChecked(0) ? 5 : tDoc.getField(setFld + " Dis").isBoxChecked(0) ? -5 : 0;
-				} else {
-					var pasPercSN = How("Passive Perception Bonus");
-					setVals[passPercFld] += pasPercSN == "Adv" ? 5 : pasPercSN == "Dis" ? -5 : 0;
-				}
+				var pasPercSN = How("Passive Perception Bonus");
+				setVals[passPercFld] += pasPercSN == "Adv" ? 5 : pasPercSN == "Dis" ? -5 : 0;
 				if (profDie) {
 					// add the proficiency bonus if set to using proficiency die
 					setVals[passPercFld] += addProf;
@@ -4798,14 +3117,7 @@ function CalcSave(name) {
 	var AllBonus = EvalBonus(What(Save.replace("Comp.", "BlueText.Comp.").replace("Mod", "Bonus").replace(Ability, "All")), QI ? true : prefix);
 
 	//calculate the total
-	var theResult = Mod === "" ? "" : Number(Mod) + Number(ProfBonus) + Number(ExtraBonus) + Number(AllBonus);
-
-	//change the total to fail if some condition dictates it
-	if (!typePF && QI && (Ability === "Str" || Ability === "Dex") && (tDoc.getField("Extra.Condition 8").isBoxChecked(0) === 1 || tDoc.getField("Extra.Condition 9").isBoxChecked(0) === 1 || tDoc.getField("Extra.Condition 13").isBoxChecked(0) === 1 || tDoc.getField("Extra.Condition 14").isBoxChecked(0) === 1)) {
-		theResult = "fail";
-	}
-
-	return theResult;
+	return Mod === "" ? "" : Number(Mod) + Number(ProfBonus) + Number(ExtraBonus) + Number(AllBonus);
 };
 
 //calculate the ability modifier (field calculation)
@@ -4835,7 +3147,7 @@ function processRecovery(recovery, additionalRecovery) {
 	if (additionalRecovery) {
 		recoveryStr += "/" + additionalRecovery.trim();
 	}
-	return leftpad(recoveryStr,(typePF ? 5 : 4));
+	return leftpad(recoveryStr, 5);
 }
 
 // Add a limited feature: add (UpdateOrReplace = "replace"), or only update the text (UpdateOrReplace = "update"), or update both the text and the usages (UpdateOrReplace = number of previous usages), or just add the number of usages (UpdateOrReplace = "bonus")
@@ -4844,7 +3156,6 @@ function AddFeature(identifier, usages, additionaltxt, recovery, tooltip, Update
 	var additionaltxt = additionaltxt.indexOf(identifier) != -1 ? "" : additionaltxt && What("Unit System") === "metric" ? ConvertToMetric(additionaltxt, 0.5) : additionaltxt;
 	UpdateOrReplace = UpdateOrReplace || UpdateOrReplace === 0 || UpdateOrReplace === "" ? UpdateOrReplace : "replace";
 	var calculation = Calc ? Calc : "";
-	var SslotsVisible = !typePF && eval_ish(What("SpellSlotsRemember"))[0];
 	var recovery = (/^(long rest|short rest|dawn)$/).test(recovery) && !additionalRecovery ? recovery : processRecovery(recovery, additionalRecovery);
 	if ((/ ?\bper\b ?/).test(usages)) usages = usages.replace(/ ?\bper\b ?/, "");
 	for (var n = 1; n <= 2; n++) {
@@ -4877,7 +3188,6 @@ function AddFeature(identifier, usages, additionaltxt, recovery, tooltip, Update
 				i = FieldNumbers.limfea + 1;
 				n = 3;
 			} else if (n === 2 && featureFld.value === "") { //if the feature is not found
-				if (SslotsVisible && i > 5 && i < 9) continue; //don't add something to the bottom three rows on the first page if the spell slots are visible
 				featureFld.value = identifier + additionaltxt;
 				if (tooltip) featureFld.userName = "The feature \"" + identifier + "\" was gained from " + tooltip;
 				usageFld.setAction("Calculate", calculation);
@@ -5017,11 +3327,6 @@ function ParseFeat(input) {
 function FindFeats() {
 	CurrentFeats.known = [];
 	CurrentFeats.choices = [];
-	if (CurrentVars.manual.feats) {
-		CurrentFeats.known = CurrentVars.manual.feats[0];
-		CurrentFeats.choices = CurrentVars.manual.feats[2] ? CurrentVars.manual.feats[2] : [];
-		return;
-	}
 	for (var i = 1; i <= FieldNumbers.feats; i++) {
 		var parsedFeat = ParseFeat( What("Feat Name " + i) );
 		CurrentFeats.known.push(parsedFeat[0]);
@@ -5032,7 +3337,7 @@ function FindFeats() {
 // Add the text and features of a Feat
 async function ApplyFeat(input, FldNmbr, field) {
 	let returnRC = true;
-	if (IsSetDropDowns || CurrentVars.manual.feats || !IsNotFeatMenu) return returnRC; // When just changing the dropdowns or feats are set to manual or this is a menu action, don't do anything
+	if (IsSetDropDowns || !IsNotFeatMenu) return returnRC; // When just changing the dropdowns or feats are set to manual or this is a menu action, don't do anything
 	var Fflds = ReturnFeatFieldsArray(FldNmbr);
 	// Not called from a field? Then just set the field and let this function be called anew
 	if ((!field || field.name !== Fflds[0]) && What(Fflds[0]) !== input) {
@@ -5231,8 +3536,7 @@ async function ApplyFeat(input, FldNmbr, field) {
 
 		// Set the field description/calculation
 		if (theFeat.calculate) {
-			var theCalc = What("Unit System") === "imperial" ? theFeat.calculate : ConvertToMetric(theFeat.calculate, 0.5);
-			if (typePF) theCalc = theCalc.replace("\n", " ");
+			var theCalc = What("Unit System") === "imperial" ? theFeat.calculate : ConvertToMetric(theFeat.calculate, 0.5).replace("\n", " ");
 			tDoc.getField(Fflds[2]).setAction("Calculate", theCalc);
 		}
 
@@ -5243,8 +3547,7 @@ async function ApplyFeat(input, FldNmbr, field) {
 		if (theFeat.descriptionFull) tooltipStr += isArray(theFeat.descriptionFull) ? desc(theFeat.descriptionFull).replace(/^\n   /i, "\n\n") : "\n\n" + theFeat.descriptionFull;
 
 		// Get the description
-		var theDesc = !theFeat.description ? "" : What("Unit System") === "imperial" ? theFeat.description : ConvertToMetric(theFeat.description, 0.5);
-		if (typePF) theDesc = theDesc.replace("\n", " ");
+		var theDesc = !theFeat.description ? "" : What("Unit System") === "imperial" ? theFeat.description : ConvertToMetric(theFeat.description, 0.5).replace("\n", " ");
 		// Set it all to the appropriate field
 		Value(Fflds[2], theDesc, tooltipStr, theFeat.calculate ? theCalc : "");
 
@@ -5304,7 +3607,7 @@ async function MakeFeatMenu_FeatOptions(MenuSelection, itemNmbr) {
 	var theField = What(Fflds[0]) != "";
 	var noUp = itemNmbr === 1;
 	var noDown = itemNmbr === FieldNumbers.feats;
-	var upToOtherPage = itemNmbr !== (FieldNumbers.featsD + 1) ? "" : typePF ? " (to third page)" : " (to second page)";
+	var upToOtherPage = itemNmbr !== (FieldNumbers.featsD + 1) ? "" : " (to third page)";
 	var downToOtherPage = itemNmbr === FieldNumbers.featsD ? " (to overflow page)" : "";
 	var aFeat, keyFeat = CurrentFeats.known[ArrayNmbr];
 
@@ -5399,14 +3702,12 @@ async function MakeFeatMenu_FeatOptions(MenuSelection, itemNmbr) {
 				thermoM(i/Fflds.length); //increment the progress dialog's progress
 			}
 			// Correct the entry in the CurrentMagicItems.known array
-			if (!CurrentVars.manual.feats) {
-				var thisKnown = CurrentFeats.known[itemNmbr - 1];
-				var thisChoice = CurrentFeats.choices[itemNmbr - 1];
-				CurrentFeats.known[itemNmbr - 1] = CurrentFeats.known[otherNmbr - 1];
-				CurrentFeats.known[otherNmbr - 1] = thisKnown;
-				CurrentFeats.choices[itemNmbr - 1] = CurrentFeats.choices[otherNmbr - 1];
-				CurrentFeats.choices[otherNmbr - 1] = thisChoice;
-			}
+			var thisKnown = CurrentFeats.known[itemNmbr - 1];
+			var thisChoice = CurrentFeats.choices[itemNmbr - 1];
+			CurrentFeats.known[itemNmbr - 1] = CurrentFeats.known[otherNmbr - 1];
+			CurrentFeats.known[otherNmbr - 1] = thisKnown;
+			CurrentFeats.choices[itemNmbr - 1] = CurrentFeats.choices[otherNmbr - 1];
+			CurrentFeats.choices[otherNmbr - 1] = thisChoice;
 			IsNotFeatMenu = true;
 			break;
 		case "insert" :
@@ -5454,10 +3755,8 @@ function FeatInsert(itemNmbr) {
 				copyField(FfldsFrom[i], FfldsTo[i], exclObj);
 			}
 			// Correct the known array & choices arrays
-			if (!CurrentVars.manual.feats) {
-				CurrentFeats.known[f - 1] = CurrentFeats.known[f - 2];
-				CurrentFeats.choices[f - 1] = CurrentFeats.choices[f - 2];
-			}
+			CurrentFeats.known[f - 1] = CurrentFeats.known[f - 2];
+			CurrentFeats.choices[f - 1] = CurrentFeats.choices[f - 2];
 		}
 
 		// Empty the selected slot
@@ -5492,10 +3791,8 @@ function FeatDelete(itemNmbr) {
 			copyField(FfldsFrom[i], FfldsTo[i], exclObj);
 		}
 		// Correct the known array & choices arrays
-		if (!CurrentVars.manual.feats) {
-			CurrentFeats.known[f - 1] = CurrentFeats.known[f];
-			CurrentFeats.choices[f - 1] = CurrentFeats.choices[f];
-		}
+		CurrentFeats.known[f - 1] = CurrentFeats.known[f];
+		CurrentFeats.choices[f - 1] = CurrentFeats.choices[f];
 	}
 
 	// Clear the final line
@@ -5579,12 +3876,12 @@ function RemoveFeat(sFeat) {
 // Clear a feat at the position given
 function FeatClear(itemNmbr, doAutomation) {
 	var Fflds = ReturnFeatFieldsArray(itemNmbr);
-	if (doAutomation && !CurrentVars.manual.feats && CurrentFeats.known[itemNmbr - 1]) {
+	if (doAutomation && CurrentFeats.known[itemNmbr - 1]) {
 		IsNotFeatMenu = true;
 		Value("Feat Name " + itemNmbr, "");
 		tDoc.resetForm(Fflds[1]);
 	} else {
-		if (!CurrentVars.manual.feats) CurrentFeats.known[itemNmbr - 1] = "";
+		CurrentFeats.known[itemNmbr - 1] = "";
 		AddTooltip(Fflds[2], "", "");
 		tDoc.getField(Fflds[2]).setAction("Calculate", "");
 		if (IsNotReset) tDoc.resetForm(Fflds);
@@ -5666,9 +3963,6 @@ function resetLimFeaUsed(rxType) {
 	if (bResetSpellSlots) {
 		var SSfrontA = What("Template.extras.SSfront").split(",")[1];
 		if (SSfrontA) aFldsToReset.push(SSfrontA + "SpellSlots.Checkboxes");
-		if (!typePF) aFldsToReset.push("SpellSlots.Checkboxes");
-		if (!typePF && SSfrontA) aFldsToReset.push(SSfrontA + "SpellSlots2.Checkboxes");
-		
 	}
 	if (aFldsToReset.length > 0) {
 		calcStop();
@@ -5761,7 +4055,7 @@ function CalcEncumbrance(FldName) {
 	} else if (FldName.indexOf("Carrying Capacity") !== -1) {
 		result = Math.floor(TotalMult * Mult1 * UnitMult) + Unit;
 	} else {
-		result = Math.floor(1 + TotalMult * Mult1 * UnitMult) + " - " + (!typePF ? "\n" : "") + Math.floor(TotalMult * Mult2 * UnitMult) + Unit;
+		result = Math.floor(1 + TotalMult * Mult1 * UnitMult) + " - " + Math.floor(TotalMult * Mult2 * UnitMult) + Unit;
 	}
 	if (decSep === "comma" && result) {
 		result = "." + result;
@@ -5771,16 +4065,16 @@ function CalcEncumbrance(FldName) {
 	return result;
 }
 
-function ParseClassFeature(theClass, theFeature, FeaLvl, ForceOld, SubChoice, Fea, ForceFeaOld) {
+function ParseClassFeature(theClass, theFeature, FeaLvl, ForceOld, SubChoice, Fea, ForceFeaOld, subClass) {
 	// First make sure we know where the feature comes from (if it exists in both class and subclass, use subclass, unless ForceOld is true)
-	var aSubClass = classes.known[theClass].subclass;
+	var aSubClass = subClass ? subClass : wasm_character.get_subclass(theClass);
 	var FeaList = ClassList[theClass].features[theFeature] && (ForceOld || !aSubClass || !ClassSubList[aSubClass].features[theFeature]) ? 'ClassList' : ClassSubList[aSubClass].features[theFeature] ? 'ClassSubList' : false;
 	if (!FeaList) return ["", ""];
 
 	var FeaKey = FeaList == 'ClassList' ? ClassList[theClass].features[theFeature] : ClassSubList[aSubClass].features[theFeature];
 	var old = (ForceOld || ForceFeaOld) && Fea ? "Old" : "";
 	if (old) Fea.source = Fea.sourceOld;
-	var FeaClass = FeaList == 'ClassSubList' && CurrentClasses[theClass].subname ? CurrentClasses[theClass].subname : CurrentClasses[theClass].name;
+	var FeaClass = FeaList == 'ClassSubList' && adapter_helper_get_class_property(theClass, "subname") ? adapter_helper_get_class_property(theClass, "subname") : adapter_helper_get_class_property(theClass, "name");
 	if (!Fea) Fea = GetLevelFeatures(FeaKey, FeaLvl, SubChoice, "", "");
 
 	if (!Fea.UseName) return ["", ""]; // return empty strings if there is no name
@@ -5811,7 +4105,7 @@ function ParseClassFeature(theClass, theFeature, FeaLvl, ForceOld, SubChoice, Fe
 };
 
 function ParseClassFeatureExtra(theClass, theFeature, extraChoice, Fea, ForceOld, ForceExtraname) {
-	var clObj = typeof theClass == "string" ? CurrentClasses[theClass].features[theFeature] : theClass;
+	var clObj = typeof theClass == "string" ? adapter_helper_get_class_property(theClass, "features")[theFeature] : theClass;
 	var FeaKey = clObj && clObj[extraChoice.toLowerCase()] ? clObj[extraChoice.toLowerCase()] : false;
 	if (!FeaKey || !FeaKey.name) return ["", ""];
 	var old = ForceOld ? "Old" : "";
@@ -5842,16 +4136,17 @@ function ParseClassFeatureExtra(theClass, theFeature, extraChoice, Fea, ForceOld
 };
 
 //change all the level-variables gained from classes and races
-async function UpdateLevelFeatures(Typeswitch, newLvlForce) {
+async function UpdateLevelFeatures(Typeswitch, newLvlForce, classesToUpdate, oldLevel, raceID) {
 	if (!IsNotReset) return; //stop this function on a reset
 
 	// initialise some variables
 	Typeswitch = Typeswitch === undefined ? "all" : Typeswitch;
 	var thermoTxt, Fea, feaA;
-	var curLvl = newLvlForce !== undefined ? newLvlForce : What("Character Level") ? Number(What("Character Level")) : 1;
+	var curLvl = newLvlForce !== undefined ? newLvlForce : wasm_character.get_level() ? wasm_character.get_level() : 1;
+	let oldLvl = oldLevel !== undefined ? oldLevel : curLvl;
 
 	// make sure the proficiency bonus is set correctly
-	ProfBonus('Proficiency Bonus', newLvlForce);
+	ProfBonus('Proficiency Bonus', curLvl);
 
 	// Start progress bar and stop calculations
 	thermoTxt = thermoM("Updating level-dependent features...");
@@ -5881,30 +4176,32 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce) {
 	}
 
 	// apply race level changes
-	var oldRaceLvl = CurrentRace.level;
-	var newRaceLvl = curLvl;
-	if (!CurrentVars.manual.race && CurrentRace.known && (/race|all|notclass/i).test(Typeswitch) && newRaceLvl != oldRaceLvl) {
-		thermoTxt = thermoM("Updating " + CurrentRace.name + " features...", false);
+	raceID = raceID ? raceID : wasm_character.get_race_id();
+	if (raceID && (/race|all|notclass/i).test(Typeswitch)) {
+		let raceName = adapter_helper_get_race_property("name", raceID);
+		thermoTxt = thermoM("Updating " + raceName + " features...", false);
 		thermoM(3/8); //increment the progress dialog's progress
-		// do the CurrentRace object itself
 		Fea = await ApplyFeatureAttributes(
 			"race", // type
-			[CurrentRace.known, CurrentRace.known], // fObjName [aParent, fObjName]
-			[oldRaceLvl, newRaceLvl, false], // lvlA [old-level, new-level, force-apply]
+			[raceID, raceID], // fObjName [aParent, fObjName]
+			[oldLvl, curLvl, false], // lvlA [old-level, new-level, force-apply]
 			false, // choiceA [old-choice, new-choice, "only"|"change"]
-			false // forceNonCurrent
+			false, // forceNonCurrent
+			"", // prefix
+			Typeswitch == "race" // fromRaceUpdate
 		);
 		thermoM(5/8); //increment the progress dialog's progress
 		// iterate through the racial features and apply/update them
-		if (CurrentRace.features) {
+		let raceFeatures = adapter_helper_get_race_property("features", raceID);
+		if (raceFeatures) {
 			feaA = [];
-			for (var key in CurrentRace.features) feaA.push(key);
-			if (oldRaceLvl > newRaceLvl) feaA.reverse(); // when removing, loop through them backwards
+			for (var key in raceFeatures) feaA.push(key);
+			if (oldLvl > curLvl) feaA.reverse(); // when removing, loop through them backwards
 			for (var f = 0; f < feaA.length; f++) {
 				var prop = feaA[f]
 				// --- backwards compatibility --- //
 				// set the name and limfeaname from the depreciated tooltip attribute
-				var propFea = CurrentRace.features[prop];
+				var propFea = raceFeatures[prop];
 				if (propFea.tooltip && !propFea.limfeaname) {
 					propFea.limfeaname = propFea.name;
 					propFea.name = propFea.tooltip.replace(/^ *\(|\)$/g, '');
@@ -5913,13 +4210,13 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce) {
 				try {
 					Fea = await ApplyFeatureAttributes(
 						"race", // type
-						[CurrentRace.known, prop], // fObjName [aParent, fObjName]
-						[oldRaceLvl, newRaceLvl, false], // lvlA [old-level, new-level, force-apply]
+						[raceID, prop], // fObjName [aParent, fObjName]
+						[oldLvl, curLvl, false], // lvlA [old-level, new-level, force-apply]
 						false, // choiceA [old-choice, new-choice, "only"|"change"]
 						false // forceNonCurrent
 					);
 				} catch (error) {
-					var eText = 'The "' + propFea.name + '" feature from the "' + CurrentRace.name + '" race produced an error! Please contact the author of the feature to correct this issue:\n ' + error;
+					var eText = 'The "' + propFea.name + '" feature from the "' + raceName + '" race produced an error! Please contact the author of the feature to correct this issue:\n ' + error;
 					for (var e in error) eText += "\n " + e + ": " + error[e];
 					console.println(eText);
 					console.show();
@@ -5927,14 +4224,13 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce) {
 			}
 		}
 		// update the racial level
-		CurrentRace.level = newRaceLvl;
-		if (CurrentSpells[CurrentRace.known]) CurrentSpells[CurrentRace.known].level = newRaceLvl;
+		if (CurrentSpells[raceID]) CurrentSpells[raceID].level = curLvl;
 	}
 
 	// apply feat level changes
 	var oldFeatLvl = CurrentFeats.level;
 	var newFeatLvl = curLvl;
-	if (!CurrentVars.manual.race && (/feat|all|notclass/i).test(Typeswitch) && oldFeatLvl != newFeatLvl) {
+	if ((/feat|all|notclass/i).test(Typeswitch) && oldFeatLvl != newFeatLvl) {
 		for (var f = 0; f < CurrentFeats.known.length; f++) {
 			var aFeat = CurrentFeats.known[f];
 			var aFeatVar = CurrentFeats.choices[f];
@@ -5965,7 +4261,7 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce) {
 	// apply magic item level changes
 	var oldItemLvl = CurrentMagicItems.level;
 	var newItemLvl = curLvl;
-	if (!CurrentVars.manual.items && (/item|all|notclass/i).test(Typeswitch) && oldItemLvl != newItemLvl) {
+	if ((/item|all|notclass/i).test(Typeswitch) && oldItemLvl != newItemLvl) {
 		for (var f = 0; f < CurrentMagicItems.known.length; f++) {
 			var anItem = CurrentMagicItems.known[f];
 			var anItemVar = CurrentMagicItems.choices[f];
@@ -5998,7 +4294,7 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce) {
 	}
 
 	// apply class level changes
-	if (!CurrentVars.manual.classes && (/^(?!=notclass)(all|class).*$/i).test(Typeswitch)) {
+	if ((/^(?!=notclass)(all|class).*$/i).test(Typeswitch)) {
 
 		// first see if any wild shapes are in use
 		var WSinUse = false;
@@ -6019,14 +4315,16 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce) {
 		var oldClassLvl = {}, newClassLvl = {}, ClassLevelUp = {}; // NODIG???
 
 		// loop through all known classes and updates its features
-		for (var aClass in classes.known) {
-			var cl = CurrentClasses[aClass];
-			var newSubClass = classes.known[aClass].subclass;
+		classesToUpdate = classesToUpdate ? classesToUpdate : (new Set(wasm_character.list_classes())).union(new Set(Object.keys(classes.old)));
+		for (let aClass of classesToUpdate) {
+			let classFullName = adapter_helper_get_class_property(aClass, "fullname");
+			let classFeatures = adapter_helper_get_class_property(aClass, "features")
+			var newSubClass = wasm_character.get_subclass(aClass);
 			var oldSubClass = classes.old[aClass] ? classes.old[aClass].subclass : "";
 
 			// get the class level, new and old
 			oldClassLvl[aClass] = classes.old[aClass] ? classes.old[aClass].classlevel : 0;
-			newClassLvl[aClass] = classes.known[aClass].level;
+			newClassLvl[aClass] = wasm_character.get_class_level(aClass);
 			ClassLevelUp[aClass] = [
 				newClassLvl[aClass] >= oldClassLvl[aClass], // true if going level up/same, false if going down
 				Math.min(oldClassLvl[aClass], newClassLvl[aClass]), // lowest level
@@ -6037,36 +4335,36 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce) {
 			if (newClassLvl[aClass] === oldClassLvl[aClass] && newSubClass === oldSubClass) continue;
 
 			// update the progress dialog
-			thermoTxt = thermoM("Updating " + cl.fullname + " features...", false);
+			thermoTxt = thermoM("Updating " + classFullName + " features...", false);
 			thermoM(1/5);
 
 			// process the class heading
 			if (newClassLvl[aClass] == 0) { // remove the heading
-				var oldHeaderString = cl.fullname + ", level " + oldClassLvl[aClass] + ":";
+				var oldHeaderString = classFullName + ", level " + oldClassLvl[aClass] + ":";
 				if (What("Class Features").indexOf("\r\r" + oldHeaderString) !== -1) oldHeaderString = "\r\r" + oldHeaderString;
 				RemoveString("Class Features", oldHeaderString, false);
 			} else if (oldClassLvl[aClass] == 0) { // add the heading
-				var newHeaderString = cl.fullname + ", level " + newClassLvl[aClass] + ":";
+				var newHeaderString = classFullName + ", level " + newClassLvl[aClass] + ":";
 				if (What("Class Features")) newHeaderString = "\r\r" + newHeaderString;
 				AddString("Class Features", newHeaderString, false);
 			} else { // update the heading
-				var newHeaderString = cl.fullname + ", level " + newClassLvl[aClass] + ":";
+				var newHeaderString = classFullName + ", level " + newClassLvl[aClass] + ":";
 				var oldHeaderString = !classes.old[aClass] ? "" : classes.old[aClass].fullname.RegEscape() + ".*, level \\d+:";
 				ReplaceString("Class Features", newHeaderString, false, oldHeaderString, true);
 			}
 
 			// loop through the features
 			var LastProp = newHeaderString, feaA = [];
-			for (var key in cl.features) feaA.push(key);
+			for (var key in classFeatures) feaA.push(key);
 			if (oldClassLvl[aClass] > newClassLvl[aClass]) feaA.reverse(); // when removing, loop through them backwards
 			for (var f = 0; f < feaA.length; f++) {
 				var prop = feaA[f];
-				var propFea = cl.features[prop];
+				var propFea = classFeatures[prop];
 				var isSubClassProp = newSubClass && ClassSubList[newSubClass].features[prop] ? true : false;
 				var isClassProp = ClassList[aClass].features[prop] ? true : false;
 
 				// update the progress dialog
-				thermoTxt = thermoM("Updating " + cl.fullname + ": " + propFea.name + "...", false);
+				thermoTxt = thermoM("Updating " + classFullName + ": " + propFea.name + "...", false);
 				thermoM((f+1)/feaA.length);
 
 				// if this is the first time applying the features after changing subclass, things might need to be forced if the class was previously at a level that a subclass was already warranted
@@ -6083,9 +4381,9 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce) {
 					);
 
 					// add/remove/update the feature text on the second page
-					var FeaOldString = ParseClassFeature(aClass, prop, oldClassLvl[aClass], forceProp, Fea.ChoiceOld, forceProp ? false : Fea);
+					var FeaOldString = ParseClassFeature(aClass, prop, oldClassLvl[aClass], forceProp, Fea.ChoiceOld, forceProp ? false : Fea, false, oldSubClass);
 					Fea.extFirst = true; // signal that we need the full first line for FeaNewString
-					var FeaNewString = ParseClassFeature(aClass, prop, newClassLvl[aClass], false, Fea.Choice, Fea);
+					var FeaNewString = ParseClassFeature(aClass, prop, newClassLvl[aClass], false, Fea.Choice, Fea, false, newSubClass ? newSubClass : oldSubClass);
 					// see what type of change we have to do
 					var textAction = Fea.CheckLVL && !Fea.AddFea ? "remove" : // level dropped below minlevel
 						Fea.CheckLVL && Fea.AddFea && (!forceProp || (forceProp && !isClassProp)) ? "insert" : // level rose above minlevel and there is nothing to replace
@@ -6104,7 +4402,7 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce) {
 					// keep track of the last property's header text (don't use FeaNewString, as it might include an additional or recovery)
 					LastProp = propFea.minlevel <= ClassLevelUp[aClass][2] ? FeaNewString[2] : LastProp;
 				} catch (error) {
-					var eText = 'The "' + propFea.name + '" feature from the "' + cl.fullname + '" class produced an error! Please contact the author of the feature to correct this issue:\n ' + error;
+					var eText = 'The "' + propFea.name + '" feature from the "' + classFullName + '" class produced an error! Please contact the author of the feature to correct this issue:\n ' + error;
 					for (var e in error) eText += "\n " + e + ": " + error[e];
 					console.println(eText);
 					console.show();
@@ -6267,14 +4565,15 @@ function MakeClassMenu() {
 		}
 	};
 
-	var ClassMenu = [], aClass, cl, prop, propFea, toTest, toTestNr, toChooseNr, toChooseStr;
+	var ClassMenu = [], aClass, prop, propFea, toTest, toTestNr, toChooseNr, toChooseStr;
 
-	for (aClass in classes.known) {
-		var clLvl = classes.known[aClass].level;
-		cl = CurrentClasses[aClass];
+	for (let aClass of wasm_character.list_classes()) {
+		var clLvl = wasm_character.get_class_level(aClass);
+		let classFeatures = adapter_helper_get_class_property(aClass, "features");
+
 		var tempItem = [];
-		for (prop in cl.features) {
-			propFea = cl.features[prop];
+		for (prop in classFeatures) {
+			propFea = classFeatures[prop];
 			if (propFea.choices && !propFea.choicesNotInMenu && propFea.minlevel <= clLvl) {
 				isFS = (/fighting style/i).test(prop + propFea.name);
 				toTest = GetFeatureChoice("classes", aClass, prop, false);
@@ -6311,12 +4610,13 @@ function MakeClassMenu() {
 				tempSorted.variants.push({ cName : "-", cReturn : "-" });
 			}
 			ClassMenu.push({
-				cName : cl.fullname,
+				cName : adapter_helper_get_class_property(aClass, "fullname"),
 				oSubMenu : tempSorted.optional.concat(tempSorted.variants).concat(tempSorted.features)
 			});
 		};
 	};
 
+	let cl;
 	var bonusClassFeatures = getBonusClassExtraChoices();
 	if (bonusClassFeatures.length) ClassMenu.push({ cName : "-" }); // Add a divider
 	for (var i = 0; i < bonusClassFeatures.length; i++) {
@@ -6372,7 +4672,7 @@ async function ClassFeatureOptions(Input, AddRemove, ForceExtraname, triggerIsMe
 	var extraBonus = MenuSelection[5] ? true : false; // a feature with bonus entries that currently isn't available
 	var sSubclass = MenuSelection[6] ? MenuSelection[6] : false;
 	var propFea = false;
-	if (extraBonus && (sSubclass || !CurrentClasses[aClass])) {
+	if (extraBonus && (sSubclass || !wasm_character.has_class(aClass))) {
 		propFea = sSubclass && ClassSubList[sSubclass] ? ClassSubList[sSubclass].features[prop] : ClassList[aClass].features[prop];
 		// temporarily add the (sub)class to classes.known, so that scripts won't produce errors
 		addTempClassesKnown({
@@ -6380,16 +4680,17 @@ async function ClassFeatureOptions(Input, AddRemove, ForceExtraname, triggerIsMe
 			subclass : sSubclass
 		});
 		var unknownClass = true;
-	} else if (CurrentClasses[aClass]) {
-		propFea = CurrentClasses[aClass].features[prop];
+	} else if (wasm_character.has_class(aClass)) {
+		propFea = adapter_helper_get_class_property(aClass, "features")[prop];
 		var unknownClass = false;
 	}
 	var propFeaCs = propFea ? propFea[choice] : false;
 	if (!propFea || !propFeaCs) return cleanTempClassesKnown(); // no objects to process, so go back
 
 	var propMinLvl = propFea.minlevel ? propFea.minlevel : 1;
-	var clLvl = unknownClass ? propMinLvl : classes.known[aClass].level;
+	var clLvl = unknownClass ? propMinLvl : wasm_character.get_class_level(aClass);
 	var clLvlOld = unknownClass ? propMinLvl : !triggerIsMenu && Input && classes.old[aClass] ? classes.old[aClass].classlevel : clLvl;
+	var subClassOld = unknownClass ? sSubclass : classes.old[aClass] ? classes.old[aClass].subclass : sSubclass;
 	if (!unknownClass && propFea.minlevel && Math.max(clLvl, clLvlOld) < propFea.minlevel) {
 		// Trying to process a class feature for which there is no high enough level
 		if (!extra) { // If this is not an 'extrachoice', stop now
@@ -6431,9 +4732,8 @@ async function ClassFeatureOptions(Input, AddRemove, ForceExtraname, triggerIsMe
 
 		if (addIt) { // add the string to the third page
 			AddString("Extra.Notes", feaString[1].replace(/^(\r|\n)*/, ''), true);
-			show3rdPageNotes(); // for a Colourful sheet, show the notes section on the third page
 			var extraNm = propFeaCs.extraname ? propFeaCs.extraname : ForceExtraname ? ForceExtraname : propFea.extraname ? propFea.extraname : propFea.name;
-			var changeMsg = "The " + extraNm + ' "' + propFeaCs.name + '" has been added to the Notes section on the third page' + (!typePF ? ", while the Rules section on the third page has been hidden" : "") + ". They wouldn't fit in the Class Features section if the class is taken to level 20.";
+			var changeMsg = "The " + extraNm + ' "' + propFeaCs.name + '" has been added to the Notes section on the third page' + ". They wouldn't fit in the Class Features section if the class is taken to level 20.";
 			CurrentUpdates.types.push("notes");
 			if (!CurrentUpdates.notesChanges) {
 				CurrentUpdates.notesChanges = [changeMsg];
@@ -6456,7 +4756,7 @@ async function ClassFeatureOptions(Input, AddRemove, ForceExtraname, triggerIsMe
 		thermoM(3/5); //increment the progress dialog's progress
 		// do something with the text of the feature
 		var feaString = ParseClassFeature(aClass, prop, clLvl, false, choice, Fea);
-		var feaStringOld = ParseClassFeature(aClass, prop, clLvlOld, false, choiceOld, Fea, true);
+		var feaStringOld = ParseClassFeature(aClass, prop, clLvlOld, false, choiceOld, Fea, true, subClassOld);
 		applyClassFeatureText("replace", ["Class Features"], feaStringOld, feaString, false);
 	}
 
@@ -6466,27 +4766,26 @@ async function ClassFeatureOptions(Input, AddRemove, ForceExtraname, triggerIsMe
 }
 
 // Add a temporary addition to classes.known, if applicable
+TempClasses = {};
+TempSubClasses = {};
 function addTempClassesKnown(oBonus) {
-	if (!classes.known[oBonus.class]) {
-		classes.known[oBonus.class] = {
-			name : oBonus.class,
-			level : 0,
-			subclass : oBonus.subclass ? oBonus.subclass : "",
-			isTempKnown : true
-		}
-	} else if (oBonus.subclass && oBonus.subclass !== classes.known[oBonus.class].subclass) {
-		classes.known[oBonus.class].subclassRem = classes.known[oBonus.class].subclass;
-		classes.known[oBonus.class].subclass = oBonus.subclass;
+	if (!wasm_character.has_class(oBonus.class)) {
+		wasm_character.set_class(oBonus.class, oBonus.class, oBonus.subclass, 0);
+		TempClasses[oBonus.class] = true;
+	} else if (oBonus.subclass && oBonus.subclass !== wasm_character.get_subclass(oBonus.class)) {
+		TempSubClasses[oBonus.class] = wasm_character.get_subclass(oBonus.class);
+		wasm_character.set_subclass(oBonus.class, oBonus.subclass);
 	}
 }
 // Delete or revert all temporary changes to classes.known, if applicable
 function cleanTempClassesKnown() {
-	for (var sClass in classes.known) {
-		if (classes.known[sClass].isTempKnown === true) {
-			delete classes.known[sClass];
-		} else if (classes.known[sClass].subclassRem) {
-			classes.known[sClass].subclass = classes.known[sClass].subclassRem;
-			delete classes.known[sClass].subclassRem;
+	for (let sClass of wasm_character.list_classes()) {
+		if (TempClasses[sClass] === true) {
+			wasm_character.remove_class(sClass);
+			delete TempClasses[sClass];
+		} else if (TempSubClasses[sClass]) {
+			wasm_character.set_subclass(sClass, TempSubClasses[sClass]);
+			delete TempSubClasses[sClass];
 		}
 	}
 }
@@ -6498,7 +4797,7 @@ function cleanTempClassesKnown() {
 }] */
 async function processClassFeatureChoiceDependencies(lvlA, aClass, aFeature, fChoice) {
 	var lvlOld = lvlA[0], lvlNew = lvlA[1];
-	var pObj = CurrentClasses[aClass].features;
+	var pObj = adapter_helper_get_class_property(aClass, "features");
 	var fObj = pObj[aFeature];
 	var theDep = fObj.choiceDependencies;
 	if (!isArray(theDep)) theDep = [theDep];
@@ -6634,235 +4933,13 @@ function formatACforPMAR(value, valueCalc) {
 
 // Make sure the magic/miscellaneous AC fields have a proper description (and don't overflow)
 function formatACdescr(name, value) {
-	var testLen = typePF ? 41 : 36;
+	var testLen = 41;
 	if (value.length > testLen) {
 		var isMagic = name.indexOf("Magic") !== -1;
 		value = "Various" + (isMagic ? " magic" : "") + " bonuses"
 	}
 	return value
 }
-
-async function SetToManual_Button(bSkipDialog, oDialogResults) {
-	var BackgroundFld = !!CurrentVars.manual.background;
-	var BackgroundFeatureFld = !!CurrentVars.manual.backgroundFeature;
-	var ClassFld = !!CurrentVars.manual.classes;
-	var FeatFld = !!CurrentVars.manual.feats;
-	var ItemFld = !!CurrentVars.manual.items;
-	var RaceFld = !!CurrentVars.manual.race;
-	// store state of overflow page, because it might be shown when undoing manual
-	var overFlowVis = isTemplVis("ASoverflow");
-	
-
-	if (!oDialogResults) oDialogResults = {};
-
-	if (!bSkipDialog) {
-		//set the checkboxes in the dialog to starting position
-		SetToManual_Dialog.mAtt = CurrentVars.manual.attacks;
-		SetToManual_Dialog.mBac = BackgroundFld;
-		SetToManual_Dialog.mBFe = BackgroundFeatureFld;
-		SetToManual_Dialog.mCla = ClassFld;
-		SetToManual_Dialog.mFea = FeatFld;
-		SetToManual_Dialog.mMag = ItemFld;
-		SetToManual_Dialog.mRac = RaceFld;
-
-		//call the dialog and proceed if Apply is pressed
-		if ((await app.execDialog(SetToManual_Dialog)) != "ok") return;
-	}
-
-	// Attacks checkbox changed
-	if (oDialogResults.attacks || SetToManual_Dialog.mAtt !== CurrentVars.manual.attacks) {
-		var Toggle = oDialogResults.attacks ? oDialogResults.attacks : SetToManual_Dialog.mAtt;
-		ToggleAttacks(Toggle);
-	}
-
-	// Background checkbox changed
-	if (oDialogResults.background || SetToManual_Dialog.mBac !== BackgroundFld) {
-		if (oDialogResults.background) {
-			CurrentVars.manual.background = oDialogResults.background;
-		} else if (SetToManual_Dialog.mBac) {
-			CurrentVars.manual.background = What("Background") + " ";
-			Hide("Background Menu");
-		} else if (CurrentVars.manual.background) {
-			CurrentVars.manual.background = false;
-			// Apply the current background field content
-			DontPrint("Background Menu");
-			await ApplyBackground(What("Background"));
-		}
-	}
-
-	//do something with the results of background feature checkbox
-	if (oDialogResults.backgroundFeature || SetToManual_Dialog.mBFe !== BackgroundFeatureFld) {
-		if (oDialogResults.backgroundFeature) {
-			CurrentVars.manual.backgroundFeature = oDialogResults.backgroundFeature;
-		} else if (SetToManual_Dialog.mBFe) {
-			CurrentVars.manual.backgroundFeature = What("Background Feature") + " ";
-		} else if (CurrentVars.manual.backgroundFeature) {
-			CurrentVars.manual.backgroundFeature = false;
-			await ApplyBackgroundFeature(What("Background Feature"), CurrentVars.manual.backgroundFeature);
-		}
-	}
-
-	// Class checkbox changed
-	if (oDialogResults.classes || SetToManual_Dialog.mCla !== ClassFld) {
-		if (oDialogResults.classes) {
-			CurrentVars.manual.classes = oDialogResults.classes;
-			Hide("Class Features Menu");
-		} else if (SetToManual_Dialog.mCla) {
-			CurrentVars.manual.classes = What("Class and Levels") + " ";
-			if (classes.parsed.length < 2 && CurrentVars.manual.classes.indexOf(classes.totallevel) == -1) CurrentVars.manual.classes += classes.totallevel;
-			Hide("Class Features Menu");
-		} else if (CurrentVars.manual.classes) {
-			CurrentVars.manual.classes = false;
-			// Apply the current class and levels field content
-			await ApplyClasses(What("Class and Levels"), false);
-		}
-	}
-
-	// Feat checkbox changed
-	if (oDialogResults.feats || SetToManual_Dialog.mFea !== FeatFld) {
-		if (oDialogResults.feats) {
-			CurrentVars.manual.feats = oDialogResults.feats;
-		} else if (oDialogResults.feats || SetToManual_Dialog.mFea) {
-			var fieldValueArray = [];
-			for (var i = 1; i <= FieldNumbers.feats; i++) {
-				var Fflds = ReturnFeatFieldsArray(i);
-				// Save the field values to an array
-				fieldValueArray.push(What(Fflds[0]));
-				// Remove the auto-calculations from feat description fields
-				tDoc.getField(Fflds[2]).setAction("Calculate", "");
-				AddTooltip(Fflds[2], undefined, "");
-			}
-			CurrentVars.manual.feats = [
-				CurrentFeats.known.slice(0),	// 0
-				CurrentFeats.level,				// 1
-				CurrentFeats.choices.slice(0),	// 2 (added v13.2.0)
-				fieldValueArray					// 3 (added v13.2.0 for import)
-			];
-		} else if (CurrentVars.manual.feats) {
-			CurrentFeats.level = CurrentVars.manual.feats[1];
-			// Enable automation
-			CurrentVars.manual.feats = false;
-			// Save all the current field values and reset the feats as they were previously implemented before manual was enabled
-			var storeFeats = [];
-			for (var i = 1; i <= FieldNumbers.feats; i++) {
-				var Fflds = ReturnFeatFieldsArray(i);
-				storeFeats.push({
-					idx : i,
-					sFeat : What(Fflds[0]),
-					sFeatNote : What(Fflds[1]),
-					sFeatDescr : What(Fflds[2])
-				});
-				await ApplyFeat("", i);
-			};
-			// Now that all are fields are empty, re-apply the current ones but with automation
-			// This way there won't be the possibility of duplication problems, but feat sub-settings (e.g. spell selections) will be lost in the process
-			for (var i = 0; i < storeFeats.length; i++) {
-				var oFeat = storeFeats[i];
-				await AddFeat(
-					oFeat.sFeat,
-					oFeat.sFeatNote,
-					oFeat.sFeatDescr,
-					oFeat.idx // bIgnoreCurrent
-				);
-			}
-		}
-	}
-
-	// Magic item checkbox changed
-	if (oDialogResults.items || SetToManual_Dialog.mMag !== ItemFld) {
-		if (oDialogResults.items) {
-			CurrentVars.manual.items = oDialogResults.items;
-		} else if (SetToManual_Dialog.mMag) {
-			var fieldValueArray = [];
-			for (var i = 1; i <= FieldNumbers.magicitems; i++) {
-				var MIflds = ReturnMagicItemFieldsArray(i);
-				// Save the field values to an array
-				fieldValueArray.push(What(MIflds[0]));
-				// Remove the auto-calculations from magic item description fields
-				tDoc.getField(MIflds[2]).setAction("Calculate", "");
-				AddTooltip(MIflds[2], undefined, "");
-				// If an item has a visible attunement field that is unchecked, remove it from the known/choices, as it's not active and we don't need to save that state
-				if (CurrentMagicItems.known[i-1] && How(MIflds[4]) == "" && !tDoc.getField(MIflds[4]).isBoxChecked(0)) {
-					CurrentMagicItems.known[i-1] = "";
-					CurrentMagicItems.choices[i-1] = "";
-				}
-			}
-			CurrentVars.manual.items = [
-				CurrentMagicItems.known.slice(0), 	// 0
-				false,								// 1 (attunedArray, deprecated v13.2.0)
-				CurrentMagicItems.level,			// 2
-				CurrentMagicItems.choices.slice(0),	// 3 (added v13.2.0)
-				fieldValueArray						// 4 (added v13.2.0 for import)
-			];
-		} else if (CurrentVars.manual.items) {
-			CurrentMagicItems.level = CurrentVars.manual.items[2];
-			// Enable automation
-			CurrentVars.manual.items = false;
-			// Save all the current field values and reset the items as they were previously implemented before manual was enabled
-			var storeMI = [];
-			for (var i = 1; i <= FieldNumbers.magicitems; i++) {
-				var MIflds = ReturnMagicItemFieldsArray(i);
-				storeMI.push({
-					idx : i,
-					item : What(MIflds[0]),
-					sItemNote : What(MIflds[1]),
-					itemDescr : What(MIflds[2]),
-					itemWeight : What(MIflds[3]),
-					attuned : tDoc.getField(MIflds[4]).isBoxChecked(0),
-					forceAttunedVisible : How(MIflds[4]) == ""
-				});
-				await ApplyMagicItem("", i);
-			};
-			// Now that all are fields are empty, re-apply the current ones but with automation
-			// This way there won't be the possibility of duplication problems, but magic item sub-settings (e.g. spell selections) will be lost in the process
-			for (var i = 0; i < storeMI.length; i++) {
-				var oItem = storeMI[i];
-				await AddMagicItem(
-					oItem.item,
-					oItem.attuned,
-					oItem.itemDescr,
-					oItem.itemWeight,
-					false, // overflow,
-					oItem.forceAttunedVisible,
-					oItem.sItemNote,
-					oItem.idx // bIgnoreCurrent
-				);
-			}
-		}
-	}
-
-	// Race checkbox changed
-	if (oDialogResults.race || SetToManual_Dialog.mRac !== RaceFld) {
-		if (oDialogResults.race) {
-			CurrentVars.manual.race = oDialogResults.race
-		} else if (SetToManual_Dialog.mRac) {
-			CurrentVars.manual.race = [
-				What("Race Remember"),
-				CurrentRace.level
-			];
-			Hide("Race Features Menu");
-		} else if (CurrentVars.manual.race) {
-			// Set the level to the remember field
-			if (CurrentRace.known) CurrentRace.level = CurrentVars.manual.race[1];
-			// Disable manual races
-			CurrentVars.manual.race = false;
-			// Apply the current race field content
-			await ApplyRace(What("Race Remember"));
-			if (CurrentRace.known) await UpdateLevelFeatures("race");
-		}
-	}
-
-	SetStringifieds("vars");
-	
-	// correct overflow page visibility, because it might've been made visible unnecessarily
-	if (overFlowVis !== isTemplVis("ASoverflow")) await DoTemplate("ASoverflow");
-}
-
-//calculate how much experience points are needed for the next level (field calculation)
-function CalcXPnextlvl() {
-	var lvl = Number(What("Character Level"));
-	return lvl && !isNaN(lvl) && lvl < (ExperiencePointsList.length - 1) ? ExperiencePointsList[lvl] : "";
-};
 
 //calculate the Ability Save DC (field calculation)
 function CalcAbilityDC(fieldName) {
@@ -6932,63 +5009,6 @@ function UpdateTooSkill(name, value) {
 	SkillsList.abilityScoresByAS[SkillsList.abbreviations.indexOf("Too")] = Ability;
 }
 
-// Create the span objects for emulating smallcaps
-// non-letter characters preceded by a ^ are always made big
-// non-letter characters preceded by a _ are always made small
-function createSmallCaps(input, fontSize, extraObj) {
-	if (typePF) return input;
-	var fontSizeLookup = {
-		6 : 4.2,
-		7: 4.9,
-		8: 5.6
-	};
-	var fontSizeSmall = fontSizeLookup[fontSize] ? fontSizeLookup[fontSize] : fontSize * 0.7;
-	// Set some things to be allways big
-	var txt = input.replace(/([^\^])(:)/, "$1^$2");
-	var spans = [];
-	var nBig = "";
-	var nSmall = "";
-	var sp = "";
-	var updateTxts = function(toBig, tChar) {
-		if (toBig && nSmall) {
-			var spObj = {
-				text : nSmall.toUpperCase(),
-				textSize : fontSizeSmall
-			};
-			if (extraObj) MergeRecursive(spObj, extraObj);
-			spans.push(spObj);
-			nSmall = "";
-		} else if (nBig) {
-			var spObj = {
-				text : nBig.toUpperCase(),
-				textSize : fontSize
-			};
-			if (extraObj) MergeRecursive(spObj, extraObj);
-			spans.push(spObj);
-			nBig = "";
-		}
-		if (toBig) {
-			nBig += tChar;
-		} else {
-			nSmall += tChar;
-		}
-		sp = "";
-	}
-	for (var t = 0; t < txt.length; t++) {
-		var aTxt = txt[t];
-		if (aTxt == " ") {
-			sp += " ";
-		} else if (aTxt == "^" || aTxt == "_") {
-			updateTxts(aTxt == "^", sp+txt[t+1]);
-			t++;
-		} else {
-			updateTxts(!isNaN(aTxt) || (/\w/.test(aTxt) && aTxt == aTxt.toUpperCase()), sp+aTxt);
-		};
-	}
-	if (nSmall) updateTxts(true, "");
-	if (nBig) updateTxts(false, "");
-	return spans;
-}
 function SetRichTextFields(onlyAttackTitles, onlySkills) {
 	var AScompA = What("Template.extras.AScomp").split(",");
 
@@ -6999,47 +5019,14 @@ function SetRichTextFields(onlyAttackTitles, onlySkills) {
 	for (var s = 0; s < (SkillsList.abbreviations.length - 2); s++) {
 		var sNm = alphaB ? SkillsList.names[s] : SkillsList.namesByAS[s];
 		var sAS = alphaB ? SkillsList.abilityScores[s] : SkillsList.abilityScoresByAS[s];
-		if (typePF) {
-			skillTXT.push({text : sNm + " ", textSize: 7});
-			skillTXT.push({text : "(" + sAS + ")\n", textSize: 7, textColor: PFcolor});
-			skillTXT.push({text : "\n", textSize: 6});
-		} else {
-			skillTXT.push({text : sNm + " ", textSize: 9});
-			skillTXT.push({text : "(" + sAS.toUpperCase() + ")\n", textSize: 7});
-			skillTXT.push({text : "\n", textSize: 5});
-		}
+		skillTXT.push({text : sNm + " ", textSize: 7});
+		skillTXT.push({text : "(" + sAS + ")\n", textSize: 7, textColor: PFcolor});
+		skillTXT.push({text : "\n", textSize: 6});
 	}
-	var sLoop = typePF ? AScompA : [""];
-	for (var A = 0; A < sLoop.length; A++) {
-		tDoc.getField(sLoop[A] + "Text.SkillsNames").richValue = skillTXT;
-	}
-	if (typePF || onlySkills) return; //don't do this function in the Printer-Friendly version
-
-	rtSpans = createSmallCaps("Prof  Ability", 6);
 	for (var A = 0; A < AScompA.length; A++) {
-		tDoc.getField(AScompA[A] + "Attack.Titles").richValue = rtSpans;
+		tDoc.getField(AScompA[A] + "Text.SkillsNames").richValue = skillTXT;
 	}
-	if (onlyAttackTitles) return; // don't do the rest of the function
-
-	tDoc.getField("Attuned Magic Items Title").richValue = createSmallCaps("Attuned Magical Items", 7).concat(createSmallCaps(" ^(max ^3^)", 6));
-
-	rtSpans = createSmallCaps("Loc", 7, {alignment : "center"});
-	tDoc.getField("Adventuring Gear Location.Title").richValue = rtSpans;
-	tDoc.getField("Extra.Gear Location.Title").richValue = rtSpans;
-
-	// the weapon and armor proficiency names
-	var themeColor = ColorList[What("Color.Theme")].RGB;
-	tDoc.getField("Text.Armor Proficiencies").richValue = createSmallCaps("Armor:", 8, {textColor : themeColor});
-	tDoc.getField("Text.Weapon Proficiencies").richValue = createSmallCaps("Weapons:", 8, {textColor : themeColor});
-
-	// the equipment table headers
-	var LbKg = What("Unit System") === "imperial";
-	rtSpans = createSmallCaps(What("Unit System") === "imperial" ? "LBs" : "Kg", 7, {alignment : "center"});
-	tDoc.getField("Display.Weighttxt.LbKg").richValue = rtSpans;
-	tDoc.getField("Display.Weighttxt.LbKgPage3").richValue = rtSpans;
-	for (var A = 0; A < AScompA.length; A++) {
-		tDoc.getField(AScompA[A] + "Comp.eqp.Display.Weighttxt").richValue = rtSpans;
-	}
+	return;
 }
 
 //Calculate the weight of a column of items in the equipment section [field calculation]
@@ -7047,8 +5034,8 @@ function CalcWeightSubtotal(FldName) {
 	var type = (/extra.*/i).test(FldName) ? "Extra.Gear " : ((/Adventuring.*/i).test(FldName) ? "Adventuring Gear " : FldName.substring(0, FldName.indexOf("Comp.") + 14));
 	var column = FldName.slice(-4) === "Left" ? "Left" : (FldName.slice(-5) === "Right" ? "Right" : "Middle");
 	var allGear = type === "Extra.Gear " ? FieldNumbers.extragear : (type === "Adventuring Gear " ? FieldNumbers.gear : FieldNumbers.compgear);
-	var division = typePF && type === "Adventuring Gear " ? 3 : 2;
-	var divisionHalf = typePF && type === "Adventuring Gear " ? 1.5 : 2;
+	var division = type === "Adventuring Gear " ? 3 : 2;
+	var divisionHalf = type === "Adventuring Gear " ? 1.5 : 2;
 	var total = column === "Right" ? allGear : Math.round(column === "Left" ? allGear / division : allGear / divisionHalf);
 	var start = column === "Left" ? 1 : Math.round(column === "Right" ? allGear / divisionHalf : allGear / division) + 1;
 
@@ -7084,7 +5071,7 @@ function CalcWeightSubtotal(FldName) {
 function CalcWeightCarried() {
 	if (!CurrentVars.weight) {
 		CurrentVars.weight = ["cCoi", "cP2L", "cP2R"];
-		if (typePF) CurrentVars.weight.push("cP2M");
+		CurrentVars.weight.push("cP2M");
 		SetStringifieds("vars");
 	}
 
@@ -7136,7 +5123,7 @@ async function WeightToCalc_Button() {
 	//The dialog for setting what things are added to the total weight carried on page 2
 	var explTxt = 'Note that you can change the weight of the armor, shield, weapons, and ammunition on the 1st page and the magic items on the 3rd page by using the "Modifier" fields that appear when you press the "Mods" button (abacus icon) or the "Modifiers" bookmark.\nFor ammunition, only the listed "total" is counted as that already includes the unchecked ammo icons.';
 	var weightOptions = ["cArm", "cShi", "cWea", "cAmL", "cAmR", "cCoi", "cP2L", "cP2R", "cP3L", "cP3R", "cMaI"];
-	if (typePF) weightOptions.push("cP2M");
+	weightOptions.push("cP2M");
 	var WeightToCalc_Dialog = {
 		UseEnc : true,
 
@@ -7213,7 +5200,7 @@ async function WeightToCalc_Button() {
 						}, {
 							type : "static_text",
 							item_id : "tArm",
-							name : (typePF ? '"Armor' : '"Defense') + '" section on the 1st page.'
+							name : '"Armor" section on the 1st page.'
 						} ]
 					}, {
 						type : "view",
@@ -7227,7 +5214,7 @@ async function WeightToCalc_Button() {
 						}, {
 							type : "static_text",
 							item_id : "tShi",
-							name : (typePF ? '"Armor' : '"Defense') + '" section on the 1st page.'
+							name : '"Armor" section on the 1st page.'
 						} ]
 					}, {
 						type : "view",
@@ -7299,7 +5286,7 @@ async function WeightToCalc_Button() {
 							item_id : "tP2L",
 							name : '"Equipment" section on the 2nd page.'
 						} ]
-					}].concat(typePF ? [{
+					}].concat([{
 						type : "view",
 						char_height : 2,
 						align_children : "align_row",
@@ -7313,7 +5300,7 @@ async function WeightToCalc_Button() {
 							item_id : "tP2M",
 							name : '"Equipment" section on the 2nd page.'
 						} ]
-					}] : []).concat([{
+					}]).concat([{
 						type : "view",
 						char_height : 2,
 						align_children : "align_row",
@@ -7637,7 +5624,7 @@ function SetAmmosdropdown(forceTooltips) {
 
 //Toggle the visibility of the secondary ability save DC. ShowHide = "show" or "hide".
 function Toggle2ndAbilityDC(ShowHide) {
-	var isVis2nd = isDisplay("Image.SaveDC" + (typePF ? "" : ".2")) === 0;
+	var isVis2nd = isDisplay("Image.SaveDC") === 0;
 
 	if (ShowHide && (/show/i).test(ShowHide) == isVis2nd) {
 		return; //stop the function, there is nothing to do
@@ -7652,517 +5639,18 @@ function Toggle2ndAbilityDC(ShowHide) {
 		tDoc.getField("ShowHide 2nd DC").buttonSetCaption(theCaption, L);
 	}
 
-	if (typePF) {
-		var DC2array = [
-			"Image.SaveDC",
-			"Spell DC 2 Mod",
-			"Spell save DC 2",
-			"Spell DC 1 Mod.1"
-		];
-		tDoc[VisibleHidden]("Spell DC 1 Mod.0");
-	} else {
-		var DC1array = [
-			"Text.SaveDC.1",
-			"Image.SaveDCarrow.1",
-			"Image.SaveDC.1",
-			"Spell DC 1 Mod",
-			"Spell save DC 1",
-			"Spell DC 1 Bonus"
-		];
-		var DC2array = [
-			"Text.SaveDC.2",
-			"Image.SaveDCarrow.2",
-			"Image.SaveDC.2",
-			"Spell DC 2 Mod",
-			"Spell save DC 2"
-		];
-
-		var toMove = isVis2nd ? 27 : -27;
-		for (var i = 0; i < DC1array.length; i++) {
-			var theFld = tDoc.getField(DC1array[i]);
-			var gRect = theFld.rect; // Get the location of the field on the sheet
-			gRect[0] += toMove; // Add the widen amount to the upper left x-coordinate
-			gRect[2] += toMove; // Add the widen amount to the lower right x-coordinate
-			theFld.rect = gRect; // Update the value of b.rect
-			theFld.value = theFld.value; // Re-input the value as to counteract the changing of font rendering
-		}
-	}
+	var DC2array = [
+		"Image.SaveDC",
+		"Spell DC 2 Mod",
+		"Spell save DC 2",
+		"Spell DC 1 Mod.1"
+	];
+	tDoc[VisibleHidden]("Spell DC 1 Mod.0");
 
 	for (var j = 0; j < DC2array.length; j++) {
 		tDoc[HiddenVisible](DC2array[j]);
 	}
 	tDoc[HiddenNoPrint]("Spell DC 2 Bonus");
-}
-
-//change the colorscheme that is used for the entire sheet
-function ApplyColorScheme(aColour) {
-	if (typePF || (!aColour && What("Color.Theme") === tDoc.getField("Color.Theme").defaultValue)) return; //don't do this function in the Printer-Friendly version or if resetting with the default colour still active
-	var colour = aColour ? aColour.toLowerCase() : What("Color.Theme");
-	//stop the function if the input color is not recognized
-	if (!ColorList[colour]) return;
-
-	// Start progress bar and stop calculations
-	var thermoTxt = thermoM("Applying " + colour + " color theme...");
-	calcStop();
-
-	//set the chosen color to a place it can be found again
-	Value("Color.Theme", colour);
-
-	if (tDoc.info.AdvLogOnly) {
-		var ALlogA = What("Template.extras.ALlog").split(",");
-		var theIconH = tDoc.getField("SaveIMG.Header.Left." + colour).buttonGetIcon();
-		var theIconD = tDoc.getField("SaveIMG.Divider." + colour).buttonGetIcon();
-		for (tA = 0; tA < ALlogA.length; tA++) {
-			tDoc.getField(ALlogA[tA] + "Line").fillColor = ColorList[colour].CMYK;
-			tDoc.getField(ALlogA[tA] + "Button").strokeColor = ColorList[colour].CMYK;
-			tDoc.getField(ALlogA[tA] + "Image.Header.Left").buttonSetIcon(theIconH);
-			tDoc.getField(ALlogA[tA] + "Image.Divider").buttonSetIcon(theIconD);
-		}
-		thermoM(thermoTxt, true); // Stop progress bar
-		return; // do not continue any further with this function
-	}
-
-	//get any extra prefixes
-	var makeTempArray = function (template) {
-		var tempReturn = [];
-		var temp = What("Template.extras." + template);
-		if (temp) {
-			temp = temp.split(",");
-			temp.splice(temp.indexOf(""), 1);
-			tempReturn = temp;
-		}
-		return tempReturn;
-	}
-	var AScompA = makeTempArray("AScomp");
-	var ASnotesA = makeTempArray("ASnotes");
-	var WSfrontA = makeTempArray("WSfront");
-	var ALlogA = makeTempArray("ALlog");
-
-	var SSmoreA = What("Template.extras.SSmore").split(","); //here we do include the first "" value
-	var SSfrontA = What("Template.extras.SSfront") ? What("Template.extras.SSfront").split(",")[1] : false;
-	if (SSfrontA) SSmoreA.push(SSfrontA);
-
-	// set the fill colours of the spellsheet boxes
-	var fillListIfDontPrint = [];
-	for (var SS = 0; SS < SSmoreA.length; SS++) {
-		var maxSpells = FieldNumbers.spells[SSmoreA[SS] === SSfrontA ? 0 : 1];
-		for (var L = 0; L <= maxSpells; L++) {
-			fillListIfDontPrint.push(SSmoreA[SS] + "spells.checkbox." + L);
-		}
-	}
-	for (fLdp = 0; fLdp < fillListIfDontPrint.length; fLdp++) {
-		var thefLdp = tDoc.getField(fillListIfDontPrint[fLdp]);
-		if (thefLdp.display === display.noPrint && thefLdp.fillColor[0] !== "T") {
-			thefLdp.fillColor = ColorList[colour].CMYK;
-		}
-	}
-
-	//first do the Spell Sheets, which have their very peculiar way of naming
-	var SSimgFields = [
-		"Title",
-		"Header.Left",
-		"Divider",
-		"DividerFlip"
-	];
-	for (var i = 0; i < SSimgFields.length; i++) {
-		theIcon = tDoc.getField("SaveIMG." + SSimgFields[i] + "." + colour).buttonGetIcon();
-		if (SSfrontA && SSimgFields[i] === "Title") {
-			tDoc.getField(SSfrontA + "Image." + SSimgFields[i]).buttonSetIcon(theIcon);
-		} else if (SSimgFields[i] !== "Title") { for (var SS = 0; SS < SSmoreA.length; SS++) {
-			var maxLoop = SSimgFields[i] === "Header.Left" ? 3 : 9;
-			var extraTxt = SSimgFields[i] === "Header.Left" ? "spellshead." : "spellsdiv.";
-			for (var L = 0; L <= maxLoop; L++) {
-				tDoc.getField(SSmoreA[SS] + extraTxt + "Image." + SSimgFields[i] + "." + L).buttonSetIcon(theIcon);
-			}
-		}}
-	}
-
-	if (tDoc.info.SpellsOnly) { // if this pdf is only filled with spell sheets, we don't need to go on
-		thermoM(thermoTxt, true); // Stop progress bar
-		return; // do not continue any further with this function
-	}
-
-	//create the lists of the borders, fill, and text of the following fields
-	var borderList = [
-		"Circle",
-		"Button",
-		"Attack.Button",
-		"Comp.Use.Attack.Button",
-		"Comp.eqpB"
-	];
-	var fillList = [
-		"Line"
-	];
-	var textList = [
-		"Background Feature",
-		"Background_Faction.Title",
-		"Background_FactionRank.Title",
-		"Background_Renown.Title",
-		"Text.Armor Proficiencies",
-		"Text.Weapon Proficiencies"
-	];
-
-	//add any possible other template prefixes to the list
-	if (AScompA[0]) {
-		for (tA = 0; tA < AScompA.length; tA++) {
-			borderList.push(AScompA[tA] + "Circle");
-			borderList.push(AScompA[tA] + "Comp.Use.Attack.Button");
-			borderList.push(AScompA[tA] + "Comp.eqpB");
-			fillList.push(AScompA[tA] + "Line");
-		}
-	}
-	if (WSfrontA[0]) {
-		for (tA = 0; tA < WSfrontA.length; tA++) {
-			borderList.push(WSfrontA[tA] + "Circle");
-			fillList.push(WSfrontA[tA] + "Line");
-		}
-	}
-	if (ALlogA[0]) {
-		for (tA = 0; tA < ALlogA.length; tA++) {
-			fillList.push(ALlogA[tA] + "Line");
-		}
-	}
-
-	//add more fields to the list; fields that are not part of the templates
-	for (var i = 1; i <= FieldNumbers.gear; i++) {
-		borderList.push("Adventuring Gear Button " + i);
-	}
-	for (var i = 1; i <= FieldNumbers.magicitems; i++) {
-		borderList.push("Extra.Magic Item Button " + i);
-		textList.push("Extra.Magic Item " + i);
-	}
-	for (var i = 1; i <= FieldNumbers.extragear; i++) {
-		borderList.push("Extra.Gear Button " + i);
-	}
-	for (var i = 1; i <= FieldNumbers.feats; i++) {
-		borderList.push("Feat Button " + i);
-		textList.push("Feat Name " + i);
-	}
-
-	thermoM(2/7); //increment the progress dialog's progress
-
-	//change the colors of the borders, fill, and text
-	for (bL = 0; bL < borderList.length; bL++) {
-		tDoc.getField(borderList[bL]).strokeColor = ColorList[colour].CMYK;
-	}
-	for (fL = 0; fL < fillList.length; fL++) {
-		tDoc.getField(fillList[fL]).fillColor = ColorList[colour].CMYK;
-	}
-	for (tL = 0; tL < textList.length; tL++) {
-		tDoc.getField(textList[tL]).textColor = ColorList[colour].RGB;
-	}
-
-	//change the color of the text "Weapons:" and "Armor:" on the second page
-	var armorProfArray = tDoc.getField("Text.Armor Proficiencies").richValue;
-	var weaponProfArray = tDoc.getField("Text.Weapon Proficiencies").richValue;
-
-	for (var aP = 0; aP < armorProfArray.length; aP++) {
-		armorProfArray[aP].textColor = ColorList[colour].RGB;
-	}
-	for (var wP = 0; wP < weaponProfArray.length; wP++) {
-		weaponProfArray[wP].textColor = ColorList[colour].RGB;
-	}
-
-	tDoc.getField("Text.Armor Proficiencies").richValue = armorProfArray;
-	tDoc.getField("Text.Weapon Proficiencies").richValue = weaponProfArray;
-
-	thermoM(3/7); //increment the progress dialog's progress
-
-	//get a list of the image fields
-	var imgFields = [
-		"Level",
-		"Title",
-		"Divider",
-		"Stats",
-		"Prof",
-		"Header.Left",
-		"Header.Right",
-		"Arrow",
-		"IntArrow"
-	];
-
-	//set the colored icons
-	for (var i = 0; i < imgFields.length; i++) {
-		var theIcon = tDoc.getField("SaveIMG." + imgFields[i] + "." + colour).buttonGetIcon();
-
-		temp = [""];
-
-		if (imgFields[i] === "Divider") {
-			//also set it for the divider that can be hidden on the third page
-			tDoc.getField("Image.DividerExtraGear").buttonSetIcon(theIcon);
-			//if divider, also add the adventurers log template names
-			temp = temp.concat(ALlogA);
-		} else if (imgFields[i] === "Header.Right") {
-			//also set it for the header that can be hidden on the third page
-			tDoc.getField("Image.Header.RightRules").buttonSetIcon(theIcon);
-		}
-
-		//if anything but level or title, also do something with the extra template pages
-		if (imgFields[i] !== "Level" && imgFields[i] !== "Title" && imgFields[i] !== "Header.Right") {
-			//also set it for the companion and wild shape templates names
-			temp = temp.concat(AScompA);
-			//if not prof or arrow, also add the wild shape templates names
-			if (imgFields[i] !== "Prof" && imgFields[i] !== "Arrow") {
-				temp = temp.concat(WSfrontA);
-			}
-		}
-		//if left header, also add the notes and adventurers log templates names
-		if (imgFields[i] === "Header.Left") {
-			temp = temp.concat(ASnotesA).concat(ALlogA);
-		}
-
-		for (var te = 0; te < temp.length; te++) {
-			tDoc.getField(temp[te] + "Image." + imgFields[i]).buttonSetIcon(theIcon);
-			if ((te === 0 || temp[te].indexOf("AScomp") !== -1) && imgFields[i] === "Divider") {
-				tDoc.getField(temp[te] + "Comp.eqp.Image." + imgFields[i]).buttonSetIcon(theIcon);
-			}
-		}
-	}
-
-	thermoM(4/7); //increment the progress dialog's progress
-
-	//make an array of the extra companion templates with an empty value at the start (so it is never empty)
-	var prefixAScomp = [""].concat(AScompA);
-
-	//set the attack field color for any of them that is set to change together with the headers
-	theIcon = tDoc.getField("SaveIMG.Attack." + colour).buttonGetIcon();
-	for (var a = 1; a <= FieldNumbers.attacks; a++) {
-		if (What("BlueText.Attack." + a + ".Weight Title") === "same as headers") {
-			tDoc.getField("Image.Attack." + a).buttonSetIcon(theIcon);
-		}
-		if (a <= 3) { for (var pA = 0; pA < prefixAScomp.length; pA++) {
-			if (What(prefixAScomp[pA] + "BlueText.Comp.Use.Attack." + a + ".Weight Title") === "same as headers") {
-				tDoc.getField(prefixAScomp[pA] + "Image.Comp.Use.Attack." + a).buttonSetIcon(theIcon);
-			}
-		}}
-	}
-
-	thermoM(5/7); //increment the progress dialog's progress
-
-	//make an array of the extra wildshape templates with an empty value at the start (so it is never empty)
-	var prefixWSfront = [""].concat(WSfrontA);
-
-	//re-do all the skill proficiencies of the companion and wild shape pages
-	for (var s = 0; s < (SkillsList.abbreviations.length - 2); s++) {
-		var theSkill = SkillsList.abbreviations[s];
-		for (pAS = 0; pAS < prefixAScomp.length; pAS++) {
-			var compSkill = prefixAScomp[pAS] + "Text.Comp.Use.Skills." + theSkill + ".Prof";
-			if (What(compSkill) !== "nothing") Value(compSkill, What(compSkill));
-		}
-
-		for (pWS = 0; pWS < prefixWSfront.length; pWS++) {
-			for (var w = 1; w <= 4; w++) {
-				var wildSkill = prefixWSfront[pWS] + "Text.Wildshape." + w + ".Skills." + theSkill + ".Prof";
-				if (What(wildSkill) !== "nothing") Value(wildSkill, What(wildSkill));
-			}
-		}
-	}
-
-	thermoM(6/7); //increment the progress dialog's progress
-
-	// Set the highlighting color if it has been coupled to the headers
-	if (Who("Highlighting") === "headers") {
-		app.runtimeHighlightColor = HighlightColorList[colour];
-		tDoc.getField("Highlighting").fillColor = HighlightColorList[colour];
-	}
-	// See if any of the Ability Save DC's or the HP Dragons have the color connected to this
-	if (What("Color.DC").indexOf("headers") != -1) ApplyDCColorScheme();
-	if (What("Color.HPDragon") == "headers") ApplyHPDragonColorScheme();
-
-	thermoM(thermoTxt, true); // Stop progress bar
-}
-
-//change the colorscheme that is used for the dragon heads sheet
-function ApplyDragonColorScheme(aColour) {
-	if (typePF || (!aColour && What("Color.DragonHeads") === tDoc.getField("Color.DragonHeads").defaultValue)) return; //don't do this function in the Printer-Friendly version or if resetting with the default colour still active
-	var colour = aColour ? aColour.toLowerCase() : What("Color.DragonHeads");
-	var theColor = ColorList[colour].CMYK;
-	var theColorDark = DarkColorList[colour];
-	//stop the function if the input color is not recognized
-	if (!ColorList[colour]) return;
-
-	// Start progress bar and stop calculations
-	var thermoTxt = thermoM("Applying " + colour + " Dragon Heads...");
-	calcStop();
-
-	//set the chosen color to a place it can be found again
-	Value("Color.DragonHeads", colour);
-
-	//change the dragonheads
-	var theIcon = tDoc.getField("SaveIMG.Dragonhead." + colour).buttonGetIcon();
-
-	if (tDoc.info.AdvLogOnly) {
-		var ALlogA = What("Template.extras.ALlog").split(",");
-		var buttons = [];
-		for (tA = 0; tA < ALlogA.length; tA++) {
-			buttons.push(ALlogA[tA] + "AdvLog.Options");
-			tDoc.getField(ALlogA[tA] + "Image.Dragonhead").buttonSetIcon(theIcon);
-		}
-		//set the fill and border colors of the buttons
-		if (theColor && theColorDark) {
-			for (var b = 0; b < buttons.length; b++) {
-				tDoc.getField(buttons[b]).fillColor = theColor;
-				tDoc.getField(buttons[b]).strokeColor = theColorDark;
-			}
-		}
-		thermoM(thermoTxt, true); // Stop progress bar
-		return; // do not continue any further with this function
-	}
-
-	//first do the Spell Sheets, which have their very peculiar way of naming
-	var SSmoreA = What("Template.extras.SSmore").split(",");
-	var SSfrontA = What("Template.extras.SSfront") ? What("Template.extras.SSfront").split(",")[1] : false;
-	if (SSfrontA) SSmoreA.push(SSfrontA);
-	var SSnameFields = [
-		"spellshead.",
-		"spellsdiv."
-	];
-	for (var SS = 0; SS < SSmoreA.length; SS++) {
-		for (var i = 0; i < SSnameFields.length; i++) {
-			var maxLoop = SSnameFields[i] === "spellshead." ? 3 : 9;
-			for (var L = 0; L <= maxLoop; L++) {
-				tDoc.getField(SSmoreA[SS] + SSnameFields[i] + "Image.Dragonhead." + L).buttonSetIcon(theIcon);
-			}
-		}
-	}
-
-	thermoM(1/6); //increment the progress dialog's progress
-
-	if (tDoc.info.SpellsOnly) { // if this pdf is only filled with spell sheets, we don't need to go on
-		thermoM(thermoTxt, true); // Stop progress bar
-		return; // do not continue any further with this function
-	}
-
-	//get any extra prefixes
-	var AScompA = What("Template.extras.AScomp").split(",");
-	var ASnotesA = What("Template.extras.ASnotes").split(",");
-	var WSfrontA = What("Template.extras.WSfront").split(",");
-	var ALlogA = What("Template.extras.ALlog").split(",");
-	var prefixFullA = [""].concat(AScompA).concat(ASnotesA).concat(WSfrontA).concat(ALlogA);
-
-	thermoM(2/6); //increment the progress dialog's progress
-
-	tDoc.getField("Image.DragonheadExtraGear").buttonSetIcon(theIcon);
-	tDoc.getField("Image.DragonheadRightRules").buttonSetIcon(theIcon);
-	for (var pA = 0; pA < prefixFullA.length; pA++) {
-		if (pA > 0 && !prefixFullA[pA]) continue; //ignore anything but the first "" in the array
-		tDoc.getField(prefixFullA[pA] + "Image.Dragonhead").buttonSetIcon(theIcon);
-	}
-	for (tA = 0; tA < AScompA.length; tA++) { //also do the dragonhead that can be hidden on the Companion page
-		tDoc.getField(AScompA[tA] + "Comp.eqp.Image.Dragonhead").buttonSetIcon(theIcon);
-	}
-
-	//set the color of the D&D logo on the third page
-	theIcon = tDoc.getField("SaveIMG.DnDLogo." + colour).buttonGetIcon();
-	tDoc.getField("Image.DnDLogo.long").buttonSetIcon(theIcon);
-
-	thermoM(3/6); //increment the progress dialog's progress
-
-	var buttons = [
-		"Show Buttons",
-		"ShowHide 2nd DC",
-		"Background Menu",
-		"Race Features Menu",
-		"Class Features Menu",
-		"Equipment.menu",
-		"Extra.Layers Button",
-		"Buttons"
-	];
-
-	//add the buttons names of the extra templates to buttons array
-	for (tA = 0; tA < AScompA.length; tA++) {
-		buttons.push(AScompA[tA] + "Companion.Options");
-		buttons.push(AScompA[tA] + "Cnote.Options");
-		buttons.push(AScompA[tA] + "Buttons");
-	}
-	for (tA = 0; tA < ASnotesA.length; tA++) {
-		buttons.push(ASnotesA[tA] + "Notes.Options");
-	}
-	for (tA = 0; tA < WSfrontA.length; tA++) {
-		buttons.push(WSfrontA[tA] + "Wildshapes.Settings");
-	}
-	for (tA = 0; tA < ALlogA.length; tA++) {
-		buttons.push(ALlogA[tA] + "AdvLog.Options");
-	}
-	//set the fill and border colors of the buttons
-	if (theColor && theColorDark) {
-		for (var b = 0; b < buttons.length; b++) {
-			tDoc.getField(buttons[b]).fillColor = theColor;
-			tDoc.getField(buttons[b]).strokeColor = theColorDark;
-		}
-	}
-
-	//make an array of the extra companion templates with an empty value at the start (so it is never empty)
-	var prefixA = [""].concat(AScompA);
-
-	thermoM(4/6); //increment the progress dialog's progress
-
-	//set the attack field color for any of them that is set to change together with the dragon heads
-	theIcon = tDoc.getField("SaveIMG.Attack" + "." + colour).buttonGetIcon();
-	for (var a = 1; a <= FieldNumbers.attacks; a++) {
-		if (What("BlueText.Attack." + a + ".Weight Title") === "same as dragon heads") {
-			tDoc.getField("Image.Attack." + a).buttonSetIcon(theIcon);
-		}
-		if (a <= 3) { for (pA = 0; pA < prefixA.length; pA++) {
-			if (What(prefixA[pA] + "BlueText.Comp.Use.Attack." + a + ".Weight Title") === "same as dragon heads") {
-				tDoc.getField(prefixA[pA] + "Image.Comp.Use.Attack." + a).buttonSetIcon(theIcon);
-			}
-		}}
-	}
-
-	thermoM(5/6); //increment the progress dialog's progress
-
-	// Set the highlighting color if it has been coupled to the dragon heads color
-	if (Who("Highlighting") === "dragons") {
-		app.runtimeHighlightColor = HighlightColorList[colour];
-		tDoc.getField("Highlighting").fillColor = HighlightColorList[colour];
-	}
-	// See if any of the Ability Save DC's or the HP Dragons have the color connected to this
-	if (What("Color.DC").indexOf("dragons") != -1) ApplyDCColorScheme();
-	if (What("Color.HPDragon") == "dragons") ApplyHPDragonColorScheme();
-
-	thermoM(thermoTxt, true); // Stop progress bar
-}
-
-//change the colorscheme that is used for the dragon heads sheet
-function ApplyHPDragonColorScheme(aColour) {
-	if (typePF || (!aColour && What("Color.HPDragon") === tDoc.getField("Color.HPDragon").defaultValue)) return; //don't do this function in the Printer-Friendly version or if resetting with the default colour still active
-	var fndColour = aColour ? aColour.toLowerCase() : What("Color.HPDragon");
-	var colour = fndColour == "headers" ? What("Color.Theme") : fndColour == "dragons" ? What("Color.DragonHeads") : fndColour;
-
-	//stop the function if the input color is not recognized
-	if (!ColorList[colour]) return;
-
-	// Start progress bar and stop calculations
-	var thermoTxt = thermoM("Applying " + colour + " HP Dragons...");
-	calcStop();
-
-	//set the chosen color to a place where it can be found again
-	Value("Color.HPDragon", fndColour);
-
-	//get any extra prefixes
-	var makeTempArray = function (template) {
-		var tempReturn = [];
-		var temp = What("Template.extras." + template);
-		if (temp) {
-			temp = temp.split(",");
-			temp.splice(temp.indexOf(""), 1);
-			tempReturn = temp;
-		}
-		return tempReturn;
-	}
-	var AScompA = makeTempArray("AScomp");
-	var WSfrontA = makeTempArray("WSfront");
-	var prefixFullA = [""].concat(AScompA).concat(WSfrontA);
-
-	thermoM(1/2); //increment the progress dialog's progress
-
-	var theIcon = tDoc.getField("SaveIMG.HPdragonhead" + "." + colour).buttonGetIcon();
-	for (var pA = 0; pA < prefixFullA.length; pA++) {
-		tDoc.getField(prefixFullA[pA] + "Image.HPdragonhead").buttonSetIcon(theIcon);
-	}
-
-	thermoM(thermoTxt, true); // Stop progress bar
 }
 
 //Make menu for choosing the color, the 'color' button, and parse it to Menus.color
@@ -8177,110 +5665,24 @@ function MakeColorMenu() {
 	};
 	tempArray.sort();
 
-	if (typePF) {
-		var menuLVL1 = function (item, array, name) {
-			var lookIt = Who("Highlighting");
-			for (i = 0; i < array.length; i++) {
-				item.push({
-					cName : array[i][0],
-					cReturn : "color#" + name + "#" + array[i][1],
-					bMarked : lookIt === array[i][1]
-				});
-			}
-		};
-		tempArray.unshift(
-			["Turn highlighting off", "turn highlighting off"],
-			["-", "-"],
-			["Sheet default", "sheet default"],
-			["Adobe default", "adobe default"],
-			["-", "-"]
-		);
-		menuLVL1(ColorMenu, tempArray, "highlights");
-	} else {
-		var DCMenu = {cName : "Ability Save DCs", oSubMenu : []};
-
-		var menuLVL1 = function (item, array, name) {
-			var lookIt = What("Color.Theme");
-			for (i = 0; i < array.length; i++) {
-				item.push({
-					cName : array[i][0],
-					cReturn : "color#" + name + "#" + array[i][1],
-					bMarked : lookIt === array[i][1]
-				});
-			}
-		};
-
-		var menuLVL2 = function (name, array) {
-			var menu = {
-				cName : name[0],
-				oSubMenu : []
-			};
-			var lookIt = name[1] === "highlights" ? Who("Highlighting") : name[1] === "hpdragons" ? What("Color.HPDragon") : name[1] === "dragonheads" ? What("Color.DragonHeads") : false;
-			for (i = 0; i < array.length; i++) {
-				menu.oSubMenu.push({
-					cName : array[i][0],
-					cReturn : "color#" + name[1] + "#" + array[i][1],
-					bMarked : lookIt === array[i][1]
-				})
-			};
-			return menu;
-		};
-
-		var menuLVL3 = function (menu, name, array, extraReturn) {
-			var temp = [];
-			var lookIt = What("Color.DC").split(",")[extraReturn - 1];
-			for (i = 0; i < array.length; i++) {
-				temp.push({
-					cName : array[i][0],
-					cReturn : "color#" + name[1] + "#" + array[i][1] + "#" + extraReturn,
-					bMarked : lookIt === array[i][1]
-				});
-			}
-			menu.oSubMenu.push({
-				cName : name[0],
-				oSubMenu : temp
+	var menuLVL1 = function (item, array, name) {
+		var lookIt = Who("Highlighting");
+		for (i = 0; i < array.length; i++) {
+			item.push({
+				cName : array[i][0],
+				cReturn : "color#" + name + "#" + array[i][1],
+				bMarked : lookIt === array[i][1]
 			});
-		};
-
-		var tempArrayExt = tempArray.slice(0);
-		tempArrayExt.unshift(
-			["Same as Headers", "headers"],
-			["Same as Dragon Heads", "dragons"],
-			["-", "-"]
-		);
-
-		//make a submenu to set the form field highlight color, or turn highlighting off
-		var HighlightArray = tempArrayExt.slice(0);
-		HighlightArray.unshift(
-			["Turn highlighting off", "turn highlighting off"],
-			["-", "-"],
-			["Sheet default", "sheet default"],
-			["Adobe default", "adobe default"],
-			["-", "-"]
-		);
-		ColorMenu.push(menuLVL2(["Form Highlights", "highlights"], HighlightArray));
-
-		//make the Dragon Head submenu
-		ColorMenu.push(menuLVL2(["Dragon Heads", "dragonheads"], tempArray));
-
-		//make, if this is not a spell sheet, the Dragon HP and ability save DCs submenu
-		if (!minVer) {
-			ColorMenu.push(menuLVL2(["HP Dragons", "hpdragons"], tempArrayExt));
-			menuLVL3(DCMenu, ["Ability Save DC 1 (left)", "abilitydc"], tempArrayExt, 1);
-			menuLVL3(DCMenu, ["Ability Save DC 2 (right)", "abilitydc"], tempArrayExt, 2);
-			ColorMenu.push(DCMenu);
 		}
-
-		ColorMenu.push({cName : "-"}); //add a divider
-
-		//make the color menu
-		menuLVL1(ColorMenu, tempArray, "theme");
-
-		ColorMenu.push({cName : "-"}); //add a divider
-
-		// 'all' option
-		ColorMenu.push(menuLVL2(["All of the above (except highlighting)", "all"], tempArray));
-	}
+	};
+	tempArray.unshift(
+		["Turn highlighting off", "turn highlighting off"],
+		["-", "-"],
+		["Sheet default", "sheet default"],
+		["Adobe default", "adobe default"],
+		["-", "-"]
+	);
+	menuLVL1(ColorMenu, tempArray, "highlights");
 
 	Menus.colour = ColorMenu;
 };
@@ -8291,18 +5693,6 @@ function ColoryOptions(input) {
 
 	if (!MenuSelection || MenuSelection[0] == "nothing" || MenuSelection[0] !== "color") return;
 	switch (MenuSelection[1]) {
-		case "theme" :
-			ApplyColorScheme(MenuSelection[2]);
-			break;
-		case "dragonheads" :
-			ApplyDragonColorScheme(MenuSelection[2]);
-			break;
-		case "hpdragons" :
-			ApplyHPDragonColorScheme(MenuSelection[2]);
-			break;
-		case "abilitydc" :
-			ApplyDCColorScheme(MenuSelection[2], MenuSelection[3]);
-			break;
 		case "highlights" :
 			var highlightsOn = true;
 			switch (MenuSelection[2]) {
@@ -8329,13 +5719,6 @@ function ColoryOptions(input) {
 			Value("Highlighting", app.runtimeHighlight, MenuSelection[2]);
 			app.runtimeHighlightColor = theColour;
 			tDoc.getField("Highlighting").fillColor = theColour;
-			break;
-		case "all" :
-			ApplyColorScheme(MenuSelection[2]);
-			ApplyDragonColorScheme(MenuSelection[2]);
-			ApplyHPDragonColorScheme(MenuSelection[2]);
-			ApplyDCColorScheme(MenuSelection[2], 1);
-			ApplyDCColorScheme(MenuSelection[2], 2);
 			break;
 	};
 };
@@ -8372,7 +5755,7 @@ function ParseBackgroundFeature(input) {
 
 //Add the text of the feature selected
 async function ApplyBackgroundFeature(input, inputForceOld) {
-	if (IsSetDropDowns || CurrentVars.manual.backgroundFeature) return; // when just changing the dropdowns, don't do anything
+	if (IsSetDropDowns) return; // when just changing the dropdowns, don't do anything
 
 	var sCurSel = ParseBackgroundFeature(inputForceOld ? inputForceOld : What("Background Feature"));
 	var sParseFeature = ParseBackgroundFeature(input);
@@ -8382,7 +5765,12 @@ async function ApplyBackgroundFeature(input, inputForceOld) {
 	calcStop();
 
 	var sFldNm = "Background Feature Description";
-	var sTooltip = stringSource(CurrentBackground, "full,page", "The \"" + CurrentBackground.name + "\" background is found in ", ".\n");
+	var sTooltip = stringSource(
+		{"source": adapter_helper_get_background_property("source")},
+		"full,page",
+		"The \"" + adapter_helper_get_background_property("name") + "\" background is found in ",
+		".\n"
+	);
 	var sNewDescr = input === "" ? "" : What(sFldNm);
 
 	if (sCurSel) {
@@ -8434,64 +5822,6 @@ function SetBackgroundFeaturesdropdown(forceTooltips) {
 	var theFldVal = What("Background Feature");
 	tDoc.getField("Background Feature").setItems(tempArray);
 	Value("Background Feature", theFldVal, tempString);
-}
-
-//Make menu for 'choose race feature' button and parse it to Menus.raceoptions
-function MakeRaceMenu() {
-	//make an array of the variants that are not excluded by the resource settings
-	var racialVarArr = ["basic"];
-	if (CurrentRace.known && CurrentRace.variants) {
-		for (var r = 0; r < CurrentRace.variants.length; r++) {
-			var theR = CurrentRace.known + "-" + CurrentRace.variants[r];
-			if (testSource(theR, RaceSubList[theR], "racesExcl")) continue; // test if the racial variant or its source isn't excluded
-			racialVarArr.push(CurrentRace.variants[r]);
-		}
-	};
-
-	var menuLVL1R = function (item, array) {
-		var isCurrent = CurrentRace.variant;
-		var raceSrc = stringSource(RaceList[CurrentRace.known], "first,abbr", "\t   [", "]");
-		for (var i = 0; i < array.length; i++) {
-			var varR = RaceSubList[CurrentRace.known + "-" + array[i]];
-			var varSrc = varR && varR.source ? stringSource(varR, "first,abbr", "\t   [", "]") : raceSrc;
-			item.push({
-				cName : array[i].capitalize() + " " + RaceList[CurrentRace.known].name + varSrc,
-				cReturn : CurrentRace.known + "#" + array[i],
-				bMarked : (isCurrent === "" && array[i] === "basic") || isCurrent === array[i]
-			});
-		}
-	};
-
-	var RaceMenu = [];
-
-	if (racialVarArr.length === 1) {
-		RaceMenu = [{
-			cName : "No race options that require a choice",
-			cReturn : "nothing",
-			bEnabled : false
-		}];
-	} else {
-		menuLVL1R(RaceMenu, racialVarArr);
-	}
-
-	Menus.raceoptions = RaceMenu;
-}
-
-//call the Race Features menu and do something with the results
-async function RaceFeatureOptions() {
-	var MenuSelection = await getMenu("raceoptions");
-
-	if (MenuSelection && MenuSelection[0] !== "nothing") {
-		var key = MenuSelection.join("-");
-		if (RaceSubList[key]) {
-			var varName = RaceSubList[key].name ? RaceSubList[key].name : MenuSelection[1].capitalize() + " " + RaceList[MenuSelection[0]].name.toLowerCase();
-			if (What("Race") !== varName) {
-				Value("Race", varName);
-			} else {
-				await ApplyRace(MenuSelection.toString(), true);
-			}
-		}
-	}
 }
 
 function ConvertToMetric(inputString, rounded, exact) {
@@ -8835,19 +6165,15 @@ async function SetUnitDecimals_Button() {
 			}
 		}
 	}
-	if (!minVer && SetUnitDecimals_Dialog.bSys !== unitSys) { //do something if the unit system was changed
+	if (SetUnitDecimals_Dialog.bSys !== unitSys) { //do something if the unit system was changed
 		thermoTxt = thermoM("Converting to " + SetUnitDecimals_Dialog.bSys + "...", false); //change the progress dialog text
 		setListsUnitSystem(SetUnitDecimals_Dialog.bSys); //update some variables
 		Value("Unit System", SetUnitDecimals_Dialog.bSys);
 		Value("Decimal Separator", SetUnitDecimals_Dialog.bDec);
-		if (typePF) {
-			var LbKg = What("Unit System") === "imperial" ? "LB" : "KG";
-			Value("Display.Weighttxt.LbKg", LbKg);
-			var tpls = What("Template.extras.AScomp").split(",");
-			for (var t = 0; t < tpls.length; t++) Value(tpls[t]+"Comp.eqp.Display.Weighttxt", LbKg);
-		} else {
-			SetRichTextFields();
-		}
+		var LbKg = What("Unit System") === "imperial" ? "LB" : "KG";
+		Value("Display.Weighttxt.LbKg", LbKg);
+		var tpls = What("Template.extras.AScomp").split(",");
+		for (var t = 0; t < tpls.length; t++) Value(tpls[t]+"Comp.eqp.Display.Weighttxt", LbKg);
 
 		if (SetUnitDecimals_Dialog.bSys === "imperial") {
 			var conStr = "ConvertToImperial";
@@ -8901,14 +6227,18 @@ async function SetUnitDecimals_Button() {
 		if (What("Weight")) {
 			Value("Weight", tDoc[conStr](What("Weight"), 0.01, true));
 		}
-		if (CurrentRace.known) {
-			if (CurrentRace[raceHeight]) {
-				AddTooltip("Height", CurrentRace.plural + CurrentRace[raceHeight]);
+		let raceID = wasm_character.get_race_id();
+		if (raceID) {
+			let plural = adapter_helper_get_race_property("plural", raceID);
+			let height = adapter_helper_get_race_property(raceHeight, raceID);
+			if (height) {
+				AddTooltip("Height", plural + height);
 			}
-			if (CurrentRace[raceWeight]) {
-				AddTooltip("Weight", CurrentRace.plural + CurrentRace[raceWeight]);
+			let weight = adapter_helper_get_race_property(raceWeight, raceID);
+			if (weight) {
+				AddTooltip("Weight", plural + weight);
 			}
-			if (CurrentRace.speed[0]) {
+			if (adapter_helper_get_race_property("speed", raceID)[0]) {
 				var tempString = tDoc[conStr](tDoc.getField("Speed").userName, 0.5);
 				AddTooltip("Speed", tempString);
 				AddTooltip("Speed encumbered", tempString);
@@ -8939,13 +6269,11 @@ async function SetUnitDecimals_Button() {
 			ApplySpell(spellsArray[Sa][0], spellsArray[Sa][1]);
 		}
 
-	} else if (!minVer && SetUnitDecimals_Dialog.bDec !== decSep) { //or if only the decimal separator has been changed
+	} else if (SetUnitDecimals_Dialog.bDec !== decSep) { //or if only the decimal separator has been changed
 		thermoTxt = thermoM("Converting to " + SetUnitDecimals_Dialog.bDec + " decimal separator...", false); //change the progress dialog text
 		setListsUnitSystem(unitSys); //update some variables
 		Value("Decimal Separator", SetUnitDecimals_Dialog.bDec);
 
-		FldsWeight.push("Total Experience");
-		FldsWeight.push("Add Experience");
 		FldsWeight.push("Platinum Pieces");
 		FldsWeight.push("Gold Pieces");
 		FldsWeight.push("Electrum Pieces");
@@ -8988,39 +6316,6 @@ async function SetUnitDecimals_Button() {
 	}
 	thermoM(thermoTxt, true); // Stop progress bar
 }
-
-async function SetTextOptions_Button() {
-	var FontSize = CurrentVars.fontsize !== undefined ? CurrentVars.fontsize : typePF ? 7 : 5.74;
-	var nowFont = tDoc.getField((tDoc.info.AdvLogOnly ? "AdvLog." : "") + "Player Name").textFont;
-	var FontDef = typePF ? "SegoeUI" : "SegoePrint";
-	var FontDefSize = typePF ? 7 : 5.74;
-	if (FontList[nowFont]) FontDefSize = FontList[nowFont];
-
-	var fontArray = {};
-	for (var fo in FontList) {
-		if (fo !== nowFont) {
-			fontArray[fo] = -1;
-		} else {
-			fontArray[fo] = 1;
-		}
-	};
-	SetTextOptions_Dialog.bSize = FontSize.toString();
-	SetTextOptions_Dialog.bDefSize = FontDefSize;
-	SetTextOptions_Dialog.bDefFont = FontDef;
-	SetTextOptions_Dialog.bDefSizeSheet = FontList[FontDef];
-	SetTextOptions_Dialog.bFont = nowFont;
-	SetTextOptions_Dialog.bFontsArray = fontArray;
-
-	// Call the dialog and do something if ok is pressed
-	if ((await app.execDialog(SetTextOptions_Dialog)) === "ok") {
-		if (SetTextOptions_Dialog.bSize !== FontSize) {
-			ToggleTextSize(SetTextOptions_Dialog.bSize);
-		}
-		if (SetTextOptions_Dialog.bFont !== nowFont) {
-			ChangeFont(SetTextOptions_Dialog.bFont);
-		}
-	}
-};
 
 // Make an array of all attack fields of that fieldnumber (!prefix for 1st page)
 function ReturnAttackFieldsArray(fldNmbr, prefix) {
@@ -9085,7 +6380,7 @@ async function MakeAttackLineMenu_AttackLineOptions(fldName, MenuSelection, item
 		Fields[i] = prefix + fldsBase[i][0] + Q + "Attack." + itemNmbr + fldsBase[i][1];
 	}
 
-	var theField = What( Fields[ CurrentVars.manual.attacks ? 0 : 3] );
+	var theField = What( Fields[3] );
 	var theWea = QI ? CurrentWeapons.known[itemNmbr - 1] : CurrentWeapons.compKnown[prefix][itemNmbr - 1];
 	var weaWeight = theWea[0] && WeaponsList[theWea[0]] ? WeaponsList[theWea[0]].weight :
 		theWea[0] && QI && CurrentCompRace[prefix] && CurrentCompRace[prefix].attacks ? CurrentCompRace[prefix].attacks[theWea[0]].weight :
@@ -9114,31 +6409,6 @@ async function MakeAttackLineMenu_AttackLineOptions(fldName, MenuSelection, item
 			["Delete attack", "delete"],
 			["Clear attack", "clear"]
 		]);
-
-		var menuLVL2 = function (name, array, markThis) {
-			var temp = {
-				cName : name[0],
-				oSubMenu : []
-			}
-			for (var i = 0; i < array.length; i++) {
-				temp.oSubMenu.push({
-					cName : array[i].capitalize(),
-					cReturn : "attack#" + name[1] + "#" + array[i],
-					bMarked : array[i] === markThis
-				})
-			}
-			attackMenu.push(temp);
-		};
-
-		// Add the colour menu
-		if (!typePF) {
-			attackMenu.push({ cName : "-" });
-			var ColorArray = ["black"];
-			for (var key in ColorList) ColorArray.push(key);
-			ColorArray.sort();
-			ColorArray.unshift("same as headers", "same as dragon heads", "-");
-			menuLVL2(["Outline Color", "colour"], ColorArray, What(Fields[13]));
-		}
 
 		// Add option to show dialog with calcChanges
 		if (QI) {
@@ -9178,16 +6448,11 @@ async function MakeAttackLineMenu_AttackLineOptions(fldName, MenuSelection, item
 				var exclObj = {
 					userName : i !== 12, // tooltip only for description
 					submitName : i === 4, // submitname only not for proficiency
-					defaultValue : !typePF && i === 13, // weight title keep default value
+					defaultValue : false, // weight title keep default value
 					noCalc : true
 				};
 				copyField(Fields[i], FieldsOth[i], exclObj, true);
 				thermoM(i/(Fields.length)); //increment the progress dialog's progress
-			}
-			// Re-apply the attack colour, as this could've changed
-			if (!typePF) {
-				ApplyAttackColor(itemNmbr, undefined, Q, prefix);
-				ApplyAttackColor(otherNmbr, undefined, Q, prefix);
 			}
 			IsNotWeaponMenu = true;
 			findWeaps = true;
@@ -9206,10 +6471,6 @@ async function MakeAttackLineMenu_AttackLineOptions(fldName, MenuSelection, item
 			thermoTxt = thermoM("Clearing attack...", false);
 			WeaponClear(itemNmbr, prefix)
 			findWeaps = true;
-			break;
-		case "colour" :
-			thermoTxt = thermoM("Changing attack outline color...", false);
-			ApplyAttackColor(itemNmbr, MenuSelection[2], Q, prefix);
 			break;
 		case "showcalcs" :
 			var atkCalcStr = StringEvals(["atkStr", "spellAtkStr"]);
@@ -9231,7 +6492,6 @@ async function MakeAttackLineMenu_AttackLineOptions(fldName, MenuSelection, item
 function WeaponClear(itemNmbr, prefix) {
 	var Fields = ReturnAttackFieldsArray(itemNmbr, prefix);
 	tDoc.resetForm(Fields);
-	if (!typePF) ApplyAttackColor(itemNmbr, undefined, prefix ? "Comp." : "", prefix);
 	// Remove the submitname from the to hit & damage modifier fields
 	AddTooltip(Fields[9], undefined, "");
 	AddTooltip(Fields[10], undefined, "");
@@ -9242,7 +6502,7 @@ function WeaponInsert(itemNmbr, prefix) {
 	if (!prefix) prefix = "";
 	var Q = prefix ? "Comp.Use." : "";
 	var Fields = ReturnAttackFieldsArray(itemNmbr, prefix);
-	var theFieldI = CurrentVars.manual.attacks ? 0 : 3;
+	var theFieldI = 3;
 	var maxItems = prefix ? 3 : FieldNumbers.attacks;
 
 	// Stop the function if the selected slot is already empty
@@ -9272,12 +6532,11 @@ function WeaponInsert(itemNmbr, prefix) {
 			var exclObj = {
 				userName : i !== 12, // tooltip only for description
 				submitName : i === 4, // submitname only not for proficiency
-				defaultValue : !typePF && i === 13, // weight title keep default value
+				defaultValue : false, // weight title keep default value
 				noCalc : true
 			};
 			copyField(AttFldsFrom[i], AttFldsTo[i], exclObj);
 		}
-		if (!typePF) ApplyAttackColor(s, undefined, Q, prefix);
 	}
 	IsNotWeaponMenu = true;
 
@@ -9314,12 +6573,11 @@ function WeaponDelete(itemNmbr, prefix) {
 			var exclObj = {
 				userName : i !== 12, // tooltip only for description
 				submitName : i === 4, // submitname only not for proficiency
-				defaultValue : !typePF && i === 13, // weight title keep default value
+				defaultValue : false, // weight title keep default value
 				noCalc : true
 			};
 			copyField(AttFldsFrom[i], AttFldsTo[i], exclObj);
 		}
-		if (!typePF) ApplyAttackColor(s, undefined, Q, prefix);
 	}
 	IsNotWeaponMenu = true;
 
@@ -9346,7 +6604,6 @@ function ShowAttunedMagicalItems(currentstate) {
 		"Attuned Magic Items Whiteout",
 		"Attuned Magic Items Title"
 	]
-	if (!typePF) MagicItems.push("Line.adventuringGear");
 	if (!currentstate) {
 		var HideShow = "Hide";
 		var ShowHide = "Show";
@@ -9376,10 +6633,10 @@ function HideInvLocationColumn(type, currentstate) {
 	//change the size of the gear input rows
 	if (currentstate) {
 		var HideShow = "Hide";
-		var widen = !typePF ? 12 : 16;
+		var widen = 16;
 	} else {
 		var HideShow = "Show";
-		var widen = !typePF ? -12 : -16;
+		var widen = -16;
 	}
 	for (var i = 1; i <= total; i++) {
 		var RowName = tDoc.getField(type + "Row " + i + suffix);
@@ -9388,11 +6645,9 @@ function HideInvLocationColumn(type, currentstate) {
 		RowName.rect = gRect; // Update the value of b.rect
 		RowName.value = RowName.value; //re-input the value as to counteract the changing of font
 	}
-	if (typePF || (type === "Extra.Gear " && CurrentVars.vislayers[1] === "equipment") || type === "Adventuring Gear ") { //only show things on the third page, if the extra equipment section is visible
-		tDoc[HideShow](type + "Location");
-		if (!currentstate && type === "Adventuring Gear " && What("Adventuring Gear Remember") === false) {
-			Hide("Adventuring Gear Location.Row " + FieldNumbers.gearMIrow);
-		}
+	tDoc[HideShow](type + "Location");
+	if (!currentstate && type === "Adventuring Gear " && What("Adventuring Gear Remember") === false) {
+		Hide("Adventuring Gear Location.Row " + FieldNumbers.gearMIrow);
 	}
 	var theState = What("Gear Location Remember").split(",");
 	theState = type === "Extra.Gear " ? [theState[0], !currentstate] : [!currentstate, theState[1]];
@@ -9441,16 +6696,28 @@ function SetTheAbilitySaveDCs() {
 			iPrio -= 10;
 		}
 		// Add 1 if this is the primary class
-		if (sType === "class" && classes.primary === sName) iPrio += 1;
+		if (sType === "class" && wasm_character.get_primary_class() === sName) iPrio += 1;
 		CurrentAbilitySaveDCs.priority[sAbiNm].push(iPrio);
 	}
 
 	// Do all the classes
-	for (var sClass in classes.known) {
-		if (CurrentClasses[sClass].abilitySave) processAbility("class", sClass, CurrentClasses[sClass]);
+	for (let sClass of wasm_character.list_classes()) {
+		let classAbilitySave = adapter_helper_get_class_property(sClass, "abilitySave");
+		let tempClassObj = {
+			abilitySave: classAbilitySave,
+			abilitySaveAlt: adapter_helper_get_class_property(sClass, "abilitySaveAlt"),
+			spellcastingAbility: adapter_helper_get_class_property(sClass, "spellcastingAbility"),
+		}
+		if (classAbilitySave) processAbility("class", sClass, tempClassObj);
 	}
 	// Do the race
-	if (CurrentRace.abilitySave) processAbility("race", CurrentRace.known, CurrentRace);
+	let raceID = wasm_character.get_race_id();
+	let raceAbilitySave = adapter_helper_get_race_property("abilitySave", raceID);
+	if (raceAbilitySave) processAbility(
+		"race",
+		raceID,
+		{abilitySave: raceAbilitySave, abilitySaveAlt: adapter_helper_get_race_property("abilitySaveAlt", raceID), spellcastingAbility: adapter_helper_get_race_property("spellcastingAbility", raceID)}
+	);
 
 	// Now save the found to the global variable
 	CurrentVars.AbilitySaveDcFound = CurrentAbilitySaveDCs.found;
@@ -9545,13 +6812,11 @@ function SetSpellSlotsCheckboxes(fldName, SpellLVL, theSlots, onlyDisplay) {
 
 	if (!onlyDisplay && What("SpellSlotsRemember") === "[false,false]") return;
 
-	var startTry = minVer && !typePF ? 2 : 1;
-	var maxTries = tempNr + (typePF || minVer ? 0 : 1);
+	var startTry = 1;
+	var maxTries = tempNr;
 	for (var s = startTry; s <= maxTries; s++) {
-		var suffix = s === 1 || typePF ? "" : "2";
 		var prefix = s === maxTries && tempNr > 1 ? What("Template.extras.SSfront").split(",")[1] : "";
-		var isDisplayed = typePF || tDoc.getField(prefix + "Image.SpellSlots" + suffix + ".List").display === display.visible;
-		var ExtraFld = prefix + "SpellSlots" + suffix + ".Extra.lvl" + SpellLVL;
+		var ExtraFld = prefix + "SpellSlots.Extra.lvl" + SpellLVL;
 		if (parseFloat(theSlots) > 4) {
 			Value(ExtraFld, "OF " + parseFloat(theSlots));
 			Slots = 4;
@@ -9561,13 +6826,13 @@ function SetSpellSlotsCheckboxes(fldName, SpellLVL, theSlots, onlyDisplay) {
 		}
 
 		var BoxesFld = [
-			prefix + "SpellSlots" + suffix + ".Checkboxes.lvl" + SpellLVL + ".mid", //0
-			prefix + "SpellSlots" + suffix + ".Checkboxes.lvl" + SpellLVL + ".top1", //1
-			prefix + "SpellSlots" + suffix + ".Checkboxes.lvl" + SpellLVL + ".top2.1", //2
-			prefix + "SpellSlots" + suffix + ".Checkboxes.lvl" + SpellLVL + ".top2.2", //3
-			prefix + "SpellSlots" + suffix + ".Checkboxes.lvl" + SpellLVL + ".bottom1", //4
-			prefix + "SpellSlots" + suffix + ".Checkboxes.lvl" + SpellLVL + ".bottom2.1", //5
-			prefix + "SpellSlots" + suffix + ".Checkboxes.lvl" + SpellLVL + ".bottom2.2", //6
+			prefix + "SpellSlots.Checkboxes.lvl" + SpellLVL + ".mid", //0
+			prefix + "SpellSlots.Checkboxes.lvl" + SpellLVL + ".top1", //1
+			prefix + "SpellSlots.Checkboxes.lvl" + SpellLVL + ".top2.1", //2
+			prefix + "SpellSlots.Checkboxes.lvl" + SpellLVL + ".top2.2", //3
+			prefix + "SpellSlots.Checkboxes.lvl" + SpellLVL + ".bottom1", //4
+			prefix + "SpellSlots.Checkboxes.lvl" + SpellLVL + ".bottom2.1", //5
+			prefix + "SpellSlots.Checkboxes.lvl" + SpellLVL + ".bottom2.2", //6
 		];
 
 		//reset the checkboxes form fields so all are empty and hidden
@@ -9575,12 +6840,12 @@ function SetSpellSlotsCheckboxes(fldName, SpellLVL, theSlots, onlyDisplay) {
 		for (var i = 0; i < BoxesFld.length; i++) {
 			Hide(BoxesFld[i]);
 		}
-		ClearIcons(prefix + "Image.SpellSlots" + suffix + ".Checkboxes." + SpellLVL);
+		ClearIcons(prefix + "Image.SpellSlots.Checkboxes." + SpellLVL);
 
 		//set the right image and show form fields depending on the number entered and whether or not the field is even visible
-		if (isDisplayed && Slots > 0) { //only go ahead if there are more than 0 slots to be done
+		if (Slots > 0) { //only go ahead if there are more than 0 slots to be done
 			var theIcon = tDoc.getField("SaveIMG.SpellSlots." + Slots).buttonGetIcon();
-			tDoc.getField(prefix + "Image.SpellSlots" + suffix + ".Checkboxes." + SpellLVL).buttonSetIcon(theIcon);
+			tDoc.getField(prefix + "Image.SpellSlots.Checkboxes." + SpellLVL).buttonSetIcon(theIcon);
 			switch (Slots) {
 			 case 1:
 				 Show(BoxesFld[0]);
@@ -9611,91 +6876,6 @@ function SetSpellSlotsVisibility() {
 		Hide("Image.SpellPoints");
 		Hide("SpellSlots.Checkboxes.SpellPoints");
 	}
-	if (typePF) return; //don't do this function in the Printer-Friendly version
-	calcStop();
-
-	var toShow = eval_ish(What("SpellSlotsRemember"));
-
-	//define a function to show (showOrHide = true) or hide (showOrHide = false) all the spellslots; suffix is "" or "2"
-	var doSpellSlots = function(showOrHide, suffix, prefix) {
-		var HiddenVisible = showOrHide ? "Hide" : "Show";
-		var VisibleHidden = showOrHide ? "Show" : "Hide";
-		var NoPrintHidden = showOrHide && CurrentVars.bluetxt ? "DontPrint" : "Hide";
-		var HiddenNoPrint = showOrHide ? "Hide" : "DontPrint";
-
-		//the ones that only apply to the first page
-		if (suffix !== 2) {
-			var SpellSlotsFields0 = [
-				"Text.Header.SpellSlots",
-				"Line.SpellSlots"
-			]
-			var LimitedFeatureFields = [
-				"Image.LimitedFeatures.Full"
-			];
-			var LimitedFeatureButtons = [];
-			//append the LimitedFeatureFields array with the fillable form fields
-			for (var i = 6; i <= 8; i++) {
-				LimitedFeatureFields.push("Limited Feature " + i);
-				LimitedFeatureFields.push("Limited Feature Max Usages " + i);
-				LimitedFeatureFields.push("Limited Feature Recovery " + i);
-				LimitedFeatureFields.push("Limited Feature Used " + i);
-				LimitedFeatureButtons.push("Button.Limited Feature " + i);
-			};
-
-			//show or hide the fields of the bottom 3 limited features
-			for (var i = 0; i < LimitedFeatureFields.length; i++) {
-				tDoc[HiddenVisible](LimitedFeatureFields[i]);
-			};
-			//show or hide the buttons of the bottom 3 limited features
-			for (var i = 0; i < LimitedFeatureButtons.length; i++) {
-				tDoc[HiddenNoPrint](LimitedFeatureButtons[i]);
-			};
-			//show or hide the fields of the spell slots that are ony on the first page
-			for (var i = 0; i < SpellSlotsFields0.length; i++) {
-				tDoc[VisibleHidden](SpellSlotsFields0[i]);
-			};
-		}
-
-		var SpellSlotFields = [
-			prefix + "Image.SpellSlots" + suffix,
-			prefix + "SpellSlots" + suffix + ".Extra"
-		];
-
-		//show or hide the fields of the spell slots
-		for (var i = 0; i < SpellSlotFields.length; i++) {
-			tDoc[VisibleHidden](SpellSlotFields[i]);
-		};
-
-		var extrasuffix = minVer ? "" : (suffix !== 2 ? ".0" : (prefix ? "" : ".1"));
-
-		//show the bluetext fields, if appropriate
-		for (var i = 1; i <= 9; i++) {
-			tDoc[NoPrintHidden](prefix + "SpellSlots.CheckboxesSet.lvl" + i + extrasuffix);
-		}
-	}
-
-	//see if we need to hide or show the Spell Slots on the first page
-	if (!minVer) {
-		var display1 = tDoc.getField("Image.SpellSlots.List").display === display.visible;
-		if (display1 !== toShow[0]) doSpellSlots(toShow[0], "", "");
-	} else {
-		var display1 = toShow[0];
-	}
-
-	//see if we need to hide or show the Spell Slots on the spell sheet page
-	var prefix = What("Template.extras.SSfront").split(",")[1];
-	var display2 = tDoc.getField("Image.SpellSlots2.List").display === display.visible;
-	if (display2 !== toShow[1]) {
-		doSpellSlots(toShow[1], 2, "");
-		if (prefix) doSpellSlots(toShow[1], 2, prefix);
-	}
-
-	//update the checkbox fields of the spell slots if any changes have been made
-	if (display1 !== toShow[0] || display2 !== toShow[1]) {
-		for (var i = 1; i <= 9; i++) {
-			SetSpellSlotsCheckboxes("SpellSlots.CheckboxesSet.lvl" + i, i, What("SpellSlots.CheckboxesSet.lvl" + i), true);
-		}
-	}
 }
 
 //determine the types of locations there are, and add them to the corresponding fields to calculate their subtotals in weight carried [through field format]
@@ -9719,7 +6899,7 @@ function SetCarriedLocations(fldName, value) {
 	}
 	locationList.sort();
 	//loop through the list of locations and add the first 6 found to the subtotal fields
-	var locationFields = type === "Extra.Gear " || !typePF ? 6 : 9;
+	var locationFields = type === "Extra.Gear " ? 6 : 9;
 	for (var i = 0; i < locationFields; i++) {
 		var aLoc = locationList[i] ? locationList[i] : "";
 		Value(type + "Location.SubtotalName " + (i + 1), aLoc);
@@ -9761,59 +6941,11 @@ function CalcCarriedLocation(fldName) {
 	}
 }
 
-//make the appropriate attack field a different color, depending on the menu entry
-function ApplyAttackColor(attackNmbr, aColour, type, prefix) {
-	if (typePF) return; //don't do this function in the Printer-Friendly version
-	var QI = type.indexOf("Comp.") === -1;
-	var prefixA = [""];
-	if (!QI && prefix) {
-		prefixA = [prefix];
-	} else if (!QI && !prefix) {
-		prefixA = What("Template.extras.AScomp").split(",");
-	}
-	var Q = QI ? "" : "Comp.Use.";
-	var maxItems = QI ? FieldNumbers.attacks : 3;
-
-	startNmbr = attackNmbr ? attackNmbr : 1;
-	endNmbr = attackNmbr ? attackNmbr : maxItems;
-	for (var pA = 0; pA < prefixA.length; pA++) {
-		for (var a = startNmbr; a <= endNmbr; a++) {
-			var colour = aColour ? aColour.toLowerCase() : What(prefixA[pA] + "BlueText." + Q + "Attack." + a + ".Weight Title");
-			switch (colour) {
-				case "same as headers" :
-					colour = What("Color.Theme");
-					break;
-				case "same as dragon heads" :
-					colour = What("Color.DragonHeads");
-					break;
-			}
-			if (colour !== "black" && !ColorList[colour]) break;
-			var theIcon = tDoc.getField("SaveIMG.Attack." + colour).buttonGetIcon();
-
-			tDoc.getField(prefixA[pA] + "Image." + Q + "Attack." + a).buttonSetIcon(theIcon);
-			if (aColour) Value(prefixA[pA] + "BlueText." + Q + "Attack." + a + ".Weight Title", aColour.toLowerCase());
-		}
-	}
-}
-
-//set all the color schemes as the fields dictate
-function setColorThemes(reset) {
-	if (typePF) return; //don't do this function in the Printer-Friendly version
-	ApplyColorScheme(reset ? tDoc.getField("Color.Theme").defaultValue : false);
-	ApplyDragonColorScheme(reset ? tDoc.getField("Color.DragonHeads").defaultValue : false);
-	ApplyHPDragonColorScheme(reset ? tDoc.getField("Color.HPDragon").defaultValue : false);
-	var DCdefaultClrs = tDoc.getField("Color.DC").defaultValue.split(",");
-	ApplyDCColorScheme(reset ? DCdefaultClrs[0] : false, 1);
-	ApplyDCColorScheme(reset ? DCdefaultClrs[1] : false, 2);
-	ApplyAttackColor("", "", "Default");
-	ApplyAttackColor("", "", "Comp.");
-}
-
 //calculate the proficiency bonus (field calculation)
 function ProfBonus(useTarget, newLvlForce) {
 	var thisEvent = tDoc.getField(useTarget);
 	var QI = getTemplPre(thisEvent.name, "AScomp");
-	var lvl = newLvlForce !== undefined ? newLvlForce : Number(What(QI === true ? "Character Level" : QI + "Comp.Use.HD.Level"));
+	var lvl = newLvlForce !== undefined ? newLvlForce : QI === true ? wasm_character.get_level() : Number(What(QI + "Comp.Use.HD.Level"));
 	var ProfMod = QI === true ? What("Proficiency Bonus Modifier") : 0;
 	var useDice = tDoc.getField(QI === true ? "Proficiency Bonus Dice" : QI + "BlueText.Comp.Use.Proficiency Bonus Dice").isBoxChecked(0) === 1;
 	var ProfB = lvl ? ProficiencyBonusList[Math.min(lvl, ProficiencyBonusList.length) - 1] : 0;

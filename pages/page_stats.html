@@ -8,186 +8,6 @@
 
 	<div id="tempButtonRibbon" style="position: absolute;width: 50px; height: 200px;"></div>
 
-	<div id="character_general_info" class="pane" style="width: var(--page-width); height: 195px;">
-		<img class="pane-bg" alt="" src="img/bg_splashy_stripes.svg" style="width: var(--page-width); height: 195px;">
-		<img class="pane-bg" alt="" src="img/page_stats/backgrounds/general_info.svg" style="width: var(--page-width); height: 195px;">
-		<span class="textlabel" style="top: 106px; left: 366.6px;">LEVEL &amp; CLASS</span>
-		<span class="textlabel" style="top: 106px; left: 658.5px;">PLAYER NAME</span>
-		<span
-			id="DCI.Title"
-			class="field textlabel"
-			style="font-size: 9.4px;top: 73px;left: 291px;visibility: hidden;"
-		>DCI</span>
-		<span class="textlabel" style="top: 145px; left: 366.6px;">BACKGROUND</span>
-		<span class="textlabel" style="top: 145px; left: 543.3px;">RACE</span>
-		<span class="textlabel" style="top: 145px; left: 658.5px;">EXPERIENCE</span>
-		<span class="textlabel-dimmed" style="top: 145px; left: 777.1px;font-size: 10.6px">Next Level</span>
-		<span class="textlabel" style="top: 155px; left: 101.5px;">CHARACTER NAME</span>
-		<img
-			id="Image.DnDLogo.long#0"
-			class="field"
-			alt="DUNGEONS &amp; DRAGONS ®"
-			src="img/dnd/5edungeonsanddragons.svg"
-			style="position: absolute;top: 40px;left: 166px;width: 190px;height: 41.3px;visibility: hidden"
-		/>
-
-		<input
-			id="PC_Name"
-			class="field inputfield"
-			style="top: 108px;left: 85px;font-size: 19px;width: 200px;height: 24px;text-align: center;"
-			data-default=""
-			type="text"
-			spellcheck="true"
-			onchange="eventManager.handle_event(EventType.PC_Name_change)"
-		/>
-		<input
-			id="DCI.Text"
-			class="field inputfield"
-			aria-label="Put your Adventure League DCI here"
-			style="top: 100px;left: 291px;font-size: 16pt;width: 58.5px;height: 16px;text-align: center;visibility: hidden;"
-			spellcheck="true"
-		/>
-		<input
-			id="Character_Level"
-			class="field inputfield"
-			style="top: 85px;left: 365px;font-size: 11pt;width: 12pt;height: 15pt;text-align: center"
-			type="number"
-			aria-label="Fill out the total character level"
-			required
-			spellcheck="true"
-			onfocus="this.dataset.temp=this.value;"
-			oninput="adapter_helper_keystroke1(this, false, false, this.value, event.data)"
-			onchange="{let newVal=this.value;this.value=this.dataset.temp?this.dataset.temp:0;levelFieldVal(adapter_helper_convert_id_to_fieldname(this.id), newVal).then((finalValue) => {this.value=finalValue;eventManager.handle_event(EventType.Character_Level_change)});}"
-		/>
-		<input
-			id="Class_and_Levels"
-			class="field inputfield"
-			style="top: 85px;left: 388px;font-size: 11pt;width: 199pt;height: 15pt"
-			type="text"
-			aria-label="Classes"
-			spellcheck="true"
-			onclick="ClickClasses(this.value, event.ctrlKey || event.shiftKey).then((remVal) => {this.dataset.remVal=remVal})"
-			onchange="classesFieldVal(this.value, this.dataset.remVal == 'undefined' ? undefined : this.dataset.remVal).then((valueremVal) => {this.value=valueremVal[0];if (valueremVal[1] === undefined) {delete this.dataset.remVal;}});"
-		/>
-		<input
-			id="Player_Name"
-			class="field inputfield"
-			style="top: 85px;left: 660px;font-size: 11pt;width: 120pt;height: 15pt"
-			type="text"
-			data-default=""
-			spellcheck="true"
-		/>
-
-		<input
-			id="Background"
-			class="field inputfield"
-			list="background_options"
-			style="top: 124px;left: 365px;font-size: 11pt;width: 130pt;height: 15pt"
-			aria-label="Background"
-			spellcheck="true"
-			onclick="if (event.offsetX > Number(this.style.width.replace('px', ''))-16) {this.value='';}"
-		/>
-		<datalist id="background_options">
-			<option value="Acolyte">
-		</datalist>
-		<input
-			id="Background_Extra"
-			class="field inputfield"
-			list="background_sub_options"
-			style="top: 146px;left: 445px;font-size: 7pt;width: 70pt;height: 8pt;color: var(--text-dimmed)"
-			spellcheck="true"
-			aria-label="First fill out a background in the field above."
-			onclick="if (event.offsetX > Number(this.style.width.replace('px', ''))-16) {this.value='';}"
-		/>
-		<datalist id="background_sub_options">
-			<option value=""></option>
-		</datalist>
-		<input
-			id="Race"
-			class="field inputfield"
-			list="race_options"
-			style="top: 124px;left: 545px;font-size: 14.7px;width: 108px;height: 20px"
-			aria-label="Race"
-			onclick="if (event.offsetX > Number(this.style.width.replace('px', ''))-16) {this.value='';}"
-			spellcheck="true"
-			onchange="ApplyRace(this.value)"
-		/>
-		<datalist id="race_options">
-			<option value=""></option>
-			<option value="Dragonborn"></option>
-			<option value="Dwarf, Hill"></option>
-			<option value="Elf, High"></option>
-			<option value="Gnome, Rock"></option>
-			<option value="Half-elf"></option>
-			<option value="Half-orc"></option>
-			<option value="Halfling, Lightfoot"></option>
-			<option value="Human"></option>
-			<option value="Tiefling"></option>
-		</datalist>
-		<input
-			id="Total_Experience"
-			class="field inputfield"
-			style="top: 124px;left: 660px;font-size: 11pt;width: 32pt;height: 15pt"
-			type="number"
-			aria-label="The current total amount of experience points."
-			data-default=""
-			oninput="adapter_helper_keystroke1(this, true, false, this.value, event.data)"
-			onchange="this.value=format1(String(this.value), 0, 0);{let outcome='';if (isNaN(this.value)&&this.value.indexOf(',') !== -1){outcome=this.value.replace(',', '.')*1};if(isNaN(outcome)||outcome<0){this.value=this.dataset.temp;};};CalcExperienceLevel(true)"
-		/>
-		<input
-			id="Add_Experience"
-			class="field inputfield nonprintable"
-			style="top: 124px;left: 730px;font-size: 11pt;width: 32pt;height: 15pt;color: #0056D3;text-align: center;overflow-x: scroll"
-			type="number"
-			aria-label="Experience points that are to be added to the total to the left."
-			oninput="adapter_helper_keystroke1(this, true, true, this.value, event.data)"
-			onchange="this.value=format1(String(this.value), 0, 0)"
-		/>
-		<span
-			id="Next_level"
-			class="field textlabel-dimmed"
-			style="top: 126px;left: 780px;font-size: 11pt;width: 44px;text-align: right;font-family: SegoeUI"
-		></span>
-
-		<button
-			id="HeaderIcon"
-			class="field textlabel"
-			style="top: 104px;left: 58px;overflow-wrap: normal;font-size: 3px;width: 24px;height:34px;padding: 1px;line-height: 1.3;background-size: 100% 100%;background-repeat: no-repeat;background-position: center;background-image: url('img/page_stats/header_icons/blank.svg');cursor: pointer;"
-			aria-label="Click here to change the Header Icon."
-			onclick="{MakeIconMenu_IconOptions(new AdapterClassFieldReference([this]))}"
-		>
-		</button>
-		<button
-			id="Add_Experience_Button"
-			class="field button nonprintable"
-			style="top: 130px; left: 707.4px;"
-			aria-label="Add the experience points on the right to the total to the left (button does not print)."
-			onclick="AddExperiencePoints()"
-		>Add:</button>
-
-		<script type="text/javascript">
-			// Next level XP indicator
-			eventManager.add_listener(
-				EventType.Character_Level_change,
-				function () {
-					let label_element = document.getElementById('Next_level');
-					label_element.innerText = CalcXPnextlvl()
-					label_element.dispatchEvent(new Event('change'));
-				}
-			);
-			// Background onchange
-			{
-				document.getElementById('Background').onchange = async function() {
-					calcStartSet = true;
-					calcStop();
-					await ApplyBackground(this.value);
-					calcStartSet = false;
-					calcCont();
-				}
-			}
-		</script>
-	</div>
-
 	<div id="character_resistances_saving_throws" class="pane" style="top: 195px;left: 133px;width: 190px;height: 275px;">
 		<img class="pane-bg" alt="" src="img/page_stats/backgrounds/resistances_saving_throws.svg" style="width: 177px;height: 267px;top: 1.5px;left: 5.6px;">
 
@@ -4505,14 +4325,6 @@
 				type="text"
 				onchange="eventManager.handle_event(EventType.Attack_1_Description_change);"
 			/>
-			<input
-				id="Attack.1.Weapon"
-				class="field inputfield"
-				style="overflow-x: scroll;visibility: hidden;"
-				spellcheck="true"
-				type="text"
-				onchange="CopyWeaponToSelection(adapter_helper_convert_id_to_fieldname(this.id), this.value)"
-			/>
 		</div>
 
 		<div style="position: absolute;top: 71px;left: 20px;width: 501px;height: 36px">
@@ -4586,14 +4398,6 @@
 				aria-label="Description and notes"
 				type="text"
 				onchange="eventManager.handle_event(EventType.Attack_2_Description_change);"
-			/>
-			<input
-				id="Attack.2.Weapon"
-				class="field inputfield"
-				style="overflow-x: scroll;visibility: hidden;"
-				spellcheck="true"
-				type="text"
-				onchange="CopyWeaponToSelection(adapter_helper_convert_id_to_fieldname(this.id), this.value)"
 			/>
 		</div>
 
@@ -4669,14 +4473,6 @@
 				type="text"
 				onchange="eventManager.handle_event(EventType.Attack_3_Description_change);"
 			/>
-			<input
-				id="Attack.3.Weapon"
-				class="field inputfield"
-				style="overflow-x: scroll;visibility: hidden;"
-				spellcheck="true"
-				type="text"
-				onchange="CopyWeaponToSelection(adapter_helper_convert_id_to_fieldname(this.id), this.value)"
-			/>
 		</div>
 
 		<div style="position: absolute;top: 167px;left: 20px;width: 501px;height: 36px">
@@ -4751,14 +4547,6 @@
 				type="text"
 				onchange="eventManager.handle_event(EventType.Attack_4_Description_change);"
 			/>
-			<input
-				id="Attack.4.Weapon"
-				class="field inputfield"
-				style="overflow-x: scroll;visibility: hidden;"
-				spellcheck="true"
-				type="text"
-				onchange="CopyWeaponToSelection(adapter_helper_convert_id_to_fieldname(this.id), this.value)"
-			/>
 		</div>
 
 		<div style="position: absolute;top: 215px;left: 20px;width: 501px;height: 36px">
@@ -4832,14 +4620,6 @@
 				aria-label="Description and notes"
 				type="text"
 				onchange="eventManager.handle_event(EventType.Attack_5_Description_change);"
-			/>
-			<input
-				id="Attack.5.Weapon"
-				class="field inputfield"
-				style="overflow-x: scroll;visibility: hidden;"
-				spellcheck="true"
-				type="text"
-				onchange="CopyWeaponToSelection(adapter_helper_convert_id_to_fieldname(this.id), this.value)"
 			/>
 		</div>
 

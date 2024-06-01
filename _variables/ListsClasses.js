@@ -145,8 +145,8 @@ var Base_ClassList = {
 				calcChanges : {
 					atkCalc : [
 						function (fields, v, output) {
-							if (v.isMeleeWeapon && fields.Mod === 1 && classes.known.barbarian && classes.known.barbarian.level && /\brage\b/i.test(v.WeaponTextName)) {
-								output.extraDmg += classes.known.barbarian.level < 9 ? 2 : classes.known.barbarian.level < 16 ? 3 : 4;
+							if (v.isMeleeWeapon && fields.Mod === 1 && wasm_character.has_class('barbarian') && /\brage\b/i.test(v.WeaponTextName)) {
+								output.extraDmg += wasm_character.get_class_level('barbarian') < 9 ? 2 : wasm_character.get_class_level('barbarian') < 16 ? 3 : 4;
 							}
 						},
 						"If I include the word 'Rage' in a melee weapon's name that uses Strength, the calculation will add my Rage's bonus damage to it. Be aware that if the weapon is used to make a ranged attack, the rage bonus damage shouldn't be added (e.g. when using a thrown weapon)."
@@ -211,8 +211,8 @@ var Base_ClassList = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (v.isMeleeWeapon && classes.known.barbarian && classes.known.barbarian.level > 8) {
-								var pExtraCritM = classes.known.barbarian.level < 13 ? 1 : classes.known.barbarian.level < 17 ? 2 : 3;
+							if (v.isMeleeWeapon && wasm_character.get_class_level('barbarian') > 8) {
+								var pExtraCritM = wasm_character.get_class_level('barbarian') < 13 ? 1 : wasm_character.get_class_level('barbarian') < 17 ? 2 : 3;
 								var extraCritRegex = /\d+(d\d+ extra on a crit(ical)?( hit)? in melee)/i;
 								v.extraCritM = (v.extraCritM ? v.extraCritM : 0) + pExtraCritM;
 								if (extraCritRegex.test(fields.Description)) {
@@ -789,7 +789,6 @@ var Base_ClassList = {
 				action : [["bonus action", "Unarmed Strike (with Attack action)"]],
 				eval : function() {
 					AddString('Extra.Notes', 'Monk features:\n\u25C6 If I wear armor/shield, I lose Unarmored Defense, Martial Arts, and Unarmored Movement');
-					show3rdPageNotes();
 				},
 				removeeval : function() {
 					RemoveString('Extra.Notes', 'Monk features:\n\u25C6 If I wear armor/shield, I lose Unarmored Defense, Martial Arts, and Unarmored Movement');
@@ -797,9 +796,9 @@ var Base_ClassList = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (classes.known.monk && classes.known.monk.level && (v.theWea.monkweapon || v.baseWeaponName == "unarmed strike" || v.baseWeaponName == "shortsword" || (v.isMeleeWeapon && (/simple/i).test(v.theWea.type) && !(/heavy|((^|[^+-]\b)2|\btwo).?hand(ed)?s?/i).test(fields.Description)))) {
+							if (wasm_character.has_class('monk') && (v.theWea.monkweapon || v.baseWeaponName == "unarmed strike" || v.baseWeaponName == "shortsword" || (v.isMeleeWeapon && (/simple/i).test(v.theWea.type) && !(/heavy|((^|[^+-]\b)2|\btwo).?hand(ed)?s?/i).test(fields.Description)))) {
 								v.theWea.monkweapon = true;
-								var aMonkDie = function (n) { return n < 5 ? 4 : n < 11 ? 6 : n < 17 ? 8 : 10; }(classes.known.monk.level);
+								var aMonkDie = function (n) { return n < 5 ? 4 : n < 11 ? 6 : n < 17 ? 8 : 10; }(wasm_character.get_class_level('monk'));
 								try {
 									var curDie = eval_ish(fields.Damage_Die.replace('d', '*'));
 								} catch (e) {
@@ -1538,8 +1537,8 @@ var Base_ClassList = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (classes.known.rogue && classes.known.rogue.level && !v.isSpell && !v.isDC && (v.isRangedWeapon || (/\bfinesse\b/i).test(fields.Description))) {
-								v.sneakAtk = Math.ceil(classes.known.rogue.level / 2);
+							if (wasm_character.has_class('rogue') && !v.isSpell && !v.isDC && (v.isRangedWeapon || (/\bfinesse\b/i).test(fields.Description))) {
+								v.sneakAtk = Math.ceil(wasm_character.get_class_level('rogue') / 2);
 								fields.Description += (fields.Description ? '; ' : '') + 'Sneak attack ' + v.sneakAtk + 'd6';
 							};
 						},
@@ -1892,7 +1891,7 @@ var Base_ClassList = {
 						selection : ["levitate"],
 						firstCol : "atwill"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 9; },
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 9; },
 					spellChanges : {
 						"levitate" : {
 							range : "Self",
@@ -1933,7 +1932,7 @@ var Base_ClassList = {
 						selection : ["compulsion"],
 						firstCol : "oncelr"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 7; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 7; }
 				},
 				"book of ancient secrets (prereq: pact of the tome)" : {
 					name : "Book of Ancient Secrets",
@@ -1966,7 +1965,7 @@ var Base_ClassList = {
 						delete CurrentSpells['warlock-book of ancient secrets'];
 						SetStringifieds('spells'); CurrentUpdates.types.push('spells');
 					},
-					prereqeval : function(v) { return classes.known.warlock.level >= 3 && GetFeatureChoice('class', 'warlock', 'pact boon') == 'pact of the tome'; },
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 3 && GetFeatureChoice('class', 'warlock', 'pact boon') == 'pact of the tome'; },
 					calcChanges : {
 						spellAdd : [
 							function (spellKey, spellObj, spName) {
@@ -1998,7 +1997,7 @@ var Base_ClassList = {
 						selection : ["hold monster"],
 						firstCol : "atwill"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 15 && GetFeatureChoice('class', 'warlock', 'pact boon') == 'pact of the chain'; },
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 15 && GetFeatureChoice('class', 'warlock', 'pact boon') == 'pact of the chain'; },
 					spellChanges : {
 						"speak with animals" : {
 							components : "V,S",
@@ -2027,7 +2026,7 @@ var Base_ClassList = {
 						selection : ["confusion"],
 						firstCol : "oncelr"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 7; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 7; }
 				},
 				"eldritch sight" : {
 					name : "Eldritch Sight",
@@ -2116,7 +2115,7 @@ var Base_ClassList = {
 							}, ""
 						]
 					},
-					prereqeval : function(v) { return classes.known.warlock.level >= 12 && GetFeatureChoice('class', 'warlock', 'pact boon') == 'pact of the blade'; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 12 && GetFeatureChoice('class', 'warlock', 'pact boon') == 'pact of the blade'; }
 				},
 				"mask of many faces" : {
 					name : "Mask of Many Faces",
@@ -2140,7 +2139,7 @@ var Base_ClassList = {
 						selection : ["alter self"],
 						firstCol : "atwill"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 15; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 15; }
 				},
 				"minions of chaos (prereq: level 9 warlock)" : {
 					name : "Minions of Chaos",
@@ -2155,7 +2154,7 @@ var Base_ClassList = {
 						selection : ["conjure elemental"],
 						firstCol : "oncelr"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 9; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 9; }
 				},
 				"mire the mind (prereq: level 5 warlock)" : {
 					name : "Mire the Mind",
@@ -2170,7 +2169,7 @@ var Base_ClassList = {
 						selection : ["slow"],
 						firstCol : "oncelr"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 5; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 5; }
 				},
 				"misty visions" : {
 					name : "Misty Visions",
@@ -2199,7 +2198,7 @@ var Base_ClassList = {
 					source : [["SRD", 49], ["P", 111]],
 					submenu : "[warlock level  5+]",
 					action : [["action", ""]],
-					prereqeval : function(v) { return classes.known.warlock.level >= 5; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 5; }
 				},
 				"otherworldly leap (prereq: level 9 warlock)" : {
 					name : "Otherworldly Leap",
@@ -2212,7 +2211,7 @@ var Base_ClassList = {
 						selection : ["jump"],
 						firstCol : "atwill"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 9; },
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 9; },
 					spellChanges : {
 						"jump" : {
 							range : "Self",
@@ -2263,7 +2262,7 @@ var Base_ClassList = {
 						selection : ["polymorph"],
 						firstCol : "oncelr"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 7; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 7; }
 				},
 				"sign of ill omen (prereq: level 5 warlock)" : {
 					name : "Sign of Ill Omen",
@@ -2278,7 +2277,7 @@ var Base_ClassList = {
 						selection : ["bestow curse"],
 						firstCol : "oncelr"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 5; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 5; }
 				},
 				"thief of five fates" : {
 					name : "Thief of Five Fates",
@@ -2299,7 +2298,7 @@ var Base_ClassList = {
 					source : [["SRD", 50], ["P", 111]],
 					submenu : "[improves Pact of the Blade]",
 					action : ['action', 'Pact Weapon (2 attacks per action)'],
-					prereqeval : function(v) { return classes.known.warlock.level >= 5 && GetFeatureChoice('class', 'warlock', 'pact boon') == 'pact of the blade'; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 5 && GetFeatureChoice('class', 'warlock', 'pact boon') == 'pact of the blade'; }
 				},
 				"visions of distant realms (prereq: level 15 warlock)" : {
 					name : "Visions of Distant Realms",
@@ -2312,7 +2311,7 @@ var Base_ClassList = {
 						selection : ["arcane eye"],
 						firstCol : "atwill"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 15; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 15; }
 				},
 				"voice of the chain master (prereq: pact of the chain)" : {
 					name : "Voice of the Chain Master",
@@ -2322,7 +2321,7 @@ var Base_ClassList = {
 					]),
 					source : [["SRD", 50], ["P", 111]],
 					submenu : "[improves Pact of the Chain]",
-					prereqeval : function(v) { return classes.known.warlock.level >= 3 && GetFeatureChoice('class', 'warlock', 'pact boon') == 'pact of the chain'; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 3 && GetFeatureChoice('class', 'warlock', 'pact boon') == 'pact of the chain'; }
 				},
 				"whispers of the grave (prereq: level 9 warlock)" : {
 					name : "Whispers of the Grave",
@@ -2335,7 +2334,7 @@ var Base_ClassList = {
 						selection : ["speak with dead"],
 						firstCol : "atwill"
 					}],
-					prereqeval : function(v) { return classes.known.warlock.level >= 9; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 9; }
 				},
 				"witch sight (prereq: level 15 warlock)" : {
 					name : "Witch Sight",
@@ -2343,7 +2342,7 @@ var Base_ClassList = {
 					source : [["SRD", 50], ["P", 111]],
 					submenu : "[warlock level 15+]",
 					vision : [["Witch sight", 30]],
-					prereqeval : function(v) { return classes.known.warlock.level >= 15; }
+					prereqeval : function(v) { return wasm_character.get_class_level('warlock') >= 15; }
 				}
 			},
 			"pact boon" : {
@@ -2595,6 +2594,7 @@ var Base_ClassSubList = {
 	"bard-college of lore" : {
 		regExpSearch : /^(?=.*(college|bard|minstrel|troubadour|jongleur))(?=.*lore).*$/i,
 		subname : "College of Lore",
+		fullname : "Bard (College of Lore)",
 		source : [["SRD", 13], ["P", 54]],
 		features : {
 			"subclassfeature3" : {
@@ -2636,6 +2636,7 @@ var Base_ClassSubList = {
 	"cleric-life domain" : {
 		regExpSearch : /^(?=.*(cleric|priest|clergy|acolyte))(?=.*\b(life|living|healing)\b).*$/i,
 		subname : "Life Domain",
+		fullname : "Cleric (Life Domain)",
 		source : [["SRD", 17], ["P", 60]],
 		spellcastingExtra : ["bless", "cure wounds", "lesser restoration", "spiritual weapon", "beacon of hope", "revivify", "death ward", "guardian of faith", "mass cure wounds", "raise dead"],
 		features : {
@@ -2747,8 +2748,8 @@ var Base_ClassSubList = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (classes.known.cleric && v.isWeapon) {
-								fields.Description += (fields.Description ? '; ' : '') + 'Once per turn +' + (classes.known.cleric.level < 14 ? 1 : 2) + 'd8 radiant damage';
+							if (wasm_character.has_class('cleric') && v.isWeapon) {
+								fields.Description += (fields.Description ? '; ' : '') + 'Once per turn +' + (wasm_character.get_class_level('cleric') < 14 ? 1 : 2) + 'd8 radiant damage';
 							}
 						},
 						"Once per turn, I can have one of my weapon attacks that hit do extra radiant damage."
@@ -2910,7 +2911,7 @@ var Base_ClassSubList = {
 				calcChanges : {
 					atkAdd : [
 						function (fields, v) {
-							if (!v.isSpell && !v.CritChance && !v.isDC && classes.known.fighter && classes.known.fighter.level < 15) {
+							if (!v.isSpell && !v.CritChance && !v.isDC && wasm_character.get_class_level('fighter') < 15) {
 								fields.Description += (fields.Description ? '; ' : '') + 'Crit on 19-20';
 								v.CritChance = 19;
 							};
@@ -3034,7 +3035,7 @@ var Base_ClassSubList = {
 				calcChanges : {
 					atkCalc : [
 						function (fields, v, output) {
-							if (classes.known.paladin && classes.known.paladin.level > 2 && !v.isSpell && (/^(?=.*sacred)(?=.*weapon).*$/i).test(v.WeaponTextName)) {
+							if (wasm_character.get_class_level('paladin') > 2 && !v.isSpell && (/^(?=.*sacred)(?=.*weapon).*$/i).test(v.WeaponTextName)) {
 								output.extraHit += wasm_character.get_ability_modifier('Cha');
 							};
 						},
@@ -3332,8 +3333,8 @@ var Base_ClassSubList = {
 				]),
 				calcChanges : {
 					hp : function (totalHD) {
-						if (classes.known.sorcerer) {
-							return [classes.known.sorcerer.level, "Draconic Resilience (sorcerer level)"];
+						if (wasm_character.has_class('sorcerer')) {
+							return [wasm_character.get_class_level('sorcerer'), "Draconic Resilience (sorcerer level)"];
 						}
 					}
 				},
@@ -3367,7 +3368,7 @@ var Base_ClassSubList = {
 					calcChanges : {
 						atkCalc : [
 							function (fields, v, output) {
-								if (classes.known.sorcerer && classes.known.sorcerer.level > 5 && v.isSpell && (/acid/i).test(fields.Damage_Type)) {
+								if (wasm_character.get_class_level('sorcerer') > 5 && v.isSpell && (/acid/i).test(fields.Damage_Type)) {
 									output.extraDmg += wasm_character.get_ability_modifier('Cha');
 								};
 							},
@@ -3390,7 +3391,7 @@ var Base_ClassSubList = {
 					calcChanges : {
 						atkCalc : [
 							function (fields, v, output) {
-								if (classes.known.sorcerer && classes.known.sorcerer.level > 5 && v.isSpell && (/cold/i).test(fields.Damage_Type)) {
+								if (wasm_character.get_class_level('sorcerer') > 5 && v.isSpell && (/cold/i).test(fields.Damage_Type)) {
 									output.extraDmg += wasm_character.get_ability_modifier('Cha');
 								};
 							},
@@ -3413,7 +3414,7 @@ var Base_ClassSubList = {
 					calcChanges : {
 						atkCalc : [
 							function (fields, v, output) {
-								if (classes.known.sorcerer && classes.known.sorcerer.level > 5 && v.isSpell && (/fire/i).test(fields.Damage_Type)) {
+								if (wasm_character.get_class_level('sorcerer') > 5 && v.isSpell && (/fire/i).test(fields.Damage_Type)) {
 									output.extraDmg += wasm_character.get_ability_modifier('Cha');
 								};
 							},
@@ -3436,7 +3437,7 @@ var Base_ClassSubList = {
 					calcChanges : {
 						atkCalc : [
 							function (fields, v, output) {
-								if (classes.known.sorcerer && classes.known.sorcerer.level > 5 && v.isSpell && (/lightning/i).test(fields.Damage_Type)) {
+								if (wasm_character.get_class_level('sorcerer') > 5 && v.isSpell && (/lightning/i).test(fields.Damage_Type)) {
 									output.extraDmg += wasm_character.get_ability_modifier('Cha');
 								};
 							},
@@ -3459,7 +3460,7 @@ var Base_ClassSubList = {
 					calcChanges : {
 						atkCalc : [
 							function (fields, v, output) {
-								if (classes.known.sorcerer && classes.known.sorcerer.level > 5 && v.isSpell && (/poison/i).test(fields.Damage_Type)) {
+								if (wasm_character.get_class_level('sorcerer') > 5 && v.isSpell && (/poison/i).test(fields.Damage_Type)) {
 									output.extraDmg += wasm_character.get_ability_modifier('Cha');
 								};
 							},

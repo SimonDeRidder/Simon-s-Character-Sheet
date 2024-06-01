@@ -1,11 +1,10 @@
-use std::collections::HashMap;
-
+use leptos::prelude::{Get as _, GetUntracked as _, Read as _};
 use serde::ser::SerializeSeq as _;
+use std::collections::HashMap;
 
 use crate::config::CONFIG;
 use crate::domain::types::{AbilityPart, AbilityValue, Modifier};
 use crate::utils::convert_text_to_bold;
-use leptos::prelude::{Get as _, GetUntracked as _, Read as _};
 
 const DEFAULT_BASE_ABILITY_SCORE: AbilityPart = 10;
 
@@ -18,7 +17,7 @@ pub struct Abilities {
 	pub max_sources: leptos::prelude::RwSignal<Vec<AbilityLimitSource>>,
 }
 impl Abilities {
-	pub fn new() -> Self {
+	pub fn default() -> Self {
 		Self::from_sources(&get_default_sources(), &Vec::new(), &Vec::new())
 	}
 
@@ -454,7 +453,7 @@ mod tests {
 
 	use crate::config::CONFIG;
 
-	use super::{calc_ability_modifier, Abilities, AbilitySource, RegularAbilitySource};
+	use super::{Abilities, AbilitySource, RegularAbilitySource, calc_ability_modifier};
 
 	#[test]
 	fn test_calc_ability_from_sources() {

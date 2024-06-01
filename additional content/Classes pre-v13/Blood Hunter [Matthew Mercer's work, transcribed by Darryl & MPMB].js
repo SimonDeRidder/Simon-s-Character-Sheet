@@ -116,22 +116,22 @@ ClassList["blood hunter"] = {
 				source : ["MM:BH", 3],
 				name : "Rite of the Roar",
 				description : "\n   " + "I can select thunder as the damage type for my crimson rite damage die",
-				prereqeval : "classes.known['blood hunter'].level >= 14"
+				prereqeval : "wasm_character.get_class_level('blood hunter') >= 14"
 			},
 			"oracle (esoteric rite)" : {
 				source : ["MM:BH", 3],
 				name : "Rite of the Oracle",
 				description : "\n   " + "I can select psychic as the damage type for my crimson rite damage die",
-				prereqeval : "classes.known['blood hunter'].level >= 14"
+				prereqeval : "wasm_character.get_class_level('blood hunter') >= 14"
 			},
 			"dead (esoteric rite)" : {
 				source : ["MM:BH", 3],
 				name : "Rite of the Dead",
 				description : "\n   " + "I can select necrotic as the damage type for my crimson rite damage die",
-				prereqeval : "classes.known['blood hunter'].level >= 14"
+				prereqeval : "wasm_character.get_class_level('blood hunter') >= 14"
 			},
 			calcChanges : {
-				atkAdd : ["if (classes.known['blood hunter'] && !isSpell && (/\\brite\\b/i).test(inputText)) {fields.Description += (fields.Description ? '; ' : '') + '+1d' + (classes.known['blood hunter'].level < 6 ? 4 : classes.known['blood hunter'].level < 11 ? 6 : classes.known['blood hunter'].level < 16 ? 8 : 10) + ' rite damage'; }; ", "If I include the word 'Rite' in a weapon's name, it gets my crimson rite damage die added in its description."]
+				atkAdd : ["if (wasm_character.has_class('blood hunter') && !isSpell && (/\\brite\\b/i).test(inputText)) {fields.Description += (fields.Description ? '; ' : '') + '+1d' + (wasm_character.get_class_level('blood hunter') < 6 ? 4 : wasm_character.get_class_level('blood hunter') < 11 ? 6 : wasm_character.get_class_level('blood hunter') < 16 ? 8 : 10) + ' rite damage'; }; ", "If I include the word 'Rite' in a weapon's name, it gets my crimson rite damage die added in its description."]
 			}
 		},
 		"fighting style" : {
@@ -411,22 +411,22 @@ ClassSubList["blood hunter-order of the profane soul"] = {
 			"the archfey" : {
 				name : "Otherwordly Patron: the Archfey",
 				description : "\n   " + "When I do rite damage, the target loses invisibility, 1/2 \u0026 3/4 cover until my next turn",
-				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the archfey']; if (classes.known['blood hunter'].level >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (classes.known['blood hunter'].level >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
+				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the archfey']; if (wasm_character.get_class_level('blood hunter') >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (wasm_character.get_class_level('blood hunter') >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
 			},
 			"the fiend" : {
 				name : "Otherwordly Patron: the Fiend",
 				description : "\n   " + "When using the Rite of the Flame I may reroll a 1 on the rite damage die, once",
-				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the fiend']; if (classes.known['blood hunter'].level >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (classes.known['blood hunter'].level >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
+				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the fiend']; if (wasm_character.get_class_level('blood hunter') >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (wasm_character.get_class_level('blood hunter') >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
 			},
 			"the great old one" : {
 				name : "Otherwordly Patron: the Great Old One",
 				description : "\n   " + "When I do a critical hit, the target Wis save or frightened of me until my next turn end",
-				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the great old one']; if (classes.known['blood hunter'].level >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (classes.known['blood hunter'].level >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
+				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the great old one']; if (wasm_character.get_class_level('blood hunter') >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (wasm_character.get_class_level('blood hunter') >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
 			},
 			"the undying" : {
 				name : "Otherwordly Patron: the Undying",
 				description : "\n   " + "When I kill a hostile with a weapon attack, I regain HP equal to my rite damage die",
-				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the undying']; if (classes.known['blood hunter'].level >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (classes.known['blood hunter'].level >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
+				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the undying']; if (wasm_character.get_class_level('blood hunter') >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (wasm_character.get_class_level('blood hunter') >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
 			},
 			"the celestial" : {
 				name : "Otherwordly Patron: the Celestial",
@@ -436,12 +436,12 @@ ClassSubList["blood hunter-order of the profane soul"] = {
 					return n < 3 ? "" : "heal " + die + " + Wisdom modifier";
 				}),
 				action : [["bonus action", ""]],
-				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the celestial']; if (classes.known['blood hunter'].level >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (classes.known['blood hunter'].level >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
+				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the celestial']; if (wasm_character.get_class_level('blood hunter') >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (wasm_character.get_class_level('blood hunter') >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
 			},
 			"the hexblade" : {
 				name : "Otherwordly Patron: the Hexblade",
 				description : "\n   " + "My next attack vs. a creature I target with a blood curse, is a critical hit on a 19 or 20",
-				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the hexblade']; if (classes.known['blood hunter'].level >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (classes.known['blood hunter'].level >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
+				eval : "var ToAdd = ['blood hunter', 'subclassfeature7.1', 'the hexblade']; if (wasm_character.get_class_level('blood hunter') >= 7 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)} ToAdd[1] = 'subclassfeature15'; ToAdd[2] += 2; if (wasm_character.get_class_level('blood hunter') >= 15 && What('Class Features Remember').indexOf(ToAdd.toString()) === -1) {ClassFeatureOptions(ToAdd)};"
 			}
 		},
 		"subclassfeature3.1" : {
@@ -837,7 +837,7 @@ ClassSubList["blood hunter-order of the lycan"] = {
 			changeeval : "await UpdateHybridForm();",
 			calcChanges : {
 				atkAdd : [
-					"var hybridDie = function(n) {return n < 3 ? 1 : n < 11 ? 6 : n < 18 ? 8 : 10;}; if (classes.known['blood hunter'] && classes.known['blood hunter'].level && ((/predatory strike/i).test(WeaponName) || ((/unarmed strike/i).test(WeaponName) && (/\\bhybrid\\b/i).test(inputText)))) { var aHybridDie = hybridDie(classes.known['blood hunter'].level); try {var curDie = eval(fields.Damage_Die.replace('d', '*'));} catch (e) {var curDie = 'x';}; if (isNaN(curDie) || curDie < aHybridDie) {fields.Damage_Die = '1d' + aHybridDie;}; fields.Mod = StrDex; if ((/unarmed strike/i).test(WeaponName)) { fields.Damage_Type = 'slashing'; }; }; ",
+					"var hybridDie = function(n) {return n < 3 ? 1 : n < 11 ? 6 : n < 18 ? 8 : 10;}; if (wasm_character.has_class('blood hunter') && ((/predatory strike/i).test(WeaponName) || ((/unarmed strike/i).test(WeaponName) && (/\\bhybrid\\b/i).test(inputText)))) { var aHybridDie = hybridDie(wasm_character.get_class_level('blood hunter')); try {var curDie = eval(fields.Damage_Die.replace('d', '*'));} catch (e) {var curDie = 'x';}; if (isNaN(curDie) || curDie < aHybridDie) {fields.Damage_Die = '1d' + aHybridDie;}; fields.Mod = StrDex; if ((/unarmed strike/i).test(WeaponName)) { fields.Damage_Type = 'slashing'; }; }; ",
 					"In hybrid form, my unarmed strikes (predatory strikes) do slashing damage, have an increaded damage die based on my Blood Hunter level, and can use Dexterity instead of Strength.\n \u2022 If I include the word 'Hybrid' in a melee weapon's name or description, or if it is 'preditory strikes', it gets treated as an attack while in Hybrid form. Thus, adding half my proficiency bonus (rounded down) to the attack's damage."
 				],
 				atkCalc : ["if ((/predatory strike/i).test(WeaponName) || (isMeleeWeapon && (/\\bhybrid\\b/i).test(WeaponText))) { output.bDmg += Math.floor(this.getField('Proficiency Bonus').submitName/2); }; ", ""]
@@ -928,7 +928,7 @@ UpdateHybridForm = async function() {
 	};
 
 	var BHlevelOld = classes.old["blood hunter"] ? classes.old["blood hunter"].classlevel : 0;
-	var BHlevelNew = classes.known["blood hunter"] ? classes.known["blood hunter"].level : 0;
+	var BHlevelNew = wasm_character.get_class_level('blood hunter');
 	if (BHlevelOld <= 2 && BHlevelNew <= 2) return;
 
 	//a funtion to create the full text for the hybrid feature

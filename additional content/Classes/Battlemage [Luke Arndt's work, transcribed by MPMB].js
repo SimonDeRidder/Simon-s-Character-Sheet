@@ -209,15 +209,16 @@ ClassList["battlemage"] = {
 			},
 			changeeval : function () {
 				var nrgType = GetFeatureChoice('class', 'battlemage', 'energy specialization');
-				if (!nrgType || !CurrentClasses.battlemage) return;
+				if (!nrgType || !wasm_character.has_class("battlemage")) return;
 				nrgType += "\u200A damage";
 				var descrNGRtype = function (obj) {
 					if (obj.description) {
 						obj.description = obj.description.replace(/\[energy damage\]/ig, nrgType);
 					}
 				}
-				for (var key in CurrentClasses.battlemage.features) {
-					var fea = CurrentClasses.battlemage.features[key];
+				let classFeatures = adapter_helper_get_class_property("battlemage", "features");
+				for (var key in classFeatures) {
+					var fea = classFeatures[key];
 					descrNGRtype(fea);
 					if (fea.choices) {
 						for (var i = 0; i < fea.choices.length; i++) {
@@ -411,7 +412,7 @@ ClassList["battlemage"] = {
 			calcChanges : {
 				atkCalc : [
 					function (fields, v, output) {
-						if (classes.known.battlemage && classes.known.battlemage.level > 19 && v.isSpell) {
+						if (wasm_character.get_class_level('battlemage') > 19 && v.isSpell) {
 							var nrgType = GetFeatureChoice('class', 'battlemage', 'energy specialization');
 							if (nrgType && fields.Damage_Type.toLowerCase().indexOf(nrgType) != -1) output.extraDmg += wasm_character.get_ability_modifier('Int');
 						};
@@ -590,7 +591,7 @@ AddSubClass("battlemage", "mystic marksman", {
 			calcChanges : {
 				atkAdd : [
 					function (fields, v) {
-						if (CurrentClasses.battlemage && v.theWea.isArcanePuncture) {
+						if (wasm_character.has_class("battlemage") && v.theWea.isArcanePuncture) {
 							var nrgType = GetFeatureChoice('class', 'battlemage', 'energy specialization');
 							if (nrgType) fields.Damage_Type = nrgType;
 						};

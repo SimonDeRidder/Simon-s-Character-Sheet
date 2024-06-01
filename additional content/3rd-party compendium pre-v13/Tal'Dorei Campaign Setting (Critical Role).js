@@ -534,7 +534,7 @@ FeatsList["spelldriver-tdcs"] = {
 	source : ["TDCS", 109],
 	description : "I am no longer limited to casting only one non-cantrip spell in a turn. However, if I cast multiple non-cantrip spells in a turn, only one of them can be of 3rd level or higher.",
 	prerequisite : "Character level 8th or higher and the ability to cast at least one spell",
-	prereqeval : "CurrentSpells.toSource() !== '({})' && What('Character Level') >= 8"
+	prereqeval : "CurrentSpells.toSource() !== '({})' && wasm_character.get_level() >= 8"
 };
 FeatsList["thrown arms master-tdcs"] = {
 	name : "Thrown Arms Master",

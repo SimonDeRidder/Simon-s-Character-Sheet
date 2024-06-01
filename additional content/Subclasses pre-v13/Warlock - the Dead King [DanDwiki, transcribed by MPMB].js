@@ -109,7 +109,6 @@ warlock_the_dead_king_functions = {
 		Value(prefix + 'Comp.Race', skelZomb);
 		var theType = tDoc.getField(prefix + 'Comp.Type');
 		theType.readonly = true;
-		if (!typePF) theType.textSize = 0;
 		theType.value = 'Undead Cohort';
 		for (var a = 1; a <= 3; a++) {
 			AddToModFld(prefix + 'BlueText.Comp.Use.Attack.' + a + '.To Hit Bonus', "oProf", false, "Undead Cohort", "The Undead Cohort adds the warlock's proficiency bonus (oProf) to the to hit bonus of its attacks.");
