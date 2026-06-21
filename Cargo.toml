@@ -1,6 +1,6 @@
 [package]
 name = "simons_dnd_character_sheet"
-version = "0.2.0"
+version = "0.4.0"
 authors = ["Simon"]
 edition = "2024"
 
@@ -16,12 +16,13 @@ wasm-bindgen-futures = "0.4.58"
 leptos = { version = "=0.8.15", features = ["csr"] }
 any_spawner = "0.3.0"
 leptos-use = "0.18.0"
-regex = "1.12.2"
+regex = "=1.12.2"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 serde = "=1.0.228"
 gloo-utils = { version = "0.2.0", features = ["serde"] }
 uuid = { version = "1.20.0", features = ["v4", "js"] }
 phf = { version = "0.13.1", features = ["macros"] }
+diacritics = "0.2.2"
 
 [dependencies.web-sys]
 version = "0.3.85"
@@ -45,8 +46,13 @@ features = [
 ]
 
 [dev-dependencies]
-wasm-bindgen-cli = "=0.2.108"
+wasm-bindgen-cli = "=0.2.108"  # version should match in this file (wasm-bindgen above), README.md and workflows
 wasm-bindgen-test = "0.3.58"
+
+[build-dependencies]
+regex = "=1.12.2"
+serde = "=1.0.228"
+serde_yaml = "=0.9.34"
 
 [profile.release]
 opt-level = "s"

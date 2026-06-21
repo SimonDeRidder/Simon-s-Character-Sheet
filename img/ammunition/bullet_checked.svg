@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="10px" height="12px">
+
+<circle cx="5" cy="6" r="4" stroke="black" stroke-width="0.75" fill="black" />
+
+<g id="red_cross" fill="none" stroke="#8c3d41" stroke-width="1.5">
+	<path d="M 2.5 3.5 L 7.5 8.5"/>
+	<path d="M 2.5 8.5 L 7.5 3.5"/>
+</g>
+
+</svg>

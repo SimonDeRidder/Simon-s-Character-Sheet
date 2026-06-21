@@ -8,6 +8,8 @@ use serde::ser::SerializeStruct as _;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use domain::{general_info::GeneralInfo, stats::Stats};
+
+use crate::domain::equipment::Equipment;
 // use render::context_menu::remove_all_context_menus;
 
 // Called when the wasm module is instantiated
@@ -23,6 +25,7 @@ pub struct Character {
 	startup: leptos::prelude::RwSignal<bool>, // Temporary, to delay effects until after JS global variables are initiated
 	general_info: GeneralInfo,
 	stats: Stats,
+	equipment: Equipment,
 }
 
 #[wasm_bindgen]
@@ -34,6 +37,7 @@ impl Character {
 			startup: leptos::prelude::RwSignal::new(true),
 			general_info: GeneralInfo::default(),
 			stats: Stats::default(),
+			equipment: Equipment::default(),
 		}
 	}
 }
@@ -47,6 +51,7 @@ impl serde::Serialize for Character {
 		serde_state.serialize_field("config", &CONFIG)?;
 		serde_state.serialize_field("general_info", &self.general_info)?;
 		serde_state.serialize_field("stats", &self.stats)?;
+		serde_state.serialize_field("equipment", &self.equipment)?;
 		serde_state.end()
 	}
 }
@@ -60,6 +65,7 @@ impl<'de> serde::Deserialize<'de> for Character {
 			ConfigFld,
 			GeneralInfoFld,
 			StatsFld,
+			EquipmentFld,
 			Ignore,
 		}
 		struct FieldVisitor;
@@ -78,6 +84,7 @@ impl<'de> serde::Deserialize<'de> for Character {
 					"config" => Ok(Field::ConfigFld),
 					"general_info" => Ok(Field::GeneralInfoFld),
 					"stats" => Ok(Field::StatsFld),
+					"equipment" => Ok(Field::EquipmentFld),
 					_ => Ok(Field::Ignore),
 				}
 			}
@@ -107,6 +114,7 @@ impl<'de> serde::Deserialize<'de> for Character {
 				let mut config_field: Option<Config> = None;
 				let mut general_info_field: Option<GeneralInfo> = None;
 				let mut stats_field: Option<Stats> = None;
+				let mut equipment_field: Option<Equipment> = None;
 				while let Some(key) = serde::de::MapAccess::next_key::<Field>(&mut map)? {
 					match key {
 						Field::ConfigFld => {
@@ -128,6 +136,12 @@ impl<'de> serde::Deserialize<'de> for Character {
 							}
 							stats_field = Some(serde::de::MapAccess::next_value::<Stats>(&mut map)?);
 						},
+						Field::EquipmentFld => {
+							if Option::is_some(&equipment_field) {
+								return Err(<A::Error as serde::de::Error>::duplicate_field("equipment"));
+							}
+							equipment_field = Some(serde::de::MapAccess::next_value::<Equipment>(&mut map)?);
+						},
 						_ => {
 							let _ = serde::de::MapAccess::next_value::<serde::de::IgnoredAny>(&mut map)?;
 						},
@@ -141,10 +155,15 @@ impl<'de> serde::Deserialize<'de> for Character {
 					Some(stats) => Ok(stats),
 					None => Err(serde::de::Error::missing_field("stats")),
 				}?;
+				let equipment = match equipment_field {
+					Some(equipment) => Ok(equipment),
+					None => Err(serde::de::Error::missing_field("equipment")),
+				}?;
 				Ok(Character {
 					startup: leptos::prelude::RwSignal::new(true),
 					general_info,
 					stats,
+					equipment,
 				})
 			}
 		}
@@ -152,7 +171,7 @@ impl<'de> serde::Deserialize<'de> for Character {
 		serde::Deserializer::deserialize_struct(
 			deserializer,
 			"Character",
-			&["general_info", "stats"],
+			&["general_info", "stats", "equipment"],
 			Visitor {},
 		)
 	}

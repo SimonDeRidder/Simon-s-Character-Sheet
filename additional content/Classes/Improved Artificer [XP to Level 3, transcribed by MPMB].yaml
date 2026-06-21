@@ -1,0 +1,11 @@
+source_id: XPtL3:IA
+source_name: "XP to Level 3: Improved Artificer"
+ammunition:
+  - id: arcanic_firearm_rounds
+    name: Arcanic Firearm Rounds
+    weight: 0.2
+    icon: Bullet
+    default_amount: 50
+    source_page: 5
+    cost_cp: 10
+    pattern: arcane\s+magazines?|arcanic\s+firearm\s+rounds?

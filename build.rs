@@ -1,0 +1,364 @@
+/// This build script uses any content provided in the `content` folder as YAML files
+/// and combine them into config_template.rs to form config.rs.
+/// This is done before compilation so the rest of the code can then use
+/// the content definitions as a static constant.
+mod config_template;
+use regex::Regex;
+use std::collections::HashMap;
+use std::fs::{self, File};
+use std::io::{BufRead as _, BufReader, LineWriter, Write};
+use std::process::Command;
+
+// single source structs
+
+#[derive(serde::Deserialize)]
+struct ContentSingle {
+	source_id: String,
+	#[allow(dead_code)]
+	source_name: String,
+	#[serde(default)]
+	ammunition: Vec<AmmunitionDefinitionSingle>,
+	#[serde(default)]
+	ammunition_variants: Vec<AmmunitionVariantSingle>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct AmmunitionDefinitionSingle {
+	id: String,
+	name: String,
+	weight: f64,
+	icon: config_template::AmmunitionIcon,
+	default_amount: u8,
+	source_page: u16,
+	cost_cp: f64, // CP
+	pattern: String,
+}
+
+#[derive(serde::Deserialize)]
+pub struct AmmunitionVariantSingle {
+	id: String,
+	name: String,
+	source_page: u16,
+	description: String,
+	pattern_prefix: String,
+}
+
+// joint source structs
+
+trait ToSource {
+	fn to_source(&self, indent: &'static str) -> String;
+}
+
+struct ContentJoint {
+	ammunition: Vec<AmmunitionDefinitionJoint>,
+	ammunition_variants: Vec<AmmunitionVariantJoint>,
+}
+
+struct SourceJoint {
+	id: String,
+	page: u16,
+}
+impl ToSource for SourceJoint {
+	fn to_source(&self, indent: &'static str) -> String {
+		format!("{}Source {{id: \"{}\", page: {}}}", indent, self.id, self.page)
+	}
+}
+
+struct AmmunitionDefinitionJoint {
+	id: String,
+	name: String,
+	weight: f64,
+	icon: config_template::AmmunitionIcon,
+	default_amount: u8,
+	source: SourceJoint,
+	cost_cp_10: u32, // 0.1 CP
+	pattern: String,
+}
+impl AmmunitionDefinitionJoint {
+	fn from_single(single_def: &AmmunitionDefinitionSingle, source_id: &str) -> Self {
+		Self {
+			id: single_def.id.clone(),
+			name: single_def.name.clone(),
+			weight: single_def.weight,
+			icon: single_def.icon.clone(),
+			default_amount: single_def.default_amount,
+			source: SourceJoint {
+				id: source_id.to_owned(),
+				page: single_def.source_page,
+			},
+			cost_cp_10: (single_def.cost_cp * 10.0).round() as u32,
+			pattern: single_def.pattern.clone(),
+		}
+	}
+}
+
+impl ToSource for AmmunitionDefinitionJoint {
+	fn to_source(&self, indent: &'static str) -> String {
+		format!(
+			"{}AmmunitionDefinition{{id: \"{}\", name: \"{}\", weightx200: {}, icon: AmmunitionIcon::{:?}, default_amount: {}, source: {}, cost_cp_10: {}, pattern: r\"{}\"}}",
+			indent,
+			self.id,
+			self.name,
+			(self.weight * 200.0).round() as u32,
+			self.icon,
+			self.default_amount,
+			self.source.to_source(""),
+			self.cost_cp_10,
+			self.pattern
+		)
+	}
+}
+
+pub struct AmmunitionVariantJoint {
+	id: String,
+	name: String,
+	source: SourceJoint,
+	description: String,
+	pattern_prefix: String,
+}
+impl AmmunitionVariantJoint {
+	fn from_single(single_def: &AmmunitionVariantSingle, source_id: &str) -> Self {
+		Self {
+			id: single_def.id.clone(),
+			name: single_def.name.clone(),
+			source: SourceJoint {
+				id: source_id.to_owned(),
+				page: single_def.source_page,
+			},
+			description: single_def.description.clone(),
+			pattern_prefix: single_def.pattern_prefix.clone(),
+		}
+	}
+}
+
+impl ToSource for AmmunitionVariantJoint {
+	fn to_source(&self, indent: &'static str) -> String {
+		format!(
+			"{}AmmunitionVariant{{id: \"{}\", name: \"{}\", source: {}, description: \"{}\", pattern_prefix: r\"{}\"}}",
+			indent,
+			self.id,
+			self.name,
+			self.source.to_source(""),
+			self.description,
+			self.pattern_prefix
+		)
+	}
+}
+
+// logic
+
+struct BuildError {
+	message: String,
+}
+impl From<std::io::Error> for BuildError {
+	fn from(value: std::io::Error) -> Self {
+		Self {
+			message: format!("{}: {}", value.kind(), value),
+		}
+	}
+}
+
+fn main() -> Result<(), u8> {
+	// notify to rebuild on changes to input files
+	println!("cargo::rerun-if-changed=config_template.rs");
+	println!("cargo::rerun-if-changed=content");
+
+	// read contents to vec of Content
+	let content = match _read_content_files() {
+		Ok(file_) => file_,
+		Err(err_) => {
+			println!("cargo::error=Unable load content files: {}", err_.message);
+			return Err(1);
+		},
+	};
+
+	let template_file = match File::open("config_template.rs") {
+		Ok(file_) => file_,
+		Err(err_) => {
+			println!("cargo::error=Unable to open config template: {err_}");
+			return Err(2);
+		},
+	};
+	// Writing files outside OUT_DIR is frowned upon because files in .cargo/registry should be immutable
+	// it's fine here since this project is not to be used as a dependency.
+	let config_file = match File::create("src/config.rs") {
+		Ok(file_) => file_,
+		Err(err_) => {
+			println!("cargo::error=Unable to create config file: {err_}");
+			return Err(3);
+		},
+	};
+	let reader = BufReader::new(template_file);
+	let mut writer = LineWriter::new(config_file);
+
+	// prefix
+	match writer.write_all(b"/// This module is auto-generated by build.rs, don't edit it directly.\nuse leptos::leptos_dom::logging::console_error;\n\n") {
+		Ok(()) => (),
+		Err(err_) => {
+			println!("cargo::error=Error writing prefix to config file: {err_}");
+			return Err(4);
+		},
+	};
+	// copy over from config_template.rs
+	let dead_code_pattern = Regex::new(r"\s*#\[allow\(dead_code\)\]").unwrap();
+	let ammunition_len_pattern = Regex::new(r"(.*)0], // \{\{AMMUNITION_LENGTH\}\}").unwrap();
+	let ammunition_pattern = Regex::new(r"\s*// \{\{INSERT AMMUNITION\}\}").unwrap();
+	let ammunition_variants_len_pattern =
+		Regex::new(r"(.*)0], // \{\{AMMUNITION_VARIANTS_LENGTH\}\}").unwrap();
+	let ammunition_variants_pattern = Regex::new(r"\s*// \{\{INSERT AMMUNITION_VARIANTS\}\}").unwrap();
+	for (input_line_ind, line_result) in reader.lines().enumerate() {
+		let line = match line_result {
+			Ok(line_) => line_,
+			Err(err_) => {
+				println!("cargo::error=Error reading line {input_line_ind} of config template: {err_}");
+				return Err(5);
+			},
+		};
+		match match line {
+			line if dead_code_pattern.is_match(&line) => {
+				continue;
+			},
+			ref line if ammunition_len_pattern.is_match(line) => {
+				let prefix = ammunition_len_pattern.captures(line).unwrap().get(1).unwrap();
+				writeln!(writer, "{}{}],", prefix.as_str(), content.ammunition.len()).map_err(BuildError::from)
+			},
+			ref line if ammunition_pattern.is_match(line) => {
+				_write_vec_to_lines(&mut writer, "\t\t\t\t", &content.ammunition)
+			},
+			ref line if ammunition_variants_len_pattern.is_match(line) => {
+				let prefix = ammunition_variants_len_pattern
+					.captures(line)
+					.unwrap()
+					.get(1)
+					.unwrap();
+				writeln!(writer, "{}{}],", prefix.as_str(), content.ammunition_variants.len())
+					.map_err(BuildError::from)
+			},
+			ref line if ammunition_variants_pattern.is_match(line) => {
+				_write_vec_to_lines(&mut writer, "\t\t\t\t", &content.ammunition_variants)
+			},
+			_ => writeln!(writer, "{}", line).map_err(BuildError::from),
+		} {
+			Ok(()) => (),
+			Err(err_) => {
+				println!("cargo::error=Error writing line {line} to config file: {}", err_.message);
+				return Err(6);
+			},
+		}
+	}
+	// suffix
+	match writer.write_all(b"impl serde::Serialize for Config {\n	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>\n	where\n		S: serde::Serializer,\n	{\n		serializer.serialize_str(&self.get_hash())\n	}\n}\n\nimpl<'de> serde::Deserialize<'de> for Config {\n	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>\n	where\n		D: serde::Deserializer<'de>,\n	{\n		let hash = String::deserialize(deserializer)?;\n		let config = Config::get();\n		let current_hash = config.get_hash();\n		if !hash.is_empty() && (current_hash != hash) {\n			console_error(\n				format!(\n					\"Loaded hash: {}, current hash: {}, will attempt to continue loading.\",\n					hash, current_hash\n				)\n				.as_str(),\n			);\n			web_sys::window().unwrap().alert_with_message(\n				\"Config of the saved file is not the same as the current config. Will attempt to load the file with the new config.\"\n			).unwrap();\n		}\n		Ok(config)\n	}\n}\n\npub static CONFIG: Config = Config::get();\n") {
+		Ok(()) => (),
+		Err(err_) => {
+			println!("cargo::error=Error writing prefix to config file: {err_}");
+			return Err(7);
+		},
+	};
+	// format the config file for good measure
+	match Command::new("rustfmt").arg("src/config.rs").output() {
+		Ok(_) => (),
+		Err(err_) => {
+			println!("cargo::warning=Error formatting config file: {err_}");
+		},
+	};
+	Ok(())
+}
+
+fn _read_content_files() -> Result<ContentJoint, BuildError> {
+	let mut content_file_paths = fs::read_dir("content")?
+		.map(|content_file| content_file.map(|file| file.path()))
+		.collect::<Vec<_>>();
+	content_file_paths.sort_by_key(|path| {
+		path.as_ref()
+			.map(|p| p.to_str().map(|ps| ps.to_string()))
+			.unwrap_or(None)
+	});
+	let mut contents = Vec::new();
+	for content_file_path in content_file_paths {
+		let file_path = content_file_path?;
+		let file_path_str = String::from(file_path.to_str().unwrap_or("unknown"));
+		let file_content = match serde_yaml::from_reader(File::open(file_path)?) {
+			Ok(fc) => fc,
+			Err(err) => {
+				let err_line = err.location().map_or(0, |loc| loc.line());
+				let err_col = err.location().map_or(0, |loc| loc.column());
+				return Err(BuildError {
+					message: format!("{}[{}:{}]: {}", file_path_str, err_line, err_col, err),
+				});
+			},
+		};
+		contents.push(file_content);
+	}
+	Ok(_join_content(&contents))
+}
+
+fn _join_content(single_contents: &Vec<ContentSingle>) -> ContentJoint {
+	ContentJoint {
+		ammunition: _join_ammunition(single_contents),
+		ammunition_variants: _join_ammunition_variants(single_contents),
+	}
+}
+
+fn _join_ammunition(single_contents: &Vec<ContentSingle>) -> Vec<AmmunitionDefinitionJoint> {
+	let mut written_ids: HashMap<String, (usize, String)> = HashMap::new();
+	let mut ammo_definitions = Vec::new();
+	for single_content in single_contents {
+		for ammo_def in single_content.ammunition.iter() {
+			ammo_definitions.push(AmmunitionDefinitionJoint::from_single(ammo_def, &single_content.source_id));
+			if written_ids.contains_key(&ammo_def.id) {
+				let (overwrite_ind, written_source_id) = written_ids.get(&ammo_def.id).unwrap().clone();
+				if written_source_id.ne("SRD") {
+					println!("cargo::warning=Duplicate ammunition id: '{}', overwriting", ammo_def.id);
+				}
+				ammo_definitions.swap_remove(overwrite_ind);
+				written_ids.clear();
+				for (ind, def) in ammo_definitions.iter().enumerate() {
+					written_ids.insert(def.id.clone(), (ind, def.source.id.clone()));
+				}
+			} else {
+				written_ids.insert(
+					ammo_def.id.clone(),
+					(ammo_definitions.len() - 1, single_content.source_id.clone()),
+				);
+			}
+		}
+	}
+	ammo_definitions
+}
+
+fn _join_ammunition_variants(single_contents: &Vec<ContentSingle>) -> Vec<AmmunitionVariantJoint> {
+	let mut written_ids: HashMap<String, (usize, String)> = HashMap::new();
+	let mut ammo_variants = Vec::new();
+	for single_content in single_contents {
+		for ammo_var in single_content.ammunition_variants.iter() {
+			ammo_variants.push(AmmunitionVariantJoint::from_single(ammo_var, &single_content.source_id));
+			if written_ids.contains_key(&ammo_var.id) {
+				let (overwrite_ind, written_source_id) = written_ids.get(&ammo_var.id).unwrap().clone();
+				if written_source_id.ne("SRD") {
+					println!("cargo::warning=Duplicate ammunition variant id: '{}', overwriting", ammo_var.id);
+				}
+				ammo_variants.swap_remove(overwrite_ind);
+				written_ids.clear();
+				for (ind, def) in ammo_variants.iter().enumerate() {
+					written_ids.insert(def.id.clone(), (ind, def.source.id.clone()));
+				}
+			} else {
+				written_ids
+					.insert(ammo_var.id.clone(), (ammo_variants.len() - 1, single_content.source_id.clone()));
+			}
+		}
+	}
+	ammo_variants
+}
+
+fn _write_vec_to_lines<T: ToSource>(
+	writer: &mut LineWriter<File>,
+	indent: &'static str,
+	joint_content_vec: &[T],
+) -> Result<(), BuildError> {
+	for content_item in joint_content_vec.iter() {
+		let line = content_item.to_source(indent);
+		writeln!(writer, "{},", line)?;
+	}
+	Ok(())
+}

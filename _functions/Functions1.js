@@ -269,10 +269,6 @@ function ToggleBlueText(toggle) {
 		"AC Armor Weight",
 		"AC Shield Weight Title",
 		"AC Shield Weight",
-		"AmmoLeftDisplay.WeightText",
-		"AmmoLeftDisplay.Weight",
-		"AmmoRightDisplay.WeightText",
-		"AmmoRightDisplay.Weight"
 	];
 
 	BlueTxt.push("Init Bonus");
@@ -1749,6 +1745,11 @@ function SetGearWeightOnBlur(name, value, oldvalue) {
 				var theWeight = theGear[2] && MagicItemsList[theGear[1]][theGear[2]].weight ? MagicItemsList[theGear[1]][theGear[2]].weight : MagicItemsList[theGear[1]].weight;
 			} else if (theGear[0] === "localObject") {
 				var theWeight = theGear[2].weight;
+			} else if (theGear[0] === "ammunition") {
+				var theWeight = wasm_character.get_ammunition_weight(theGear[1]);
+				// abuse this function to also add the ammunition to the stats page
+				let theAmount = What(name.replace("Row", "Amount"));
+				wasm_character.add_ammunition(theGear[1], theAmount?theAmount:null);
 			} else {
 				var theWeight = tDoc[theGear[0]][theGear[1]].weight;
 			}
@@ -1810,12 +1811,12 @@ function ParseGear(input) {
 	};
 
 	//see if it is an ammunition weapon
-	var findAmmo = ParseAmmo(tempString, true, true);
-	if (findAmmo) {
-		testLen = Math.min(findAmmo[1], tempStrLen);
+	let ammo_id = wasm_character.parse_ammunition(tempString);
+	if (ammo_id) {
+		testLen = Math.min(ammo_id.length, tempStrLen);
 		if (testLen > foundLen) {
 			foundLen = testLen;
-			result = ["AmmoList", findAmmo[0]];
+			result = ["ammunition", ammo_id];
 		};
 	};
 
@@ -2280,46 +2281,17 @@ function AddInvWeaponsAmmo() {
 		};
 	};
 
-	//then do the ammo
-	var addAmmo = function(aNm, aNr, aWght) {
-		var theAmmo = ParseAmmo(aNm);
-		var magicBonus = 0;
-		var magicRegex = /(?:^|\s|\(|\[)([\+-]\d+)/;
-		if (magicRegex.test(aNm)) {
-			magicBonus = parseFloat(aNm.match(magicRegex)[1])
-		};
-		if (isNaN(magicBonus)) magicBonus = 0;
-		for (var it in items) {
-			var aItem = items[it];
-			if (aItem.magic === magicBonus && ((!theAmmo && aItem.name.indexOf(aNm) !== -1) || (theAmmo && aItem.key === theAmmo && (it.replace(/\d+/, "") === theAmmo || similarLen(aItem.name, aNm))))) {
-				aItem.amount = aNr + (theAmmo && aItem.isAmmo ? aItem.amount : 0);
-				aItem.isAmmo = true;
-				return;
-			};
-		};
-		var theTxt = theAmmo ? theAmmo : aNm;
-		if (!items[theTxt]) {
-			var InvName = theAmmo && AmmoList[theAmmo].invName ? AmmoList[theAmmo].invName : aNm;
-			var parsedInv = ParseGear(InvName);
-			items[theTxt] = {
-				key : parsedInv ? parsedInv[1] : theAmmo, // item key
-				name : InvName, // the name of the ammo
-				weight : aWght,
-				magic : 0, // magic bonus
-				amount : aNr, // the number of these
-				isAmmo : true
-			};
-		};
-	};
-	if (What("AmmoLeftDisplay.Weight") && What("AmmoLeftDisplay.Amount")) addAmmo(What("AmmoLeftDisplay.Name"), What("AmmoLeftDisplay.Amount"), What("AmmoLeftDisplay.Weight"));
-	if (What("AmmoRightDisplay.Weight") && What("AmmoRightDisplay.Amount")) addAmmo(What("AmmoRightDisplay.Name"), What("AmmoRightDisplay.Amount"), What("AmmoRightDisplay.Weight"));
-
 	// loop through the items and add them to the adventuring gear
 	for (var it in items) {
 		var aItem = items[it];
 		var searchRegex = MakeRegex(aItem.name.replace(/ ?\([^\)]\)| ?\[[^\]]\]/g, ""), aItem.magic ? "" : "(?!.*(\\+|-)\\d+)");
 		AddToInv("gear", "r", aItem.name, aItem.amount, aItem.weight, "", searchRegex, "replace", aItem.key, true);
 	};
+
+	// add ammo
+	for (let ammo of wasm_character.get_ammunitions_for_inventory()) {
+		AddToInv("gear", "r", ammo.name, ammo.amount, ammo.weight, "", new RegExp(ammo.pattern), "replace", ammo.id, true);
+	}
 };
 
 //Make menu for the button on each equipment line and parse it to Menus.gearline
@@ -5227,8 +5199,6 @@ function CalcWeightCarried() {
 		cWea : Array.apply(null, Array(FieldNumbers.attacks)).map(function (n, idx) {
 			return "BlueText.Attack." + (idx+1) + ".Weight";
 		}),
-		cAmL : "AmmoLeftDisplay.Weight",
-		cAmR : "AmmoRightDisplay.Weight",
 		cCoi : ["Platinum Pieces", "Gold Pieces", "Electrum Pieces", "Silver Pieces", "Copper Pieces"],
 		cP2L : "Adventuring Gear Weight Subtotal Left",
 		cP2M : "Adventuring Gear Weight Subtotal Middle",
@@ -5253,13 +5223,10 @@ function CalcWeightCarried() {
 		}
 		if (CurrentVars.weight[i] == "cCoi") {
 			aWeight = Math.floor(aWeight / coinMod * 10) / 10;
-		} else if (CurrentVars.weight[i] == "cAmL") {
-			aWeight *= Number(What("AmmoLeftDisplay.Amount"));
-		} else if (CurrentVars.weight[i] == "cAmR") {
-			aWeight *= Number(What("AmmoRightDisplay.Amount"));
 		}
 		if (!isNaN(aWeight)) totalWeight += aWeight;
 	}
+	totalWeight += wasm_character.get_total_ammunition_weight();
 	Value("Weight Carried", totalWeight === 0 ? "" : totalWeight);
 }
 
@@ -5545,229 +5512,6 @@ function SetEncumbrance(variant) {
 	tDoc[HideShow]("Weight Carrying Capacity");
 	tDoc[ShowHide]("Weight Heavily Encumbered");
 };
-
-//see if a known ammunition is in a string, and return the ammo name
-function ParseAmmo(input, onlyInv, bReturnLength) {
-	var found = "";
-	if (!input) return found;
-
-	input = removeDiacritics(input).toLowerCase();
-	var foundLen = 0;
-	var foundDat = 0;
-	var keyLen = 0;
-	//scan string for all ammunition, including the alternative spellings
-	for (var key in AmmoList) {
-		if ((onlyInv && AmmoList[key].weight == undefined) // see if only doing equipable items
-			|| testSource(key, AmmoList[key], "ammoExcl") // test if the ammo or its source isn't excluded
-		) continue;
-
-		var tempDate = sourceDate(AmmoList[key].source);
-
-		// see if any of the alternatives match
-		if (AmmoList[key].alternatives) {
-			for (var z = 0; z < AmmoList[key].alternatives.length; z++) {
-				var theAlt = AmmoList[key].alternatives[z];
-				var doTest = typeof theAlt != "string";
-				var altLen = theAlt.toString().length;
-
-				if (altLen < foundLen || (altLen == foundLen && tempDate < foundDat) // only go on with if this entry is a better match (longer name) or is at least an equal match but with a newer source date. This differs from the regExpSearch objects
-					|| (doTest ? !theAlt.test(input) : input.indexOf(theAlt) === -1) // see if string matches
-				) continue;
-
-
-				// we have a match, set the values
-				found = key;
-				foundLen = altLen;
-				keyLen = doTest ? key.length : foundLen;
-				foundDat = tempDate;
-			}
-		};
-
-		// now see if the parent is a (better) match
-		if (found == key // stop if one of the alternatives already matched
-			|| key.length < foundLen || (key == foundLen && tempDate < foundDat) // only go on with if this entry is a better match (longer name) or is at least an equal match but with a newer source. This differs from the regExpSearch objects
-			|| (input.indexOf(key) === -1 && input.indexOf(AmmoList[key].name.toLowerCase()) === -1) // see if string matches
-		) continue;
-
-		// we have a match, set the values
-		found = key;
-		foundLen = key.length;
-		keyLen = foundLen;
-		foundDat = tempDate;
-	}
-	return bReturnLength && found ? [found, keyLen] : found;
-}
-
-//Reset the visibility of all the ammo fields of a particular side (input = "Left" or "Right")
-function ResetAmmo(AmmoLeftRight) {
-	AmmoLeftRight = AmmoLeftRight.substring(0, 4) === "Ammo" ? AmmoLeftRight : "Ammo" + AmmoLeftRight;
-	Hide(AmmoLeftRight);
-	Show(AmmoLeftRight + ".Icon.Arrows");
-	Show(AmmoLeftRight + ".Top");
-	Show(AmmoLeftRight + ".Base");
-	Value(AmmoLeftRight + "Display.MaxAmount", 20);
-}
-
-//Set the Ammo fields upon filling out the Ammo name
-function ApplyAmmo(inputtxt, fieldName) {
-	if (IsSetDropDowns) return; // when just changing the dropdowns, don't do anything
-
-	calcStop();
-	var LeftRight = fieldName.substring(0, 9) === "AmmoRight" ? "AmmoRight" : "AmmoLeft";
-	var theAmmo = ParseAmmo(inputtxt);
-	var parseAsWeapon = theAmmo ? false : ParseWeapon(inputtxt);
-	if (parseAsWeapon && AmmoList[parseAsWeapon]) theAmmo = parseAsWeapon;
-
-	if (theAmmo) {
-		var aList = AmmoList[theAmmo];
-		Hide(LeftRight);
-		var ammoIcon = AmmoIcons[aList.icon];
-		if (!ammoIcon) ammoIcon = AmmoIcons.Arrows;
-		Show(LeftRight + ".Icon." + aList.icon);
-		for (var i = 0; i < ammoIcon.checks.length; i++) {
-			Show(LeftRight + ammoIcon.checks[i]);
-		}
-		var massMod = What("Unit System") === "imperial" ? 1 : UnitsList.metric.mass;
-		var theWeight = aList.weight ? RoundTo(aList.weight * massMod, 0.001, true) : 0;
-		Value(LeftRight + "Display.Weight", theWeight);
-		Value(LeftRight + "Display.MaxAmount", ammoIcon.display);
-	} else {
-		tDoc.resetForm([LeftRight + "Display.Weight"]);
-		if (!inputtxt) {
-			ResetAmmo(LeftRight);
-			tDoc.resetForm([LeftRight + "Display.Amount"]);
-		}
-	}
-
-	LoadAmmo(undefined, fieldName);
-}
-
-//Add the ammunition to one of the ammo fields. Inputtxt must be a known AmmoList entry
-function AddAmmo(inputtxt, amount) {
-	var AmmoFlds = [ "AmmoLeftDisplay.Name", "AmmoRightDisplay.Name" ];
-	var AmountFlds = [ "AmmoLeftDisplay.Amount", "AmmoRightDisplay.Amount" ];
-	var AmmoName = AmmoList[inputtxt] ? AmmoList[inputtxt].name : inputtxt;
-	var AmmoRx = RegExp(inputtxt.RegEscape() + '|' + AmmoName.RegEscape(), "i");
-	amount = amount && !isNaN(Number(amount)) ? Number(amount) : 0;
-	for (var n = 1; n <= 2; n++) {
-		for (var i = 0; i < AmmoFlds.length; i++) {
-			var next = tDoc.getField(AmmoFlds[i]);
-			if (n === 1 && (AmmoRx.test(next.value) || (next.value.toLowerCase().indexOf(AmmoName.toLowerCase()) !== -1))) {
-				if (amount) tDoc.getField(AmountFlds[i]).value += amount;
-				return;
-			} else if (n === 2 && next.value === "") {
-				next.value = AmmoName;
-				if (amount) Value(AmountFlds[i], amount);
-				return;
-			}
-		}
-	}
-}
-
-//Remove the ammunition if it exists in one of the ammo fields
-function RemoveAmmo(inputtxt) {
-	var AmmoFlds = [ "AmmoLeftDisplay.Name", "AmmoRightDisplay.Name" ];
-	for (var i = 0; i < AmmoFlds.length; i++) {
-		var next = tDoc.getField(AmmoFlds[i]);
-		if (next.value.toLowerCase().indexOf(inputtxt.toLowerCase()) !== -1) {
-			next.value = "";
-			break;
-		}
-	}
-}
-
-//Set the 'quiver' to correspond with the amount of ammo
-function LoadAmmo(Amount, fieldName) {
-	calcStop();
-
-	var LeftRight = fieldName.substring(0, 9) === "AmmoRight" ? "AmmoRight" : "AmmoLeft";
-	var Units = Amount !== undefined ? Amount : Number(What(LeftRight + "Display.Amount"));
-	var Counter = 0;
-	var NextFld = "";
-	var NextFldVis = 0;
-
-	if (fieldName.slice(-6) === "Amount" || fieldName.slice(-5) === "Reset" || fieldName.slice(-4) === "Name") {
-		Value(LeftRight + "Display.SaveAmount", Units);
-		Value(LeftRight + "Display.CurrentAmount", Math.min(Units, What(LeftRight + "Display.MaxAmount")));
-	}
-
-	//stop the function if Units are 0
-	if (Number(Units) === 0) {
-		if (fieldName.indexOf("Display") !== -1) {
-			tDoc.resetForm([LeftRight]);
-		}
-		return;
-	}
-
-	//go through evey ammo field and see if they are visible. If visible, update counter and check if the field should be checked (ammo unavailable), or uncheck (ammo available)
-	if (tDoc.getField(LeftRight + ".Bullet.1").display === display.visible) { //only look at the bullet fields
-		for (var i = 1; i <= 50; i++) {
-			NextFld = LeftRight + ".Bullet." + i;
-			NextFldVis = tDoc.getField(NextFld).display
-			if (NextFldVis === display.visible) {
-				Counter += 1;
-				if (Counter <= Units) {
-					Checkbox(NextFld, false);
-				} else {
-					Checkbox(NextFld, true);
-				}
-			}
-		}
-	} else { //look into the top/base fields
-		for (var i = 1; i <= 20; i++) {
-			var TopBase = i <= 10 ? ".Top." : ".Base.";
-			try {
-				NextFld = LeftRight + TopBase + i;
-				NextFldVis = tDoc.getField(NextFld).display;
-			} catch (err) {
-				NextFld = LeftRight + TopBase + "Axe." + i;
-				NextFldVis = tDoc.getField(NextFld).display;
-			}
-			if (NextFldVis === display.visible) {
-				Counter += 1;
-				if (Counter <= Units) {
-					Checkbox(NextFld, false);
-				} else {
-					Checkbox(NextFld, true);
-				}
-			}
-		}
-	}
-}
-
-//set the dropdown menus for ammo
-function SetAmmosdropdown(forceTooltips) {
-	var tempString = "Select or type in the ammunition you want to use and all its attributes will be filled out automatically.";
-	tempString += "\n\n" + toUni("Ammunition weight") + "\nThe weight of the ammo can be added to the total weight carried on the 2nd page. In order to do this you have to push the \"Weight\" button in the \"JavaScript Window\".";
-	tempString += "\nYou can change the weight of the ammunition in the \"override section\" (a.k.a. the \"blue text fields\").";
-	tempString += "\n\n" + toUni("Blue text fields") + "\nIn order to see these you first need to push the \"Mods\" button in the \"JavaScript Window\".";
-	var theDropList = [""];
-
-	for (ammo in AmmoList) {
-		var theAmmo = AmmoList[ammo];
-		if (testSource(ammo, theAmmo, "ammoExcl")) continue; // test if the weapon or its source is set to be included
-		if (theDropList.indexOf(theAmmo.name) === -1) theDropList.push(theAmmo.name);
-	}
-	theDropList.sort();
-
-	var listToSource = theDropList.toSource();
-	if (tDoc.getField("AmmoLeftDisplay.Name").submitName === listToSource) {
-		if (forceTooltips) {
-			AddTooltip("AmmoLeftDisplay.Name", tempString);
-			AddTooltip("AmmoRightDisplay.Name", tempString);
-		}
-		return; //no changes, so no reason to do this
-	}
-	tDoc.getField("AmmoLeftDisplay.Name").submitName = listToSource;
-
-	var remAmmo = What("AmmoLeftDisplay.Name");
-	tDoc.getField("AmmoLeftDisplay.Name").setItems(theDropList);
-	Value("AmmoLeftDisplay.Name", remAmmo, tempString);
-
-	remAmmo = What("AmmoRightDisplay.Name");
-	tDoc.getField("AmmoRightDisplay.Name").setItems(theDropList);
-	Value("AmmoRightDisplay.Name", remAmmo, tempString);
-}
 
 //Toggle the visibility of the secondary ability save DC. ShowHide = "show" or "hide".
 function Toggle2ndAbilityDC(ShowHide) {
@@ -6255,8 +5999,6 @@ async function SetUnitDecimals_Button() {
 		var FldsWeight = [
 			"AC Armor Weight",
 			"AC Shield Weight",
-			"AmmoLeftDisplay.Weight",
-			"AmmoRightDisplay.Weight"
 		];
 		//field calculations to update
 		var FldsCalc = [], MIfldsCalc = [];

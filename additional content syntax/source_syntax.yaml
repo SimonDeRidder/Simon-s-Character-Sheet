@@ -1,0 +1,32 @@
+# This document describes the syntax to define new sources.
+# 
+# This is a hierarchical structure, see https://yaml.org/spec/1.2.2/#chapter-2-language-overview
+# Text can just be written as-is, but if it contains a ":", it'll need to be between double quotes
+# (e.g. name: "Dungeon: Delved")
+#
+# The structure below is a dummy example with comments on each line
+# to clarify what each field means.
+# You can find the SRD as another example in the contents folder.
+#
+# Multiple sources can be used by putting them in the contents folder.
+# All sources there will be joined together.
+# Any id's that are not unique across sources will be overwritten by the
+# latest one in alphabetical order.
+
+source_id: DSC  # abbreviation of the source (e.g. PHB, DMG, XGE, ...)
+source_name: Dummy Source Content  # full name of the source (e.g. "Player's handbook")
+ammunition:  # a list of possible ammunitions that can be selected in the Ammunition pane.
+  - id: dummy_ammo  # a unique identifier for the ammunition
+    name: Dummy Ammunition  # full name, shown in the sheet
+    weight: 0.5  # weight of a single ammunition item (in lbs)
+    icon: Arrow  # icon to use to display the ammo in the ammunition pane. Must be one of: Arrow,Axe,Bullet,Dagger,Flask,Hammer,Spear,Vial
+    default_amount: 20  # the amount of items added by default
+    source_page: 47  # page in the source book where this ammunition is defined
+    cost_cp: 2.5  # cost of a single item of ammunition in copper pieces
+    pattern: dummy\s+ammo  # a regular expression (regex) to match the ammunition from a typed equipment field
+ammunition_variants:  # A variation on existing ammunition types (e.g. +1, silvered, ...)
+  - id: dummy_ammo_variant  # a unique identifier for the ammunition variant
+    name: Variant  # Name of the variant (also used as a prefix (e.g. "Variant Arrows"))
+    source_page: 47  # page in the source book where this ammunition variant is defined
+    description: This variant does double damage  # description of the ammunition variant
+    pattern_prefix: variant\s+  # a regular expression (regex) which will be prefixed to that of the ammunition types, to match the ammunition from a typed equipment field

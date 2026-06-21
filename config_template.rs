@@ -1,13 +1,13 @@
 use std::hash::{Hash, Hasher as _};
 
-use leptos::leptos_dom::logging::console_error;
-
 #[derive(Hash, Clone)]
 pub struct Config {
 	pub ability_names_with_max: [(&'static str, &'static str, u8); 6], //Vec<(String, String)>, // Abbreviation, full name
 	pub ability_improvement_amount: i8, // how many ability increases the character gets per class level ability improvement
 	pub icons: IconsConfig,
 	pub level_experience_thresholds: [u32; 19], // level thresholds, starting from lvl 1 -> lvl 2 threshold
+	pub ammunition_definitions: [AmmunitionDefinition; 0], // {{AMMUNITION_LENGTH}}
+	pub ammunition_variants: [AmmunitionVariant; 0], // {{AMMUNITION_VARIANTS_LENGTH}}
 }
 
 #[derive(Hash, Clone)]
@@ -17,7 +17,47 @@ pub struct IconsConfig {
 	pub adventure_league: [(&'static str, &'static str); 10],
 }
 
+#[derive(Hash, Clone, PartialEq)]
+pub struct AmmunitionDefinition {
+	pub id: &'static str,
+	pub name: &'static str,
+	pub weightx200: u32,
+	pub icon: AmmunitionIcon,
+	pub default_amount: u8,
+	source: Source,
+	cost_cp_10: u32, // 0.1 CP
+	pub pattern: &'static str,
+}
+
+#[derive(Hash, Clone, PartialEq)]
+pub struct AmmunitionVariant {
+	pub id: &'static str,
+	pub name: &'static str,
+	pub source: Source,
+	pub description: &'static str,
+	pub pattern_prefix: &'static str,
+}
+
+#[derive(Hash, Clone, PartialEq)]
+pub struct Source {
+	pub id: &'static str,
+	pub page: u16,
+}
+
+#[derive(Hash, Clone, Debug, serde::Serialize, serde::Deserialize, PartialEq)]
+pub enum AmmunitionIcon {
+	Arrow,
+	Axe,
+	Bullet,
+	Dagger,
+	Flask,
+	Hammer,
+	Spear,
+	Vial,
+}
+
 impl Config {
+	#[allow(dead_code)]
 	pub const fn get() -> Config {
 		Config {
 			ability_names_with_max: [
@@ -69,47 +109,19 @@ impl Config {
 				300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000, 140000,
 				165000, 195000, 225000, 265000, 305000, 355000,
 			],
+			ammunition_definitions: [
+				// {{INSERT AMMUNITION}}
+			],
+			ammunition_variants: [
+				// {{INSERT AMMUNITION_VARIANTS}}
+			],
 		}
 	}
 
+	#[allow(dead_code)]
 	pub fn get_hash(&self) -> String {
 		let mut hasher = std::hash::DefaultHasher::new();
 		std::hash::Hash::hash(&self, &mut hasher);
 		format!("{}", hasher.finish())
 	}
 }
-
-impl serde::Serialize for Config {
-	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-	where
-		S: serde::Serializer,
-	{
-		serializer.serialize_str(&self.get_hash())
-	}
-}
-
-impl<'de> serde::Deserialize<'de> for Config {
-	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-	where
-		D: serde::Deserializer<'de>,
-	{
-		let hash = String::deserialize(deserializer)?;
-		let config = Config::get();
-		let current_hash = config.get_hash();
-		if !hash.is_empty() && (current_hash != hash) {
-			console_error(
-				format!(
-					"Loaded hash: {}, current hash: {}, will attempt to continue loading.",
-					hash, current_hash
-				)
-				.as_str(),
-			);
-			web_sys::window().unwrap().alert_with_message(
-				"Config of the saved file is not the same as the current config. Will attempt to load the file with the new config."
-			).unwrap();
-		}
-		Ok(config)
-	}
-}
-
-pub static CONFIG: Config = Config::get();

@@ -329,23 +329,19 @@ fn create_background(
 				.class(move || {if background.read().as_ref().is_none_or(|b| b.is_empty()) {"inputfield-regular hide-arrow print-underline"} else {"inputfield-regular hide-arrow"}})
 				.style("top: 0%;left: 0%;width: 100%;height: 63.9%;text-align: left;font-size: 130%;font-size: max(71%, min(150%, calc(-6% + 3650%/attr(data-chars type(<number>), 28))))")
 				.attr("data-chars", move || background.read().as_ref().and_then(|bo| background_ids_clone.iter().position(|el| el.eq(bo)).map(|ind| background_names_clone[ind].len())))
-				.prop("value", move || background.get())
+				// .prop("value",  move || background.get())
 				.child((
 					leptos::html::option()
 						.value("")
-						.child("")
-						.selected(move || background.get().is_none_or(|val| val.is_empty())),
+						.child(""),
 					background_ids
 						.iter()
 						.enumerate()
 						.map(|(index, background_id)| {
-							let background_id_clone = background_id.clone();
 							leptos::html::option()
 								.value(background_id.clone())
 								.child(background_names[index].clone())
-								.selected(move || {
-									background.read().as_ref().is_some_and(|val| *val == background_id_clone)
-								})
+								.selected(background_id.eq(background.read_untracked().as_ref().unwrap_or(&String::new())))
 						})
 						.collect_view(),
 				))
@@ -379,7 +375,7 @@ fn create_background(
 				.title(move || background_option_title.get())
 				.style(move || {
 					format!(
-						"bottom: 0%;right: 0%;width: 58%;height: 35%;font-size: 60%;font-size: max(25%, min(83%, calc(-1% + 2226%/attr(data-chars type(<number>), 33)))){}",
+						"bottom: 0%;right: 0%;width: 58%;height: 35%;font-size: 60%;font-size: max(25%, min(83%, calc(-1% + 2090%/attr(data-chars type(<number>), 33)))){}",
 						if background_options.read().is_none() {
 							";display: none"
 						} else {
@@ -388,12 +384,10 @@ fn create_background(
 					)
 				})
 				.attr("data-chars", move || background_option.read().as_ref().map_or(1, |bo| max(bo.len(), 1)))
-				.prop("value", move || background_option.get())
 				.child((
 					leptos::html::option()
 						.value("")
-						.child("")
-						.selected(move || background_option.get().is_none_or(|val| val.is_empty())),
+						.child(""),
 					move || {
 						background_options
 							.read()
@@ -401,15 +395,10 @@ fn create_background(
 							.unwrap_or(&vec![])
 							.iter()
 							.map(|background_option_| {
-								let background_option_clone = background_option_.clone();
 								leptos::html::option()
 									.value(background_option_.clone())
 									.child(background_option_.clone())
-									.selected(move || {
-										background_option
-											.get()
-											.is_some_and(|val| val == background_option_clone)
-									})
+									.selected(background_option_.eq(background_option.read_untracked().as_ref().unwrap_or(&String::new())))
 							})
 							.collect_view()
 					},
@@ -449,39 +438,30 @@ fn create_race(
 				.class(move || {if race.read().as_ref().is_none_or(|r| r.is_empty()) {"inputfield-regular hide-arrow print-underline"} else {"inputfield-regular hide-arrow"}})
 				.style("top: 0%;left: 0%;width: 100%;height: 71.9%;text-align: left;font-size: 130%;font-size: max(64%, min(150%, calc(-7% + 2167%/attr(data-chars type(<number>), 16))))")
 				.attr("data-chars", move || race.read().as_ref().map(|race_| race_map_clone.iter().filter_map(|(id, name, variants)| {if id.eq(race_) {Some(name.len())} else {variants.iter().filter_map(|(v_id, v_name)| {if v_id.eq(race_) {Some(v_name.len())} else {None}}).next()}}).next()))
-				.prop("value", move || race.get())
 				.child((
 					leptos::html::option()
 						.value("")
-						.child("")
-						.selected(move || race.get().is_none_or(|val| val.is_empty())),
+						.child(""),
 					race_map
 						.iter()
 						.map(|(race_id, race_name, variants)| {
-							let race_id_clone = race_id.clone();
 							if variants.is_empty() {
 								leptos::html::option()
 									.value(race_id.clone())
 									.child(race_name.clone())
-									.selected(move || {
-										race.read().as_ref().is_some_and(|val| *val == race_id_clone)
-									}).into_any()
+									.selected(race_id.eq(race.read_untracked().as_ref().unwrap_or(&String::new())))
+									.into_any()
 							} else {
 								leptos::html::optgroup().label(race_name.clone()).child((
 									leptos::html::option()
 										.value(race_id.clone())
 										.child(race_name.clone())
-										.selected(move || {
-											race.read().as_ref().is_some_and(|val| *val == race_id_clone)
-										}),
+										.selected(race_id.eq(race.read_untracked().as_ref().unwrap_or(&String::new()))),
 									variants.iter().map(|(variant_id, variant_name)| {
-										let variant_id_clone = variant_id.clone();
 										leptos::html::option()
 											.value(variant_id.clone())
 											.child(variant_name.clone())
-											.selected(move || {
-												race.read().as_ref().is_some_and(|val| *val == variant_id_clone)
-											})
+											.selected(variant_id.eq(race.read_untracked().as_ref().unwrap_or(&String::new())))
 									}).collect_view()
 								)).into_any()
 							}
@@ -778,9 +758,18 @@ pub fn show_class_selection_modal(
 								let mut class_list: Vec<_> = all_classes_clone.iter().map(|(class_id, class_name, _, _)| (class_id.clone(), class_name.clone())).filter(|(class_id, _)| !current_classes.contains(class_id)).collect();
 								class_list.insert(0, (String::new(), String::new()));
 
-								leptos::html::td().child(leptos::html::select().class("inputfield-regular").prop("value", class_clone).style("width:-webkit-fill-available;width:-moz-available;width:stretch").child(
-									class_list.iter().map(|(class_id, class_name)| {let class_id_clone =class_id.clone(); leptos::html::option().value(class_id.clone()).child(class_name.clone()).selected(move || {class_id_clone == class_clone.get()})}).collect_view()
-								).on(leptos::ev::change, move |event| {let new_val = leptos::prelude::event_target_value(&event);class_clone.set(new_val.clone());subclass_clone.set(String::new());if !new_val.is_empty() && (level_clone.get_untracked() == 0) {level_clone.set(1)}}))
+								leptos::html::td().child(
+										leptos::html::select()
+										.class("inputfield-regular")
+										.style("width:-webkit-fill-available;width:-moz-available;width:stretch")
+										.child(
+											class_list
+											.iter()
+											.map(|(class_id, class_name)| {leptos::html::option().value(class_id.clone()).child(class_name.clone())})
+											.collect_view()
+										)
+										.on(leptos::ev::change, move |event| {let new_val = leptos::prelude::event_target_value(&event);class_clone.set(new_val.clone());subclass_clone.set(String::new());if !new_val.is_empty() && (level_clone.get_untracked() == 0) {level_clone.set(1)}})
+								)
 							},
 							leptos::html::td().child(move || {
 								let current_class_id = class_clone.get();
@@ -800,8 +789,8 @@ pub fn show_class_selection_modal(
 											subclasses_list.extend(subclasses.iter().map(|(subclass_id, subclass_name, _, _)| (subclass_id.clone(), subclass_name.clone())));
 										}
 									}
-									leptos::html::select().class("inputfield-regular").prop("value", subclass_clone).style("min-width:3em;width:-webkit-fill-available;width:-moz-available;width:stretch").child(
-										subclasses_list.iter().map(|(subclass_id, subclass_name)| {let subclass_id_clone = subclass_id.clone();leptos::html::option().value(subclass_id.clone()).child(subclass_name.clone()).selected(move || {subclass_id_clone == subclass_clone.get()})}).collect_view()
+									leptos::html::select().class("inputfield-regular").style("min-width:3em;width:-webkit-fill-available;width:-moz-available;width:stretch").child(
+										subclasses_list.iter().map(|(subclass_id, subclass_name)| {leptos::html::option().value(subclass_id.clone()).child(subclass_name.clone())}).collect_view()
 									).on(leptos::ev::change, move |event| {subclass_clone.set(leptos::prelude::event_target_value(&event))})
 								}
 							),

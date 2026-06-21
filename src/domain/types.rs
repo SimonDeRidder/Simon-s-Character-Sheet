@@ -3,6 +3,7 @@ pub type AbilityValue = u8;
 pub type Modifier = i8;
 
 // a wrapper around RwSignal that serialises outside reactive context (for saving to file)
+#[derive(Debug)]
 pub struct SignalField<T: 'static>(leptos::prelude::RwSignal<T>);
 
 impl<T> SignalField<T>

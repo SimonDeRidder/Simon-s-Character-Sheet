@@ -5,7 +5,7 @@ use crate::config::CONFIG;
 
 use super::types::SignalField;
 
-#[derive(serde::Serialize, Clone)]
+#[derive(serde::Serialize, Clone, Debug)]
 pub struct GeneralInfo {
 	pub name: SignalField<String>,
 	pub player_icon: SignalField<String>,
@@ -23,7 +23,7 @@ pub struct GeneralInfo {
 	pub next_level_experience: leptos::prelude::Memo<u32>,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct ClassLevel {
 	pub id: String,
 	pub name: String,

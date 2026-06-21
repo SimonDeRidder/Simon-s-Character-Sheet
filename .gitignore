@@ -59,3 +59,6 @@ local
 target
 *_runner.sh
 static-web-server
+
+# built config file
+src/config.rs

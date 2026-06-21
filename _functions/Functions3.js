@@ -178,7 +178,6 @@ async function ApplyFeatureAttributes(type, fObjName, lvlA, choiceA, forceNonCur
 		// but we should be removing them only after removing the item itself
 		var addListOptions = function() {
 			if (uObj.armorOptions) processArmorOptions(addIt, tipNm, uObj.armorOptions, type === "magic item");
-			if (uObj.ammoOptions) processAmmoOptions(addIt, tipNm, uObj.ammoOptions, type === "magic item");
 			if (uObj.weaponOptions) processWeaponOptions(addIt, tipNm, uObj.weaponOptions, type === "magic item");
 			if (uObj.creatureOptions) processCreatureOptions(addIt, tipNm, uObj.creatureOptions);
 		}
@@ -298,7 +297,6 @@ async function ApplyFeatureAttributes(type, fObjName, lvlA, choiceA, forceNonCur
 		var anArmorAdd = uObj.armorAdd ? uObj.armorAdd : uObj.addarmor ? uObj.addarmor : false;
 		if (anArmorAdd) await processAddArmour(addIt, anArmorAdd, tipNm, prefix);
 		if (uObj.shieldAdd) processAddShield(addIt, uObj.shieldAdd, uObj.weight);
-		if (uObj.ammoAdd) processAddAmmo(addIt, uObj.ammoAdd);
 
 		// --- backwards compatibility --- //
 		// skills additions
@@ -1414,17 +1412,6 @@ function processAddWeapons(AddRemove, weaponsAdd, srcNm) {
 	}
 }
 
-// set ammuntion or remove the ammuntion
-function processAddAmmo(AddRemove, ammos) {
-	if (!ammos) return;
-	if (!isArray(ammos) || (ammos.length === 2 && !isNaN(ammos[1]))) {
-		ammos = [ammos];
-	}
-	for (var a = 0; a < ammos.length; a++) {
-		tDoc[(AddRemove ? "Add" : "Remove") + "Ammo"](ammos[a][0], ammos[a][1] && !isNaN(ammos[a][1]) ? ammos[a][1] : 1);
-	}
-}
-
 // set magic items or remove them
 function processAddMagicItems(AddRemove, magicitems) {
 	if (!magicitems) return;
@@ -1519,36 +1506,6 @@ function processWeaponOptions(AddRemove, srcNm, itemArr, magical) {
 		// when adding, add the weapons after changing the drop-down box
 		processAddWeapons(true, { select : setSelection }, srcNm);
 	}
-}
-
-// set or remove ammo options
-function processAmmoOptions(AddRemove, srcNm, itemArr, magical) {
-	if (!itemArr) return;
-	if (!isArray(itemArr)) itemArr = [itemArr];
-
-	// if adding things but the variable doesn't exist
-	if (AddRemove && !CurrentVars.extraAmmo) CurrentVars.extraAmmo = {};
-
-	srcNm = srcNm.toLowerCase();
-	for (var i = 0; i < itemArr.length; i++) {
-		var newName = srcNm + "-" + itemArr[i].name.toLowerCase();
-		if (AddRemove) {
-			if (itemArr[i].defaultExcluded) itemArr[i].defaultExcluded = false;
-			itemArr[i].list = "startlist";
-			if (magical) itemArr[i].isMagicAmmo = true;
-			CurrentVars.extraAmmo[newName] = itemArr[i];
-			AmmoList[newName] = itemArr[i];
-		} else {
-			// remove the entries if they exist
-			if (CurrentVars.extraAmmo[newName]) delete CurrentVars.extraAmmo[newName];
-			if (AmmoList[newName]) delete AmmoList[newName];
-		}
-	}
-
-	// if removing things and the variable is now empty
-	if (!AddRemove && !ObjLength(CurrentVars.extraAmmo)) delete CurrentVars.extraAmmo;
-	UpdateDropdown("ammo"); // update the ammunition dropdown
-	SetStringifieds("vars"); // Save the new settings to a field
 }
 
 // set or remove attack options
@@ -3730,9 +3687,9 @@ async function selectMagicItemGearType(AddRemove, FldNmbr, typeObj, oldChoice, c
 		case "ammunitions":
 			var typeNm = "ammunition";
 			var typeNmC = "Ammunition";
-			var parseFnct = "ParseAmmo";
-			var baseList = AmmoList;
-			var exclObj = "ammoExcl";
+			var parseFnct = "parse_ammunition";
+			var baseList = {};
+			var exclObj = null;
 			break;
 		case "wea":
 		case "weapon":
@@ -3790,7 +3747,16 @@ async function selectMagicItemGearType(AddRemove, FldNmbr, typeObj, oldChoice, c
 	// get the value of the magic item name field
 	var useVal = isApplyFld && AddRemove ? field.value : isApplyFld ? field.value : What(MIflds[0]);
 	// see if the item is not already present in the string
-	var isItem = tDoc[parseFnct](useVal, true);
+	var isItem;
+	if (parseFnct == "parse_ammunition") {
+		isItem = wasm_character.parse_ammunition(useVal);
+		if (isItem) {
+			baseList[isItem] = {name: isItem};
+		}
+		console.log("isItem: ", isItem, " ; baseList:", baseList, " ; baseList[isItem]", baseList[isItem]);
+	} else {
+		isItem = tDoc[parseFnct](useVal, true);
+	}
 	// if this is recognized as a weapon, make sure we are not just triggering on the default words (axe, sword, hammer, bow, crossbow)
 	var defaultItems = {
 		"battleaxe" : [/\baxes?\b/i, /battle/i],
@@ -3822,7 +3788,7 @@ async function selectMagicItemGearType(AddRemove, FldNmbr, typeObj, oldChoice, c
 				continue;
 			} else if (typeNm == "weapon" && (kObj.isMagicWeapon) || (/natural|spell|cantrip|improvised/i).test(kObj.type + kObj.list)) {
 				continue;
-			} else if (typeNm == "ammunition" && (kObj.isMagicAmmo || WeaponsList[key])) {
+			} else if (typeNm == "ammunition" && WeaponsList[key]) {
 				continue;
 			}
 			if (typeObj.excludeCheck && typeObj.excludeCheck(key, kObj)) continue;
@@ -3868,8 +3834,11 @@ async function selectMagicItemGearType(AddRemove, FldNmbr, typeObj, oldChoice, c
 	if (!correctingDescrLong) {
 		switch (typeNm) {
 			case "ammunition":
-				var ammoName = itemToProcess ? itemToProcess : newMIname.replace(/ammunition (\+\d+)/i, "$1").replace(/(\+\d+) *\((.*?)\)/i, "$1 $2");
-				processAddAmmo(AddRemove, [[ammoName, typeObj.ammoAmount && !isNaN(typeObj.ammoAmount) ? typeObj.ammoAmount : 1]]);
+				if (AddRemove) {
+					wasm_character.add_ammunition(isItem, typeObj.ammoAmount && !isNaN(typeObj.ammoAmount) ? typeObj.ammoAmount : 1);
+				} else {
+					wasm_character.remove_ammunition(isItem);
+				}
 				break;
 			case "weapon":
 				var weaponName = itemToProcess ? itemToProcess : newMIname.replace(/weapon (\+\d+)/i, "$1").replace(/(\+\d+) *\((.*?)\)/i, "$1 $2");

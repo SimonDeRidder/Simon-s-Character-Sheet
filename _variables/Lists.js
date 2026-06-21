@@ -28,7 +28,6 @@ function InitiateLists() {
 		"MagicItemsList",
 		"ArmourList",
 		"WeaponsList",
-		"AmmoList",
 		"PacksList",
 		"GearList",
 		"ToolsList",
@@ -56,11 +55,6 @@ function InitiateLists() {
 	if (CurrentVars.extraWeapons) {
 		for (var anWeapon in CurrentVars.extraWeapons) {
 			WeaponsList[anWeapon] = CurrentVars.extraWeapons[anWeapon];
-		}
-	}
-	if (CurrentVars.extraAmmo) {
-		for (var anAmmo in CurrentVars.extraAmmo) {
-			AmmoList[anAmmo] = CurrentVars.extraAmmo[anAmmo];
 		}
 	}
 	if (CurrentVars.extraCreatures) {
@@ -540,41 +534,6 @@ var Alignments = [
 	"Neutral Evil",
 	"Chaotic Evil"
 ];
-
-var AmmoIcons = {
-	"Arrows" : {
-		checks : [".Top", ".Base"],
-		display : 20
-	},
-	"Axes" : {
-		checks : [".Top.Axe", ".Base.Axe"],
-		display : 8
-	},
-	"Bullets" : {
-		checks : [".Bullet"],
-		display : 50
-	},
-	"Daggers" : {
-		checks : [".Top"],
-		display : 10
-	},
-	"Flasks" : {
-		checks : [".Top", ".Base"],
-		display : 20
-	},
-	"Hammers" : {
-		checks : [".Top.Axe", ".Base.Axe"],
-		display : 8
-	},
-	"Spears" : {
-		checks : [".Base"],
-		display : 10
-	},
-	"Vials" : {
-		checks : [".Top", ".Base"],
-		display : 20
-	}
-}
 
 var ColorList = {
 	aqua : { //wizard

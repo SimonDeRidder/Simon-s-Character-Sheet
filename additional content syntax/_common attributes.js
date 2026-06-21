@@ -600,39 +600,6 @@ shieldAdd : ["Magical Buckler", 1, 2],
 	If a feature with this attribute is removed, this shield will be removed as well.
 */
 
-ammoAdd : [["Green Arrows", 12], ["Smoke Bombs", 5]],
-/*	ammoAdd // OPTIONAL //
-	TYPE:	array (variable length) of arrays with 2 entries
-	USE:	adds each entry in the array to one of the ammunition drop-downs on the 1st page
-	ADDED:	v13.0.9
-
-	This attribute has to be an array of arrays that have one or two entries each:
-	1)	string
-		The first entry of each sub-array is the literal text that has to be set for the
-		ammunition drop-down box on the 1st page.
-	2)	number
-		This sets what should be entered for the "amount" part of the ammunition on the 1st page.
-		If this entry is omitted, the sheet will set the amount to 1.
-
-	An entry will only be added if there is space left in the ammunition section and
-	it isn't already present.
-	The strings will be added exactly as you write them here, capitalisation and all.
-
-	If a feature with this attribute is removed, these ammunition entries will be removed as well.
-*/
-
-ammoOptions : [{ /* AmmoList object, see "ammunition (AmmoList).js" syntax file  */ }],
-/*	ammoOptions // OPTIONAL //
-	TYPE:	array of objects (variable length)
-	USE:	adds each object in the array to the AmmoList variable
-
-	The syntax of the objects is not explained here, but in the "ammunition (AmmoList).js" syntax file.
-
-	This way you can have a feature add a type of ammunition to the automation.
-	It will also be added to the options in each ammunition field drop-down.
-	This will result in having the ammunition only available if the feature is present.
-*/
-
 armorOptions : [{ /* ArmourList object, see "armor (ArmourList).js" syntax file */ }],
 /*	armorOptions // OPTIONAL //
 	TYPE:	array of objects (variable length)

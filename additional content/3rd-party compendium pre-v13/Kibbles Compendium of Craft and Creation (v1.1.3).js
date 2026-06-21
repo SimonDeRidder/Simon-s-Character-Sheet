@@ -3655,19 +3655,9 @@ MagicItemsList["stormforged weapon"] = {
 			weight : 15,
 			description : "Ammunition, two-handed, loud, stormcharged",
 			abilitytodamage : true,
-			ammo : "Stormforged Ammo",
+			ammo : "stormforged_ammo",
 			KCCC_stormforged_weapon : true
 		},
-		ammoOptions : {
-			name : "Stormforged Ammo",
-			source : [["KCCC", 32]],
-			weight : 0.2, // based on the weight of renaissance bullets from the DMG
-			icon : "Bullets",
-			checks : [".Bullet"],
-			display : 50,
-			invName : "Stormforged Weapon Rounds",
-			alternatives : [/^(?=.*(stormforged|thunder ?cannon|hand ?cannon))(?=.*(round|bullet)).*$/i]
-		}
 	},
 	"hand cannon" : {
 		description : "I can only make one attack during my (bonus) action, or reaction with this weapon. If I could otherwise make multiple, I deal +3d6 lightning or thunder damage per extra attack I would have had. This weapon is audible within 300 ft. I can create ammunition for it at 1 gp per 10 rounds. I can create up to 50 during long rest.",
@@ -3684,18 +3674,8 @@ MagicItemsList["stormforged weapon"] = {
 			weight : 5,
 			description : "Ammunition, light, loud, stormcharged",
 			abilitytodamage : true,
-			ammo : "Stormforged Ammo",
+			ammo : "stormforged_ammo",
 			KCCC_stormforged_weapon : true
-		},
-		ammoOptions : {
-			name : "Stormforged Ammo",
-			source : [["KCCC", 32]],
-			weight : 0.2, // based on the weight of renaissance bullets from the DMG
-			icon : "Bullets",
-			checks : [".Bullet"],
-			display : 50,
-			invName : "Stormforged Weapon Rounds",
-			alternatives : [/^(?=.*(stormforged|thunder ?cannon|hand ?cannon))(?=.*(round|bullet)).*$/i]
 		}
 	},
 	"kinetic hammer" : {

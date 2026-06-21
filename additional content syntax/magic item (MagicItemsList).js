@@ -523,13 +523,13 @@ MagicItemsList["staff of purple"] = {
 		},
 	/*	excludeCheck // OPTIONAL //
 		TYPE:	function
-		USE:	filter things from the list of weapon, armor, or ammunition from the options
+		USE:	filter things from the list of weapon or armor from the options
 
-		This function is called for each entry in the WeaponsList, ArmourList, or AmmoList (depending on 'type', see above).
+		This function is called for each entry in the WeaponsList or ArmourList (depending on 'type', see above).
 		If the function returns `true` for an entry, that entry will be omitted from the pop-up dialog.
 		This function is passed two variables:
 		1)	inObjKey
-				A string of the name of the entry in the list variable (WeaponsList, ArmourList, or AmmoList)
+				A string of the name of the entry in the list variable (WeaponsList or ArmourList)
 		2)	inObj
 				The object of the entry (e.g. WeaponsList[inObjKey])
 

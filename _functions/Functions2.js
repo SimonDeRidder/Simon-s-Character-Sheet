@@ -4100,7 +4100,6 @@ function UpdateDropdown(type, weapon) {
 		SetCompDropdown(forceTT);
 		SetWildshapeDropdown(forceTT);
 		SetArmordropdown(forceTT);
-		SetAmmosdropdown(forceTT);
 		SetWeaponsdropdown(forceTT);
 		break;
 	 case "attack" :
@@ -4137,11 +4136,6 @@ function UpdateDropdown(type, weapon) {
 	 case "magic item" :
 	 case "magic items" :
 		SetMagicItemsDropdown();
-		break;
-	 case "ammo" :
-	 case "ammunition" :
-	 case "ammunitions" :
-		SetAmmosdropdown();
 		break;
 	case "creature" :
 	case "creatures" :
@@ -4780,7 +4774,7 @@ function ApplyWeapon(inputText, fldName, isReCalc, onlyProf, forceRedo) {
 				break;
 			};
 		};
-		if (!tempFound) RemoveAmmo(theOldAmmo);
+		if (!tempFound) wasm_character.remove_ammunition(theOldAmmo);
 	};
 
 	// if a weapon was found, set the variables
@@ -4943,7 +4937,7 @@ function ApplyWeapon(inputText, fldName, isReCalc, onlyProf, forceRedo) {
 				Value(keyFld, What("Unit System") === "imperial" ? fields[weaKey] : ConvertToMetric(fields[weaKey], 0.5), weaKey !== "Description" ? "" : What("Unit System") === "imperial" ? fields.Description_Tooltip : ConvertToMetric(fields.Description_Tooltip, 0.5));
 				break;
 			 case "Ammo" :
-				if (fields[weaKey]) AddAmmo(fields[weaKey]);
+				if (fields[weaKey]) wasm_character.add_ammunition(fields[weaKey], null);
 				break;
 			 default :
 				Value(keyFld, fields[weaKey]);

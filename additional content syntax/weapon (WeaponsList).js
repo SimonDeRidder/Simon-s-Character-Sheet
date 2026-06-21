@@ -478,15 +478,12 @@ WeaponsList["purple sword"] = {
 	ammo : "bolt",
 /*	ammo // OPTIONAL //
 	TYPE:	string
-	USE:	the AmmoList object name of the ammunition that this attack uses
+	USE:	the id of the ammunition type that this attack uses
 
 	If the attack you are adding is a weapon that uses ammunition,
 	you can have the sheet automatically add it to the ammunition section when the weapon is added to the sheet.
 
-	The options are: "arrow", "bolt", "bullet", "dagger", "dart", "flask", "axe", "javelin",
-	"hammer", "needle", "spear", "trident", and "vial" [note the use of only lower case!].
-
-	This list of options can be greater if you add another AmmoList object using the "ammunition (AmmoList).js" syntax file.
+	The options are defined by the yaml files in the content folder.
 
 	Setting this to an empty string ("") is the same as not including this attribute.
 */

@@ -1,14 +1,14 @@
-# Simon's HTML front end for MPMB's D&D 5e Character Record Sheet
+# Simon's Character Sheet
 
 This repository contains a webapplication to host an interactive character sheet for D&D 5e (2014 rules).
-The front end is HTML+CSS, while the "back end" (run by the browser) is JavaScript and Webassembly (from Rust).
+The front end is HTML+CSS, while the "back end" (run by the browser) is JavaScript and WebAssembly (from Rust).
 This back end is predominantly based on the document-level JavaScript that is used in [MPMB's Character Record Sheet](https://github.com/morepurplemorebetter/MPMBs-Character-Record-Sheet).
 
 ## How to use
 
 ### Download
 
-You can download the latest release from the [releases page](https://github.com/SimonDeRidder/Simon-s-html-front-end-for-MPMBs-Character-Record-Sheet/releases).
+You can download the latest release from the [releases page](https://github.com/SimonDeRidder/Simon-s-Character-Sheet/releases).
 Simply download and extract the `.tar.gz` or `.zip` to a folder of you choice.
 Alternatively, you can [build the Webassembly from source yourself](#building-from-source).
 
@@ -25,16 +25,16 @@ This is a blazing fast file server built in Rust.
 You can download it [here](https://static-web-server.net/download-and-install).
 Then, in the downloaded folder, run
 ```sh
-static-web-server --port 8080 --root .
+static-web-server --port 80 --root .
 ```
 Then, you're ready to [Open the character sheet in your browser](#open-the-character-sheet-in-your-browser).
 
 #### Running with Python
 A very easy (though not quite so secure) way to set up a simple server with Python is to use the built-in python module (inside the downloaded folder):
 ```sh
-python -m http.server 8080
+python -m http.server 80
 ```
-You can replace 8080 with whatever port you like. On Windows, see [here](https://www.wikihow.com/Install-Python-on-Windows) to install Python.
+You can replace 80 with whatever port you like. On Windows, see [here](https://www.wikihow.com/Install-Python-on-Windows) to install Python.
 
 Then, you're ready to [Open the character sheet in your browser](#open-the-character-sheet-in-your-browser).
 
@@ -54,12 +54,12 @@ Then, you're ready to [Open the character sheet in your browser](#open-the-chara
 #### Open the character sheet in your browser
 
 With the server running, you can open the sheet with the following url on your own device:
-- http://localhost:8080
+- http://localhost:80
 
-(If you changed the port in the server command, also change it in this url.)
+(If you changed the port in the server command, also change it in this url. If you use port 80, you can omit the ":80", it is the default.)
 
 For other devices on a local network, [find your local ip](https://www.wikihow.com/Find-an-IP-Address), and use
-- `http://<local_ip>:8080`
+- `http://<local_ip>:80`
 
 To share over the public internet, make sure to [forward the port](https://www.wikihow.com/Set-Up-Port-Forwarding-on-a-Router) in your router, and find out your public ip address (e.g. at https://www.whatismyip.com).
 The url for your friends is then:
@@ -68,7 +68,7 @@ The url for your friends is then:
 
 ### Building from source
 
-This is not necessary when you've downloaded a pre-built binary from the [releases page](https://github.com/SimonDeRidder/Simon-s-html-front-end-for-MPMBs-Character-Record-Sheet/releases), but if you like, you may build the WebAssembly from its Rust source code.
+This is not necessary when you've downloaded a pre-built binary from the [releases page](https://github.com/SimonDeRidder/Simon-s-Character-Sheet/releases), but if you like, you may build the WebAssembly from its Rust source code.
 
 1) Install the Rust ecosystem. The easiest way to do this is with [rustup](https://rustup.rs).
 2) Set WASM as a target with
@@ -79,16 +79,20 @@ This is not necessary when you've downloaded a pre-built binary from the [releas
 	```sh
 	cargo install wasm-pack
 	```
-3) Build the WASM folder with the included `build.sh`. Alternatively, run wasm-pack directly with
+	and wasm-bindgen-cli with
 	```sh
-	wasm-pack build -m no-install --no-typescript -t web --dev -d wasm --out-name wasm --no-pack
+	cargo install wasm-bindgen-cli@0.2.108
+	```
+3) Build the WASM folder with the included `build_release.sh`. Alternatively, run wasm-pack directly with
+	```sh
+	wasm-pack build -m no-install --no-typescript -t web --release -d wasm --out-name wasm --no-pack
 	```
 
 Now you're ready to go ahead and [Run](#run).
 
 ## Extra content
 
-This web application works with any extra content written for MPMB's Character Record Sheet. You can find such additional content at the [/r/mpmb subreddit](https://www.reddit.com/r/mpmb/). There is also [the MPMB Discord sever](https://discord.gg/Qjq9Z5Q) for discussion and questions.
+This web application works with extra content written for MPMB's Character Record Sheet. You can find such additional content at the [/r/mpmb subreddit](https://www.reddit.com/r/mpmb/). There is also [the MPMB Discord sever](https://discord.gg/Qjq9Z5Q) for discussion and questions.
 
 For syntax to write your own, consult [additional content syntax](additional%20content%20syntax).
 
@@ -102,7 +106,7 @@ Please see the [How-To Guide - Add More Content](https://www.flapkan.com/how-to/
 - some of the context menus are not scrollable
 
 ## Legal Information
-Simon's HTML front end for MPMB's D&D 5e Character Record Sheet automates some of the administrative tasks around playing the game of Dungeon & Dragons 5th edition &copy; Wizards of the Coast, Inc.
+Simon's Character Sheet automates some of the administrative tasks around playing the game of Dungeon & Dragons 5th edition &copy; Wizards of the Coast, Inc.
 
 The `_functions`, `_variables`, `additional content` and `additional content syntax` are under Copyright &copy; 2014 Joost Wijnen; Flapkan Productions
 

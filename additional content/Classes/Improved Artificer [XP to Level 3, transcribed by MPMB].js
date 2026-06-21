@@ -327,7 +327,7 @@ ClassList["improved artificer"] = {
 					weight : 3,
 					description : "Ammunition, loading, 3 shots magazine",
 					abilitytodamage : false,
-					ammo : "arcane magazine",
+					ammo : "arcanic_firearm_rounds",
 					modifiers : ["", "Int"],
 					artDualPistols : true
 				},
@@ -447,7 +447,7 @@ ClassList["improved artificer"] = {
 					weight : 8,
 					description : "Ammunition, loading, 2 shots magazine, two-handed; +1d6 damage in 20 ft or +2d6 in 10 ft",
 					abilitytodamage : false,
-					ammo : "arcane magazine",
+					ammo : "arcanic_firearm_rounds",
 					artBlunderbuss : true
 				},
 				weaponsAdd : ['Blunderbuss'],
@@ -570,7 +570,7 @@ ClassList["improved artificer"] = {
 					weight : 10,
 					description : "Ammunition, loading, 3 shots magazine, two-handed",
 					abilitytodamage : false,
-					ammo : "arcane magazine",
+					ammo : "arcanic_firearm_rounds",
 					modifiers : ["", "Int"],
 					artSniperRifle : true
 				},
@@ -1278,18 +1278,6 @@ ClassList["improved artificer"] = {
 			}
 		}
 	}
-};
-
-// Artificer ammo
-AmmoList["arcanic firearm rounds"] = {
-	name : "Arcanic Firearm Rounds",
-	source : ["XPtL3:IA", 5],
-	weight : 0.2, // based on the weight of renaissance bullets from the DMG
-	icon : "Bullets",
-	checks : [".Bullet"],
-	display : 50,
-	invName : "Arcanic Firearm Rounds",
-	alternatives : [/^((?=.*arcane)(?=.*magazine)|(?=.*arcanic)(?=.*firearm)(?=.*rounds?)).*$/i]
 };
 
 ["Eyes of the Eagle", "Cap of Water Breathing", "Driftglobe", "Goggles of Night", "Sending Stones", "Lantern of Revealing", "Alchemy Jug (prereq: level 5 artificer)", "Bag of Holding (prereq: level 5 artificer)", "Helm of Comprehending Languages (prereq: level 5 artificer)", "Ring of Swimming (prereq: level 5 artificer)", "Robe of Useful Items (prereq: level 5 artificer)", "Rope of Climbing (prereq: level 5 artificer)", "Wand of Magic Detection (prereq: level 5 artificer)", "Wand of Secrets (prereq: level 5 artificer)", "Bag of Beans (prereq: level 10 artificer)", "Chime of Opening (prereq: level 10 artificer)", "Decanter of Endless Water (prereq: level 10 artificer)", "Gem of Brightness (prereq: level 10 artificer)", "Dimensional Shackles (prereq: level 10 artificer)", "Gloves of Swimming and Climbing (prereq: level 10 artificer)", "Eyes of Minute Seeing (prereq: level 10 artificer)", "Folding Boat (prereq: level 10 artificer)", "Heward's Handy Haversack (prereq: level 10 artificer)", "Boots of Striding and Springing (prereq: level 15 artificer)", "Brooch of Shielding (prereq: level 15 artificer)", "Broom of Flying (prereq: level 15 artificer)", "Gloves of Missile Snaring (prereq: level 15 artificer)", "Hat of Disguise (prereq: level 15 artificer)", "Immovable Rod (prereq: level 15 artificer)", "Ring of Jumping (prereq: level 15 artificer)", "Slippers of Spider Climbing (prereq: level 15 artificer)", "Rod of Lordly Might (prereq: level 20 artificer)", "Plate Armor of Etherealness (prereq: level 20 artificer)", "Deck of Many Things (prereq: level 20 artificer)", "Wings of Flying (prereq: level 20 artificer)"].forEach(function (theI) {

@@ -690,7 +690,7 @@ var Base_WeaponsList = {
 		weight : 1,
 		description : "Target starts burning: 1d4 fire damage at the start of its turns; DC 10 Dex check to end as an action",
 		abilitytodamage : true,
-		ammo : "alchemist fire",
+		ammo : "alchemist_fire",
 		isNotWeapon : true
 	},
 	"vials of acid" : {
@@ -705,7 +705,7 @@ var Base_WeaponsList = {
 		weight : 1,
 		description : "",
 		abilitytodamage : true, // ranged (improvised) weapon attack, so follow generic rule
-		ammo : "vials of acid",
+		ammo : "acid_vial",
 		isNotWeapon : true
 	},
 	"holy water" : {
@@ -720,7 +720,7 @@ var Base_WeaponsList = {
 		weight : 1,
 		description : "Only does damage against fiends and undead; Comes in flasks",
 		abilitytodamage : true, // ranged (improvised) weapon attack, so follow generic rule
-		ammo : "holy water",
+		ammo : "holy_water",
 		isNotWeapon : true
 	},
 	"burning torch" : {
@@ -886,118 +886,6 @@ var Base_WeaponsList = {
 		description : "Wis save, success - no damage, fail - also disadv. on next attack roll in next turn; 1 creature",
 		abilitytodamage : false,
 		dc : true
-	}
-};
-
-//A list of all types of 'ammo' for the ammunition section on the first page
-var Base_AmmoList = {
-	"arrow" : {
-		name : "Arrows",
-		source : [["SRD", 69], ["P", 150]],
-		weight : 0.05,
-		icon : "Arrows"
-	},
-	"bolt" : {
-		name : "Bolts",
-		weight : 0.075,
-		source : [["SRD", 69], ["P", 150]],
-		icon : "Arrows",
-		invName : "Crossbow bolts"
-	},
-	"bullet" : {
-		name : "Bullets",
-		weight : 0.075,
-		source : [["SRD", 69], ["P", 150]],
-		icon : "Bullets",
-		invName : "Sling bullets",
-		alternatives : [/^(?=.*bullet)(?=.*sling).*$/i]
-	},
-	"dagger" : {
-		name : "Daggers",
-		source : [["SRD", 66], ["P", 149]],
-		weight : 1,
-		icon : "Daggers"
-	},
-	"dart" : {
-		name : "Darts",
-		source : [["SRD", 66], ["P", 149]],
-		weight : 0.25,
-		icon : "Arrows"
-	},
-	"flask" : {
-		name : "Flasks (1 pint)",
-		source : [["SRD", 69], ["P", 150]],
-		weight : 1,
-		icon : "Flasks"
-	},
-	"handaxe" : {
-		name : "Handaxes",
-		source : [["SRD", 66], ["P", 149]],
-		weight : 2,
-		icon : "Axes",
-		alternatives : ["axe"]
-	},
-	"javelin" : {
-		name : "Javelins",
-		source : [["SRD", 66], ["P", 149]],
-		weight : 2,
-		icon : "Spears"
-	},
-	"light hammer" : {
-		name : "Light Hammers",
-		source : [["SRD", 66], ["P", 149]],
-		weight : 2,
-		icon : "Hammers",
-		alternatives : ["hammer"]
-	},
-	"needle" : {
-		name : "Needles",
-		source : [["SRD", 66], ["P", 149]],
-		weight : 0.02,
-		icon : "Bullets",
-		invName : "Blowgun needles"
-	},
-	"spear" : {
-		name : "Spears",
-		source : [["SRD", 66], ["P", 149]],
-		weight : 3,
-		icon : "Spears"
-	},
-	"trident" : {
-		name : "Tridents",
-		source : [["SRD", 66], ["P", 149]],
-		weight : 4,
-		icon : "Spears"
-	},
-	"vial" : {
-		name : "Vials (4 ounces)",
-		source : [["SRD", 69], ["P", 150]],
-		weight : 0.25,
-		icon : "Vials"
-	},
-	"alchemist fire" : {
-		name : "Alchemist's Fire, flasks",
-		source : [["SRD", 66], ["P", 148]],
-		weight : 1,
-		icon : "Flasks",
-		invName : "Alchemist's fire, flasks of",
-		alternatives : [/^(?=.*alchemist)(?=.*fire).*$/i]
-	},
-	"vials of acid" : {
-		name : "Vials of Acid",
-		source : [["SRD", 66], ["P", 148]],
-		weight : 1,
-		icon : "Vials",
-		invName : "Acid, vials of",
-		alternatives : [/^(?=.*acid)(?=.*vial).*$/i]
-	},
-	"holy water" : {
-		name : "Holy Water, flasks",
-		source : [["SRD", 67], ["P", 151]],
-		weight : 1,
-		icon : "Flasks",
-		invName : "Holy Water, flasks of",
-		alternatives : [/^(?=.*holy)(?=.*water).*$/i]
 	}
 };
 

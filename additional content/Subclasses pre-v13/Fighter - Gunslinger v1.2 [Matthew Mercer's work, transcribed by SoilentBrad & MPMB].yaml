@@ -1,0 +1,51 @@
+source_id: MM:GMA
+source_name: "Matthew Mercer: Gunslinger Martial Archetype v1.2"
+ammunition:
+  - id: pistol_bullet
+    name: Pistol Bullets
+    weight: 0.015
+    icon: Bullet
+    default_amount: 20
+    source_page: 3
+    cost_cp: 20
+    pattern: pistol\s+bullets?
+  - id: musket_bullet
+    name: Musket Bullets
+    weight: 0.025
+    icon: Bullet
+    default_amount: 20
+    source_page: 3
+    cost_cp: 25
+    pattern: musket\s+bullets?
+  - id: pepperbox_bullet
+    name: Pepperbox Bullets
+    weight: 0.015
+    icon: Bullet
+    default_amount: 20
+    source_page: 3
+    cost_cp: 20
+    pattern: pepperbox\s+bullets?
+  - id: scattergun_shell
+    name: Scattergun Shells
+    weight: 0.2
+    icon: Bullet
+    default_amount: 5
+    source_page: 3
+    cost_cp: 100
+    pattern: scattergun\s+shells?
+  - id: bad_news_bullet
+    name: Bad News Bullets
+    weight: 0.05
+    icon: Bullet
+    default_amount: 5
+    source_page: 3
+    cost_cp: 200
+    pattern: bad\s+news\s+bullets?
+  - id: hand_mortar_grenade
+    name: Hand Mortar Grenades
+    weight: 0.65
+    icon: Bullet
+    default_amount: 1
+    source_page: 3
+    cost_cp: 100
+    pattern: hand\s+mortar\s+grenades?

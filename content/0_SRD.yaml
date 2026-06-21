@@ -1,0 +1,131 @@
+source_id: SRD
+source_name: System Reference Document
+ammunition:
+  - id: arrow
+    name: Arrows
+    weight: 0.05
+    icon: Arrow
+    default_amount: 20
+    source_page: 69
+    cost_cp: 5
+    pattern: arrows?
+  - id: bolt
+    name: Bolts
+    weight: 0.075
+    icon: Arrow
+    default_amount: 20
+    source_page: 69
+    cost_cp: 5
+    pattern: (?:crossbow\s)?\s*bolts?
+  - id: bullet
+    name: Bullets, Sling
+    weight: 0.075
+    icon: Bullet
+    default_amount: 20
+    source_page: 69
+    cost_cp: 0.2
+    pattern: (?:sling\s)?\s*bullets?
+  - id: dagger
+    name: Daggers
+    weight: 1
+    icon: Dagger
+    default_amount: 10
+    source_page: 66
+    cost_cp: 200
+    pattern: daggers?
+  - id: dart
+    name: Darts
+    weight: 0.25
+    icon: Arrow
+    default_amount: 20
+    source_page: 66
+    cost_cp: 5
+    pattern: darts?
+  - id: flask
+    name: Flasks (1 pint)
+    weight: 1
+    icon: Flask
+    default_amount: 20
+    source_page: 69
+    cost_cp: 2
+    pattern: flasks?
+  - id: handaxe
+    name: Handaxes
+    weight: 2
+    icon: Axe
+    default_amount: 8
+    source_page: 66
+    cost_cp: 500
+    pattern: (?:hand)?axes?
+  - id: javelin
+    name: Javelins
+    weight: 2
+    icon: Spear
+    default_amount: 10
+    source_page: 66
+    cost_cp: 50
+    pattern: javelins?
+  - id: hammer
+    name: Light Hammers
+    weight: 2
+    icon: Hammer
+    default_amount: 8
+    source_page: 66
+    cost_cp: 200
+    pattern: (?:light\s)?\s*hammers?
+  - id: needle
+    name: Blowgun needles
+    weight: 0.02
+    icon: Bullet
+    default_amount: 50
+    source_page: 66
+    cost_cp: 2
+    pattern: (?:blowgun\s)?\s*needles?
+  - id: spear
+    name: Spears
+    weight: 3
+    icon: Spear
+    default_amount: 10
+    source_page: 66
+    cost_cp: 100
+    pattern: spears?
+  - id: trident
+    name: Tridents
+    weight: 4
+    icon: Spear
+    default_amount: 10
+    source_page: 66
+    cost_cp: 500
+    pattern: tridents?
+  - id: vial
+    name: Vials (4 ounces)
+    weight: 0.25
+    icon: Vial
+    default_amount: 20
+    source_page: 69
+    cost_cp: 100
+    pattern: vials?
+  - id: alchemist_fire
+    name: Alchemist's Fire, flasks
+    weight: 1
+    icon: Flask
+    default_amount: 20
+    source_page: 66
+    cost_cp: 5000
+    pattern: (?:flasks?\s+of\s)?\s*alchemist(?:.s)?\s+fire
+  - id: acid_vial
+    name: Vials of Acid
+    weight: 1
+    icon: Vial
+    default_amount: 20
+    source_page: 66
+    cost_cp: 2500
+    pattern: (?:vials?\s+of\s)?\s*acid
+  - id: holy_water
+    name: Holy Water, flasks
+    weight: 1
+    icon: Flask
+    default_amount: 20
+    source_page: 67
+    cost_cp: 2500
+    pattern: (?:flasks?\s+of\s)?\s*holy\s+water

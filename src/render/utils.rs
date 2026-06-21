@@ -136,12 +136,6 @@ where
 					""
 				}
 			} + {
-				if no_spinner {
-					" no-spinner"
-				} else {
-					""
-				}
-			} + {
 				if underline_if_zero_in_print && (signal.get() == T::default()) {
 					" print-underline"
 				} else {

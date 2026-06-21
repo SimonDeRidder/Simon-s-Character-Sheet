@@ -79,7 +79,7 @@ function initialCalculationEvents() {
 function setSheetVersion() {
 	return new Promise(function (resolve, reject) {
 		for (let sheetInfoElement of document.getElementsByClassName("sheetinfo")) {
-			sheetInfoElement.innerHTML = "Based on MorePurpleMoreBetter&apos;s D&amp;D 5th edition Character Record Sheet " + this.info.SheetVersion + " (Printer Friendly)"
+			sheetInfoElement.innerHTML = "Simon&apos;s D&amp;D 5e Character Sheet " + this.info.version + " (MPMB " + this.info.SheetVersion + ")";
 		}
 		resolve();
 	});

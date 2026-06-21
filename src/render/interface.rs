@@ -15,8 +15,9 @@ use wasm_bindgen::JsValue;
 
 use crate::{
 	Character,
-	config::CONFIG,
+	config::{AmmunitionDefinition, CONFIG},
 	domain::{
+		equipment::Ammunition,
 		general_info::ClassLevel,
 		stats::abilities::{
 			AbilityImprovementValue, AbilityLimitSource, AbilitySource, ImprovementAbilitySource,
@@ -65,9 +66,23 @@ impl From<&ClassLevel> for ClassForExport {
 }
 
 #[wasm_bindgen]
+pub struct AmmoForInventory {
+	#[allow(unused)]
+	id: String,
+	#[allow(unused)]
+	name: String,
+	#[allow(unused)]
+	amount: u8,
+	#[allow(unused)]
+	weight: f32,
+	#[allow(unused)]
+	pattern: String,
+}
+
+#[wasm_bindgen]
 extern "C" {
 	#[wasm_bindgen(js_namespace = eventManager)]
-	fn handle_event(event_type: String);
+	pub fn handle_event(event_type: String);
 
 	pub fn adapter_helper_get_all_class_ids() -> Vec<String>;
 	pub fn adapter_helper_get_class(class_id: String) -> Vec<String>;
@@ -524,6 +539,135 @@ impl Character {
 			Some(finished_signal_w),
 		);
 		SignalFuture { signal: finished_signal_r }.await;
+	}
+
+	pub fn get_total_ammunition_weight(&self) -> f32 {
+		let mut total = 0.0;
+		for ammunition in self.equipment.ammunition.read_untracked().iter() {
+			let ammo = ammunition.read_untracked();
+			let ammo_weight = CONFIG
+				.ammunition_definitions
+				.iter()
+				.position(|el: &AmmunitionDefinition| el.id.eq(&ammo.id))
+				.map_or(0, |ind| CONFIG.ammunition_definitions[ind].weightx200);
+			total += ((ammo_weight as f32) * (ammo.total as f32)) / 200.0;
+		}
+		total
+	}
+
+	pub fn add_ammunition(&mut self, ammo_id_joint: String, amount: Option<u8>) {
+		let mut id_iter = ammo_id_joint.split("%%%%");
+		let ammo_id = id_iter.next().unwrap(); // ok because split always returns at least 1 element
+		let variant_id = id_iter.next().map(|v| v.to_string());
+		for ammunition in self.equipment.ammunition.read_untracked().iter() {
+			let ammo_read_guard = ammunition.read_untracked();
+			if ammo_read_guard.id.eq(&ammo_id) && ammo_read_guard.variant_id.eq(&variant_id) {
+				return; // this type of ammo already exists
+			}
+		}
+		if let Some(ammo_def) = CONFIG
+			.ammunition_definitions
+			.iter()
+			.position(|el: &AmmunitionDefinition| el.id.eq(ammo_id))
+			.map(|ind| &CONFIG.ammunition_definitions[ind])
+		{
+			self.equipment
+				.ammunition
+				.write()
+				.push(leptos::prelude::RwSignal::new(Ammunition {
+					id: ammo_id.to_string(),
+					total: amount.unwrap_or(ammo_def.default_amount),
+					used: 0,
+					icon: ammo_def.icon.clone(),
+					variant_id,
+				}))
+		} else {
+			console_error(format!("Could not find definition for ammunition '{}'", ammo_id_joint).as_str());
+		}
+	}
+
+	pub fn remove_ammunition(&mut self, ammo_id_joint: String) {
+		let mut id_iter = ammo_id_joint.split("%%%%");
+		let ammo_id = id_iter.next().unwrap(); // ok because split always returns at least 1 element
+		let variant_id = id_iter.next().map(|v| v.to_string());
+		self.equipment.ammunition.update(|ammo_list| {
+			ammo_list.retain(|ammo| {
+				let ammo_entry = ammo.read_untracked();
+				ammo_entry.id.ne(&ammo_id) || ammo_entry.variant_id.ne(&variant_id)
+			});
+		});
+	}
+
+	pub fn parse_ammunition(&self, ammunition_string: String) -> Option<String> {
+		let cleaned = ammunition_string.trim().to_lowercase();
+		[None]
+			.iter()
+			.copied()
+			.chain(CONFIG.ammunition_variants.iter().map(Some))
+			.filter_map(|variant| {
+				let pattern_prefix = variant.map_or("", |variant_| variant_.pattern_prefix);
+				let match_id = CONFIG
+					.ammunition_definitions
+					.iter()
+					.filter_map(|ammo_def| {
+						regex::Regex::new(&(String::from(pattern_prefix) + ammo_def.pattern))
+							.map_or(None, |pattern| {
+								pattern.is_match(&cleaned).then(|| ammo_def.id.to_string())
+							})
+					})
+					.next_back(); // last so custom content can override standard
+				match_id.map(|id| {
+					id + &variant.map_or(String::new(), |variant_| String::from("%%%%") + variant_.id)
+				})
+			})
+			.next_back()
+	}
+
+	pub fn get_ammunition_weight(&self, ammo_id_joint: String) -> f32 {
+		let ammo_id = ammo_id_joint.split("%%%%").next().unwrap(); // ok because split always returns at least 1 element
+		CONFIG
+			.ammunition_definitions
+			.iter()
+			.position(|el: &AmmunitionDefinition| el.id.eq(ammo_id))
+			.map_or(0.0, |ind| CONFIG.ammunition_definitions[ind].weightx200 as f32 / 200.0)
+	}
+
+	pub fn get_ammunitions_for_inventory(&self) -> Vec<AmmoForInventory> {
+		self.equipment
+			.ammunition
+			.read_untracked()
+			.iter()
+			.filter_map(|ammunition| {
+				let ammo = ammunition.read_untracked();
+				let ammo_definition = CONFIG
+					.ammunition_definitions
+					.iter()
+					.position(|el: &AmmunitionDefinition| el.id.eq(&ammo.id))
+					.map(|ind| &CONFIG.ammunition_definitions[ind]);
+				let ammo_variant_definition = ammo.variant_id.as_ref().and_then(|variant_id| {
+					CONFIG
+						.ammunition_variants
+						.iter()
+						.position(|el| el.id.eq(variant_id))
+						.map(|ind| &CONFIG.ammunition_variants[ind])
+				});
+				ammo_definition.map(|ammo_def| AmmoForInventory {
+					id: ammo.id.clone()
+						+ &ammo
+							.variant_id
+							.as_ref()
+							.map_or(String::new(), |variant_id_| String::from("%%%%") + variant_id_),
+					name: ammo_variant_definition
+						.map_or(String::new(), |variant| variant.name.to_owned() + " ")
+						+ ammo_def.name,
+					amount: ammo.total,
+					weight: ammo_def.weightx200 as f32 / 200.0,
+					pattern: ammo_variant_definition
+						.map_or(String::new(), |variant| variant.pattern_prefix.to_owned())
+						+ ammo_def.pattern,
+				})
+			})
+			.collect()
 	}
 
 	// > Serialisation

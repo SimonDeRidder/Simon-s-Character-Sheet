@@ -1,6 +1,6 @@
 name: pull request
 run-name: pull request
-on: [pull_request]
+on: pull_request
 permissions:
   contents: read
 jobs:
@@ -31,7 +31,12 @@ jobs:
       image: rust:1.93.0-alpine
     steps:
       - uses: actions/checkout@v4
+      - run: apk add musl-dev
       - run: rustup component add rustfmt
+      - run: rustup target add wasm32-unknown-unknown
+      - run: cargo install -f wasm-bindgen-cli --version 0.2.108
+      - run: cargo install -f wasm-pack
+      - run: wasm-pack build -m no-install --no-typescript -t web -d wasm --out-name wasm --no-pack --release
       - run: cargo fmt -- --check
   audit:
     name: Cargo audit

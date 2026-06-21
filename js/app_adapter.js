@@ -1,3 +1,8 @@
+this.info = {
+	version: "v0.4.0",
+	SheetVersion: "v14.0.5",
+	SpellsOnly: false,
+};
 const minVer = false;
 const app = {
 	loaded: false,
@@ -274,12 +279,6 @@ AdapterParsePopUpMenu = function (aParams, resolve) {
 		}
 	}
 	return menu;
-};
-
-
-this.info = {
-	SheetVersion: "v14.0.5",
-	SpellsOnly: false,
 };
 this.path = "./index.html";
 this.documentFileName = "index.html";
@@ -1500,8 +1499,6 @@ class CurrentSourcesAdapter {
 		weapExclDefault,
 		armorExcl,
 		armorExclDefault,
-		ammoExcl,
-		ammoExclDefault,
 		magicitemExcl,
 		magicitemExclDefault,
 		spellsExcl,
@@ -1530,8 +1527,6 @@ class CurrentSourcesAdapter {
 		this.weapExclDefault = (weapExclDefault === undefined) ? [] : weapExclDefault;
 		this.armorExcl = (armorExcl === undefined) ? [] : armorExcl;
 		this.armorExclDefault = (armorExclDefault === undefined) ? [] : armorExclDefault;
-		this.ammoExcl = (ammoExcl === undefined) ? [] : ammoExcl;
-		this.ammoExclDefault = (ammoExclDefault === undefined) ? [] : ammoExclDefault;
 		this.magicitemExcl = (magicitemExcl === undefined) ? [] : magicitemExcl;
 		this.magicitemExclDefault = (magicitemExclDefault === undefined) ? [] : magicitemExclDefault;
 		this.spellsExcl = (spellsExcl === undefined) ? [] : spellsExcl;
@@ -1564,8 +1559,6 @@ class CurrentSourcesAdapter {
 			+ "weapExclDefault=" + adapter_helper_recursive_toSource(this.weapExclDefault) + ","
 			+ "armorExcl=" + adapter_helper_recursive_toSource(this.armorExcl) + ","
 			+ "armorExclDefault=" + adapter_helper_recursive_toSource(this.armorExclDefault) + ","
-			+ "ammoExcl=" + adapter_helper_recursive_toSource(this.ammoExcl) + ","
-			+ "ammoExclDefault=" + adapter_helper_recursive_toSource(this.ammoExclDefault) + ","
 			+ "magicitemExcl=" + adapter_helper_recursive_toSource(this.magicitemExcl) + ","
 			+ "magicitemExclDefault=" + adapter_helper_recursive_toSource(this.magicitemExclDefault) + ","
 			+ "spellsExcl=" + adapter_helper_recursive_toSource(this.spellsExcl) + ","
@@ -1788,7 +1781,7 @@ function adapter_helper_get_saveimg_field(img_name /*String*/) /*AdapterClassIma
 			return null;
 		}
 	} else if (img_name == 'ClickMeIcon') {
-		return new AdapterClassImageReference('img/page_stats/header_icons/blank.svg');
+		return new AdapterClassImageReference('img/icons/blank.svg');
 	} else if ((img_name == 'EmptyIcon') || (img_name == "Patreon")) {
 		return new AdapterClassImageReference('');
 	} else if (img_name.startsWith('SpellSlots.')) {
@@ -1958,68 +1951,27 @@ function adapter_helper_load() {
 		tDoc.calculate = false;
 		tDoc.delay = true;
 
-		// differentiate old (0.2.*) and new save formats
+		// differentiate old (0.3.*) and new save formats
 		const { js, ...wasm } = saveData;
+		console.log("saveData", saveData);
 		let jsData = js;
+		console.log("jsData", jsData);
 		let wasmData = wasm;
-		let classes_str = "";
-		if (!('general_info' in wasmData)) {
-			// old (0.2.*) format, fetch general_info from js data
+		if (!('equipment' in wasmData)) {
+			// old (0.3.*) format, ignore ammo fields from js data (were broken anyway)
 			newElements = [];
 			let currentElement;
-			wasmData.general_info = {};
 			while (jsData.elements.length > 0) {
 				currentElement = jsData.elements.pop()
-				if (currentElement.name == "PC Name") {
-					wasmData.general_info.name = currentElement.value ? currentElement.value: "";
-				}
-				else if (currentElement.name == "HeaderIcon") {
-					wasmData.general_info.player_icon = (
-						currentElement.image_data ?
-						currentElement.image_data
-							.replace("img/page_stats/header_icons/blank.svg", "img/icons/blank.svg")
-							.replace("img/factions/", "img/icons/factions/")
-							.replace("/emeraldenclave.svg", "/emerald_enclave.svg")
-							.replace("/lordsalliance.svg", "/lords_alliance.svg")
-							.replace("/ordergauntlet.svg", "/order_gauntlet.svg")
-							.replace("img/class/icon/", "img/icons/classes/")
-							.replace("img/adventure_league/", "img/icons/adventure_league/")
-						: "img/icons/blank.svg"
-					);
-				} else if (currentElement.name == "Character Level") {
-					wasmData.general_info.level = currentElement.value ? Number(currentElement.value) : 0;
-				} else if (currentElement.name == "Total Experience") {
-					wasmData.general_info.experience = currentElement.value ? Number(currentElement.value) : 0;
-				} else if (["DCI.Text", "DCI.Title"].includes(currentElement.name)) {
-					// do nothing, field removed
-				} else if (currentElement.name == "Class and Levels") {
-					classes_str = currentElement.value ? currentElement.value: "";
-				} else if (currentElement.name == "Player Name") {
-					wasmData.general_info.player_name = currentElement.value ? currentElement.value: "";
-				} else if (currentElement.name == "Background") {
-					wasmData.general_info.background = currentElement.value ? adapter_helper_parse_background_from_name(currentElement.value): null;
-				} else if (currentElement.name == "Background_Extra") {
-					wasmData.general_info.background_option = currentElement.value ? currentElement.value: null;
-				} else if (currentElement.name == "Race") {
-					wasmData.general_info.race = adapter_helper_parse_race(currentElement.value);
+				if (currentElement.name.startsWith("AmmoLeft") || currentElement.name.startsWith("AmmoRight")) {
+					// wasmData.something.field = currentElement.value ? currentElement.value: "";
+					// ignore
 				} else {
 					newElements.push(currentElement);
 				}
 			}
-			let newClasses = adapter_helper_parse_classes_from_string(classes_str, wasmData.general_info.level);
-			wasmData.general_info.classes = [];
-			for (let classId in newClasses) {
-				wasmData.general_info.classes.push({
-					id: classId,
-					name: newClasses[classId].name,
-					subclass_id: newClasses[classId].subclass,
-					level: newClasses[classId].level
-				})
-			}
-			if ((wasmData.general_info.level > 0) && (wasmData.general_info.experience == 0)) {
-				wasmData.general_info.experience = window.get_minimum_experience_for_level(wasmData.general_info.level);
-			}
 			jsData.elements = newElements;
+			wasmData.equipment = {ammunition: []};
 		}
 
 		// set pages

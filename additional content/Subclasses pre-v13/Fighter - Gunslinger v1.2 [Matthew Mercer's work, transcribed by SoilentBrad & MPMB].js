@@ -163,16 +163,7 @@ WeaponsList["pistol-mm"] = {
 	weight : 3,
 	description : "Reload 4, misfire 1",
 	abilitytodamage : true,
-	ammo : "pistol bullets"
-};
-AmmoList["pistol bullets"] = {
-	name : "Pistol Bullets",
-	source : ["MM:GMA", 3],
-	weight : 0.015,
-	icon : "Bullets",
-	checks : [".Bullet"],
-	display : 50,
-	invName : "Bullets, pistol"
+	ammo : "pistol_bullet"
 };
 GearList["ammunition: bullets pistol (20)"] = {
 	infoname : "   Pistol bullets (20) [4 gp]",
@@ -194,16 +185,7 @@ WeaponsList["musket-mm"] = {
 	weight : 10,
 	description : "Two-handed, reload 1, misfire 2",
 	abilitytodamage : true,
-	ammo : "musket bullets"
-};
-AmmoList["musket bullets"] = {
-	name : "Musket Bullets",
-	source : ["MM:GMA", 3],
-	weight : 0.025,
-	icon : "Bullets",
-	checks : [".Bullet"],
-	display : 50,
-	invName : "Bullets, musket"
+	ammo : "musket_bullet"
 };
 GearList["ammunition: bullets musket (20)"] = {
 	infoname : "   Musket bullets (20) [5 gp]",
@@ -225,16 +207,7 @@ WeaponsList["pepperbox"] = {
 	weight : 5,
 	description : "Reload 6, misfire 2",
 	abilitytodamage : true,
-	ammo : "pepperbox bullets"
-};
-AmmoList["pepperbox bullets"] = {
-	name : "Pepperbox Bullets",
-	source : ["MM:GMA", 3],
-	weight : 0.015,
-	icon : "Bullets",
-	checks : [".Bullet"],
-	display : 50,
-	invName : "Bullets, pepperbox"
+	ammo : "pepperbox_bullet"
 };
 GearList["ammunition: bullets pepperbox (20)"] = {
 	infoname : "   Pepperbox bullets (20) [4 gp]",
@@ -256,16 +229,7 @@ WeaponsList["scattergun"] = {
 	weight : 10,
 	description : "Reload 2, misfire 3, scatter (attack rolls vs. all in 30 ft cone, double damage to adjacent to me)",
 	abilitytodamage : true,
-	ammo : "scattergun shells"
-};
-AmmoList["scattergun shells"] = {
-	name : "Scattergun Shells",
-	source : ["MM:GMA", 3],
-	weight : 0.2,
-	icon : "Bullets",
-	checks : [".Bullet"],
-	display : 50,
-	invName : "Scattergun shells"
+	ammo : "scattergun_shell"
 };
 GearList["ammunition: scattergun shells (5)"] = {
 	infoname : "   Scattergun shells (5) [5 gp]",
@@ -287,16 +251,7 @@ WeaponsList["bad news"] = {
 	weight : 25,
 	description : "Two-handed, reload 1, misfire 3",
 	abilitytodamage : true,
-	ammo : "bad news bullets"
-};
-AmmoList["bad news bullets"] = {
-	name : "Bad News Bullets",
-	source : ["MM:GMA", 3],
-	weight : 0.05,
-	icon : "Bullets",
-	checks : [".Bullet"],
-	display : 50,
-	invName : "Bullets, bad news"
+	ammo : "bad_news_bullet"
 };
 GearList["ammunition: bullets bad news (5)"] = {
 	infoname : "   Bad news bullets (5) [10 gp]",
@@ -318,16 +273,7 @@ WeaponsList["hand mortar"] = {
 	weight : 10,
 	description : "Reload 1, misfire 3, explosive (5 ft around target Dex save or 1d8 fire damage)",
 	abilitytodamage : true,
-	ammo : "hand mortar grenades"
-};
-AmmoList["hand mortar grenades"] = {
-	name : "Hand Mortar Grenades",
-	source : ["MM:GMA", 3],
-	weight : 0.65,
-	icon : "Bullets",
-	checks : [".Bullet"],
-	display : 50,
-	invName : "Hand mortar grenades"
+	ammo : "hand_mortar_grenade"
 };
 GearList["ammunition: hand mortar grenade"] = {
 	infoname : "   Hand mortar grenade [1 gp]",

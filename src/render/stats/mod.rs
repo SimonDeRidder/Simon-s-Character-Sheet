@@ -1,10 +1,12 @@
 pub mod abilities;
+pub mod ammunition;
 pub mod header;
 
 use leptos::leptos_dom::logging::console_log;
 use wasm_bindgen::JsCast as _;
 
 use crate::Character;
+use crate::render::stats::ammunition::render_ammunition;
 
 use self::abilities::render_abilities;
 use self::header::render_header;
@@ -21,8 +23,12 @@ pub fn render_stats_page(character: &Character, document: &web_sys::Document) ->
 	}?
 	.dyn_into::<web_sys::HtmlElement>()?;
 	let stats_page_clone = stats_page.clone();
-	let results: Vec<Result<(), RenderError>> =
-		vec![render_header(character, stats_page), render_abilities(character, stats_page_clone)];
+	let stats_page_clone2 = stats_page.clone();
+	let results: Vec<Result<(), RenderError>> = vec![
+		render_header(character, stats_page),
+		render_abilities(character, stats_page_clone),
+		render_ammunition(character, stats_page_clone2),
+	];
 
 	for res in results {
 		res?;
