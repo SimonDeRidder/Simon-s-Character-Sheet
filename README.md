@@ -8,7 +8,7 @@ This back end is predominantly based on the document-level JavaScript that is us
 
 ### Download
 
-You can download the latest release from the [releases page](https://github.com/SimonDeRidder/Simon-s-Character-Sheet/releases).
+You can download the latest release from the [releases page](https://github.com/Simon-D-R/Simon-s-Character-Sheet/releases).
 Simply download and extract the `.tar.gz` or `.zip` to a folder of you choice.
 Alternatively, you can [build the Webassembly from source yourself](#building-from-source).
 
@@ -68,7 +68,7 @@ The url for your friends is then:
 
 ### Building from source
 
-This is not necessary when you've downloaded a pre-built binary from the [releases page](https://github.com/SimonDeRidder/Simon-s-Character-Sheet/releases), but if you like, you may build the WebAssembly from its Rust source code.
+This is not necessary when you've downloaded a pre-built binary from the [releases page](https://github.com/Simon-D-R/Simon-s-Character-Sheet/releases), but if you like, you may build the WebAssembly from its Rust source code.
 
 1) Install the Rust ecosystem. The easiest way to do this is with [rustup](https://rustup.rs).
 2) Set WASM as a target with
@@ -92,13 +92,20 @@ Now you're ready to go ahead and [Run](#run).
 
 ## Extra content
 
-This web application works with extra content written for MPMB's Character Record Sheet. You can find such additional content at the [/r/mpmb subreddit](https://www.reddit.com/r/mpmb/). There is also [the MPMB Discord sever](https://discord.gg/Qjq9Z5Q) for discussion and questions.
 
-For syntax to write your own, consult [additional content syntax](additional%20content%20syntax).
+A community sharing content for this character sheet can be found at [/r/simons_charactersheet](https://www.reddit.com/r/simons_charactersheet/).
 
-Put the files in the `additional_content`` folder and import them into the sheet using the "Import" button.
-Each file is a complete script. You can add multiple files, but take note that they will be processed in the order they are added.
-Please see the [How-To Guide - Add More Content](https://www.flapkan.com/how-to/add-more-content) on my website for an explanation how to add these scripts to the PDF.
+Extra content can be added as a pair of files:
+- a .js file in MPMB-style (see [additional content syntax](additional%20content%20syntax/))
+- a .yaml file detailing migrated concepts ( see [source_syntax.yaml](additional%20content%20syntax/source_syntax.yaml))
+
+The .yaml specification will grow over time, while the .js will shrink.
+
+Put the .js files in the `additional_content`` folder and import them into the sheet by adding ["filename.js", "Source name"] into the loop of `fetchFixedAdditionalScripts` in [js/controller.js](js/controller.js).
+
+Put the .yaml file in [content/](content/), it will be picked up automatically when [building](#building-from-source).
+
+The order of the files matters, since each file overrides the previous ones if there's a conflict.
 
 ## Known issues
 
