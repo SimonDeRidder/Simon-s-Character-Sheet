@@ -2608,7 +2608,7 @@ function RunUserScript(atStartup, manualUserScripts) {
 				failedTestMsg = {
 					cMsg: 'The add-on script "' + scriptName + '" reports that it requires at least version number v' + minSheetVersion[1] + ", and is thus probably not compatible with the version of the sheet that you are using (which is v" + semVers + ').'+
 						(sheetVersion >= maxSheetVersion[0] ? "\nThe add-on script also has a maximum version requirement. Adding it to a v" + maxSheetVersion[0] + " or higher sheet will result in this same error message." : '')+
-						(minSheetVersion[0] >= 24000000 ? '' : '\nThis could be because from v24.0.0 onwards, the sheet uses the 2024 (5.5e) rules, while lower versions use the 5e (2014) rules.')+
+						(minSheetVersion[0] >= 24000000 ? '' : '\nThis could be because from v24.0.0 onwards, the sheet uses the 5.5e (2024) rules, while lower versions use the 5e (2014) rules.')+
 						'\n\nDo you want to continue using this add-on script in the sheet? If you select NO, the "' + scriptName + '" add-on script will be skipped and removed.'+
 						'\n\nYou can find other versions of the sheet with the "Get Latest Version" bookmark.',
 					nIcon: 2,
@@ -2647,7 +2647,7 @@ function RunUserScript(atStartup, manualUserScripts) {
 			eText += 'it returns the following error when run:\n\t"' + error;
 			if (typeof error === "object") for (var e in error) eText += "\n\t  " + e + ": " + error[e];
 			eText += '"\n\n';
-			if (forNewerVersion || forOlderVersion) eText += 'This could be because from v24.0.0 onwards, the sheet uses the 2024 (5.5e) rules, while lower versions use the 5e (2014) rules.\n\n';
+			if (forNewerVersion || forOlderVersion) eText += 'This could be because from v24.0.0 onwards, the sheet uses the 5.5e (2024) rules, while lower versions use the 5e (2014) rules.\n\n';
 			eText += isManual ? "Your add-on script has not been added to the sheet, please try again after fixing the problem." : "The add-on script has been removed from this pdf.";
 			eText += "\n\nFor a more specific error and one that includes the error's line number, try running the add-on script from the JavaScript Console.";
 			if (!forNewerVersion && !forOlderVersion) eText += "\n\nPlease contact the add-on script's author to report this issue.";
@@ -2705,7 +2705,7 @@ function RunUserScript(atStartup, manualUserScripts) {
 	};
 
 	// fix wrong reference (common mistake when adding classes)
-	deleteUnknownReferences();
+	fixClassReferences();
 
 	// when run at startup and one of the script fails, update all the dropdowns
 	if (manualScriptResult == "outOfMemory" || runIScript == "outOfMemory") {
@@ -2720,27 +2720,36 @@ function RunUserScript(atStartup, manualUserScripts) {
 };
 
 // Fix a common mistake in adding classes, having subclass references that don't work
-function deleteUnknownReferences() {
+function fixClassReferences(bDontKickSubclasses) {
 	// Loop through all classes
 	for (var sClass in ClassList) {
 		var oClass = ClassList[sClass];
 		// If the subclasses attribute doesn't exist or is malformed, fix it
 		if (!oClass.subclasses || !isArray(oClass.subclasses) || !isArray(oClass.subclasses[1])) {
 			oClass.subclasses = [
-				oClass.subclasses[0] && typeof oClass.subclasses[0] === "string" ? oClass.subclasses[0] : "Archetype",
+				oClass.subclasses[0] && typeof oClass.subclasses[0] === "string" ? oClass.subclasses[0] : oClass.name + " Subclass",
 				[]
 			];
-			continue;
+		} else if (!bDontKickSubclasses) {
+			// Loop through all the subclasses from end to start and delete any that don't exist in the ClassSubList object and any duplicates
+			var arrDupl = [];
+			for (var i = oClass.subclasses[1].length - 1; i >= 0; i--) {
+				var sSubcl = oClass.subclasses[1][i];
+				if (!ClassSubList[sSubcl] || arrDupl.indexOf(sSubcl) !== -1) {
+					oClass.subclasses[1].splice(i, 1);
+					displayError(false, 'The subclass "' + sSubcl + '" for the class "' + oClass.name + "\" is missing from the ClassSubList object, or appears multiple times in the `subclasses` attribute. Please contact its author to have this issue corrected. The subclass will be ignored for now.\nBe aware that if you add a subclass using the `AddSubClass()` function, you shouldn't list it in the `subclasses` attribute, the function will take care of that.");
+				} else {
+					arrDupl.push(sSubcl);
+				}
+			}
 		}
-		// Loop through all the subclasses from end to start and delete any that don't exist in the ClassSubList object and any duplicates
-		var arrDupl = [];
-		for (var i = oClass.subclasses[1].length - 1; i >= 0; i--) {
-			var sSubcl = oClass.subclasses[1][i];
-			if (!ClassSubList[sSubcl] || arrDupl.indexOf(sSubcl) !== -1) {
-				oClass.subclasses[1].splice(i, 1);
-				displayError(false, 'The subclass "' + sSubcl + '" for the class "' + oClass.name + "\" is missing from the ClassSubList object, or appears multiple times in the `subclasses` attribute. Please contact its author to have this issue corrected. The subclass will be ignored for now.\nBe aware that if you add a subclass using the `AddSubClass()` function, you shouldn't list it in the `subclasses` attribute, the function will take care of that.");
-			} else {
-				arrDupl.push(sSubcl);
+		// Create subclassGainedLevel attribute if it doesn't exist
+		if (!oClass.subclassGainedLevel) {
+			oClass.subclassGainedLevel = 3; // set it to level 3 by default
+			for (var key in oClass.features) {
+				if (key.indexOf("subclassfeature") !== -1 && oClass.features[key].minlevel && oClass.features[key].minlevel < oClass.subclassGainedLevel) {
+					oClass.subclassGainedLevel = oClass.features[key].minlevel;
+				}
 			}
 		}
 	}
@@ -2809,11 +2818,13 @@ function AddSubClass(iClass, subclassName, subclassObj) {
 	iClass = iClass.toLowerCase();
 	subclassName = subclassName.toLowerCase();
 	if (!ClassList[iClass]) return;
+	if (!ClassList[iClass].subclassGainedLevel || !ClassList[iClass].subclasses) fixClassReferences(true);
 	var suffix = 1;
-	var fullScNm = iClass + "-" + subclassName;
+	var baseScNm = iClass + "-" + subclassName;
+	var fullScNm = baseScNm;
 	while (ClassList[iClass].subclasses[1].indexOf(fullScNm) !== -1 || ClassSubList[fullScNm]) {
-		suffix += 1;
-		fullScNm += suffix;
+		suffix++;
+		fullScNm = baseScNm + "-" + suffix;
 	};
 	ClassList[iClass].subclasses[1].push(fullScNm);
 	ClassSubList[fullScNm] = subclassObj;
