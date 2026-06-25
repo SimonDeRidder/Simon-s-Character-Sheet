@@ -616,7 +616,7 @@ function GetFeatureChoice(type, objNm, feaNm, extra) {
 	return theReturn;
 }
 
-// save bonus extrachoices for (other) class features
+// Save bonus extrachoices for (other) class features
 function processBonusClassExtraChoices(bAddRemove, sType, aItems) {
 	if (!isArray(aItems)) aItems = [aItems];
 	for (var i = 0; i < aItems.length; i++) {
@@ -625,9 +625,9 @@ function processBonusClassExtraChoices(bAddRemove, sType, aItems) {
 		var sFea = oItem["feature"];
 		var iBonus = oItem["bonus"];
 		var sSubclass = oItem["subclass"] ? oItem["subclass"] : "mainClass";
-		if (!sClass || !sFea || !iBonus || isNaN(iBonus) || iBonus < 0 || sSubclass === undefined) continue;
+		if (!sClass || !sFea || !iBonus || isNaN(iBonus) || iBonus < 0) continue;
 		if (bAddRemove) {
-			// add, but not if it already exists and we're importing
+			// Add, but not if it already exists and we're importing
 			try {
 				if (!IsNotImport && CurrentFeatureChoices.bonus[sClass][sSubclass][sFea]) continue;
 			} catch(e) {};
@@ -638,14 +638,23 @@ function processBonusClassExtraChoices(bAddRemove, sType, aItems) {
 
 			CurrentFeatureChoices.bonus[sClass][sSubclass][sFea] += iBonus;
 		} else if (CurrentFeatureChoices.bonus && CurrentFeatureChoices.bonus[sClass] && CurrentFeatureChoices.bonus[sClass][sSubclass] && CurrentFeatureChoices.bonus[sClass][sSubclass][sFea]) {
-			// remove
+			// Remove
 			CurrentFeatureChoices.bonus[sClass][sSubclass][sFea] -= iBonus;
-			if (CurrentFeatureChoices.bonus[sClass][sSubclass][sFea] <= 0) delete CurrentFeatureChoices.bonus[sClass][sSubclass][sFea];
-			CurrentFeatureChoices = CleanObject(CurrentFeatureChoices); // remove any remaining empty objects
+			if (CurrentFeatureChoices.bonus[sClass][sSubclass][sFea] <= 0) {
+				delete CurrentFeatureChoices.bonus[sClass][sSubclass][sFea];
+				// If none remain and the (sub)class is not known, remove all of the extrachoices
+				if (!classes.known[sClass] || (oItem["subclass"] && classes.known[sClass].subclass !== oItem["subclass"])) {
+					var extrasKnown = GetFeatureChoice("classes", sClass, sFea, true);
+					for (var i = 0; i < extrasKnown.length; i++) {
+						ClassFeatureOptions([sClass, sFea, extrasKnown[i], 'extra', "remove", true, oItem["subclass"]]);
+					}
+				}
+			}
+			CurrentFeatureChoices = CleanObject(CurrentFeatureChoices); // Remove any remaining empty objects
 		}
 	}
 	SetStringifieds("choices");
-	// not a class feature, so set the visibility for the class menu
+	// Not added by a class feature, so reset the visibility for the class menu
 	if (GetFeatureType(sType) !== "classes") ClassMenuVisibility();
 }
 
@@ -866,7 +875,7 @@ async function processSpBonus(AddRemove, srcNm, spBon, type, parentName, choice,
 		if (!CurrentSpells[useSpName]) sObj = await CreateCurrentSpellsEntry(type, parentName, choice, forceNonCurrent);
 		if (!sObj) return; // failed to create CurrentSpells entry, so stop now
 		if (!isArray(spBon)) spBon = [spBon];
-		sObj.bonus[srcNm] = spBon;
+		sObj.bonus[srcNm] = newObj(spBon);
 		// see if this wants to change the spellcasting ability
 		var spFeatItemLvl, spAbility, spFixedDC, spFixedSpAttack, spAllowUpCasting, spMagicItemComponents;
 		for (var i = 0; i < spBon.length; i++) {
@@ -1465,6 +1474,7 @@ function processCreatureOptions(AddRemove, srcNm, creaArr) {
 
 	srcNm = srcNm.toLowerCase();
 	var AScompA = isTemplVis('AScomp') ? What('Template.extras.AScomp').split(',') : false;
+	var affectsWildShape = false;
 	for (var i = 0; i < creaArr.length; i++) {
 		var newName = srcNm + "-" + creaArr[i].name.toLowerCase();
 		if (AddRemove) {
@@ -1472,7 +1482,7 @@ function processCreatureOptions(AddRemove, srcNm, creaArr) {
 			CurrentVars.extraCreatures[newName] = creaArr[i];
 			CreatureList[newName] = creaArr[i];
 		} else {
-			// remove the entries if they exist and delete any creatures like it
+			// Remove the entries if they exist and delete any creatures like it
 			if (AScompA) {
 				for (var a = 1; a < AScompA.length; a++) {
 					var prefix = AScompA[a];
@@ -1481,6 +1491,10 @@ function processCreatureOptions(AddRemove, srcNm, creaArr) {
 					}
 				}
 			}
+			if (creaArr[i].forceWildshapeOption) {
+				RemoveWildshape(creaArr[i].name, newName, true);
+				affectsWildShape = true;
+			}
 			if (CurrentVars.extraCreatures[newName]) delete CurrentVars.extraCreatures[newName];
 			if (CreatureList[newName]) delete CreatureList[newName];
 		}
@@ -1488,7 +1502,7 @@ function processCreatureOptions(AddRemove, srcNm, creaArr) {
 
 	// if removing things and the variable is now empty
 	if (!AddRemove && !ObjLength(CurrentVars.extraCreatures)) delete CurrentVars.extraCreatures;
-	UpdateDropdown("companiononly"); // update the companion pages' race dropdown (not the wild shape)
+	UpdateDropdown(affectsWildShape ? "creature" : "companiononly");
 	SetStringifieds("vars"); // Save the new settings to a field
 }
 
@@ -1519,7 +1533,7 @@ function applyClassFeatureText(act, fldA, oldTxtA, newTxtA, prevTxt) {
 		var sEscaped = str.replace(/\n/g, '\r').replace(/^\r+/, '').RegEscape();
 		var sJustLine = RegExp(sEscaped + ".*", "i");
 		// Regex for everything until the first empty line or the first line that doesn't start with a "#" (the header format character)
-		var sFullSection = RegExp("\\r?" + sEscaped + ".*(\r[^\r#].*)*", "i"); 
+		var sFullSection = RegExp("\\r?" + sEscaped + ".*(\\r(?!\\s*\\r|#).*)*", "i");
 		return {
 			head: sJustLine,
 			full: sFullSection,
@@ -1561,13 +1575,13 @@ function applyClassFeatureText(act, fldA, oldTxtA, newTxtA, prevTxt) {
 			var changeTxt = prevTxtFound ? fldTxt.replace(prevTxtFound[0], newTxtA[1] + prevTxtFound[0] ) : fldTxt;
 			break;
 		case "remove": // remove the oldTxt
-			var changeTxt = fldTxt.replace(oldRx.full, '').replace(/^\r+/, '');
+			var changeTxt = fldTxt.replace(oldRx.full, '');
 			break;
 		default:
 			return false;
 	}
 	if (changeTxt != fldTxt) {
-		Value(fld, changeTxt);
+		Value(fld, changeTxt.trim());
 		return true;
 	} else if (!/^(insert(before)?|remove)$/i.test(act)) {
 		// nothing changed, so just insert the whole feature, using this same function
@@ -1611,14 +1625,15 @@ async function UpdateSheetDisplay() {
 	if (!ChangesDialogSkip || ChangesDialogSkip.chXP === undefined) {
 		var cDialogFld = What("ChangesDialogSkip.Stringified");
 		ChangesDialogSkip = cDialogFld && cDialogFld !== "({})" ? eval_ish(cDialogFld) : {
-			chXP : false, // experience points
-			chAS : false, // ability scores
-			chHP : false, // hit points
-			chSP : false, // spells
-			chSK : false, // skills
-			chAT : false, // attack calculations
-			chNO : false, // notes additions
-			chCO : false // companion changes
+			chXP: false, // experience points
+			chAS: false, // ability scores
+			chHP: false, // hit points
+			chSP: false, // spells
+			chSK: false, // skills
+			chAT: false, // attack calculations
+			chNO: false, // notes additions
+			chCO: false, // companion changes
+			chWS: false, // wild shape changes
 		};
 		if (!cDialogFld) Value("ChangesDialogSkip.Stringified", ChangesDialogSkip.toSource());
 	}
@@ -2266,6 +2281,55 @@ async function UpdateSheetDisplay() {
 				name : checkboxTxt
 			}]
 		});
+	}
+
+	// if the wild shape calculation changed
+	if (CurrentUpdates.types.indexOf("wildstr") !== -1) {
+		// get the previous wildshapeCallback string
+		Changes_Dialog.oldWildStr = CurrentUpdates.wildStrOld ? CurrentUpdates.wildStrOld : "";
+		// make the attack dialog insert
+		dialogParts.push({
+			skipType : "chWS",
+			type : "cluster",
+			align_children : "align_left",
+			alignment : "align_fill",
+			width : 500,
+			font : "heading",
+			name : "Wild Shape Automation",
+			elements : [{
+				type : "view",
+				align_children : "align_row",
+				alignment : "align_fill",
+				elements : [{
+					type : "static_text",
+					width : 400,
+					alignment : "align_fill",
+					font : "dialog",
+					wrap_name : true,
+					name : "A change was detected in the things that manipulate how Wild Shape entries are calculated from the base creature."
+				}, {
+					type : "button",
+					item_id : "bWSa",
+					name : "See Changes"
+				}]
+			}, {
+				type : "check_box",
+				item_id : "chWS",
+				alignment : "align_fill",
+				font : "palette",
+				name : checkboxTxt
+			}]
+		});
+		Changes_Dialog.bWSa = function (dialog) {
+			ShowCompareDialog(
+				["Things affecting wild shape automations", "You can always edit the wild shape entries to how you see fit, you don't have to leave it as it has been set with the automation. However, they are recalculated whenever you change character level.", 'You can always see what things are affecting the wild shape automation with the Wild Shape Options button on each wild shape page.'],
+				[
+					["Old wild shape manipulations", this.oldWildStr],
+					["New wild shape manipulations", StringEvals("wildStr")],
+				],
+				true
+			);
+		};
 	}
 
 	// check if any of the parts of the array should be shown
