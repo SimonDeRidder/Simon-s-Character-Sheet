@@ -107,13 +107,14 @@ function ParseSpell(input, aCast, limitArray) {
 
 // Create a spell object for a spell + caster combination
 // GetSpellObject(theSpl, input[2], input[1], input[3], false)
-// GetSpellObject(theSpl, theCast, false, true, true)
-function GetSpellObject(theSpl, theCast, firstCol, noOverrides, tipShortDescr) {
+// GetSpellObject(theSpl, theCast,  false,    false,    true)
+function GetSpellObject(theSpl, theCast, firstCol, isDuplicate, tooltipOnly) {
 	var foundSpell = SpellsList[theSpl];
 	var aSpell = { changesObj : {} };
 	if (!foundSpell) return aSpell;
 	var aDescrAttr = ["description", "descriptionMetric", "descriptionShorter", "descriptionShorterMetric"];
 	var aCast = theCast && CurrentSpells[theCast] ? CurrentSpells[theCast] : "";
+	var isBonusSpell = !isDuplicate && aCast && aCast.selectBo && aCast.selectBo.indexOf(theSpl) !== -1;
 	var isMetric = What("Unit System") === "metric";
 	for (var key in foundSpell) {
 		if (key === 'allowUpCasting') continue;
@@ -138,15 +139,34 @@ function GetSpellObject(theSpl, theCast, firstCol, noOverrides, tipShortDescr) {
 		aSpell.changesObj["Magic Item"] = "\n \u2022 Spells cast by magic items don't require any components except the magic item itself, unless otherwise specified in the magic item's description.";
 	}
 	// Apply spell overrides for this CurrentSpells entry
-	if (!noOverrides && aCast && aCast.spellAttrOverride && aCast.spellAttrOverride[theSpl]) {
+	if (aCast && aCast.spellAttrOverride && aCast.spellAttrOverride[theSpl]) {
 		var theOver = aCast.spellAttrOverride[theSpl];
-		for (var key in theOver) {
-			if (key == "changesObj") {
-				for (var changeO in theOver[key]) {
-					aSpell.changesObj[changeO] = theOver.changesObj[changeO];
+		var overrideType = theOver.affectsDuplicates ? theOver.affectsDuplicates : "firstonly";
+		var applyOverride = false;
+		switch (overrideType.toLowerCase()) {
+			default:
+			case "firstOnly":
+				applyOverride = !isDuplicate;
+				break;
+			case "bonus":
+				applyOverride = isBonusSpell;
+				break;
+			case "regular":
+				applyOverride = !isBonusSpell;
+				break;
+			case "all":
+				applyOverride = true;
+				break;
+		}
+		if (applyOverride) {
+			for (var key in theOver) {
+				if (key == "changesObj") {
+					for (var changeO in theOver[key]) {
+						aSpell.changesObj[changeO] = theOver.changesObj[changeO];
+					}
 				}
+				aSpell[key] = theOver[key];
 			}
-			aSpell[key] = theOver[key];
 		}
 	}
 	// If this spell is gained from an item, feat, or race, remove scaling effects
@@ -197,7 +217,7 @@ function GetSpellObject(theSpl, theCast, firstCol, noOverrides, tipShortDescr) {
 			var didChange = false;
 			var changeHead = "Changes by " + evalName;
 			try {
-				didChange = evalThing(theSpl, aSpell, aCast ? theCast : "", noOverrides ? true : false);
+				didChange = evalThing(theSpl, aSpell, aCast ? theCast : "", isDuplicate ? true : false, isBonusSpell);
 			} catch (error) {
 				displayError(error, 'The custom function for changing spell attributes from "' + evalName + '" produced the error below while processing the spell "' + theSpl + '". It will be removed from the sheet for now, but please share this error message with its author so they can correct this issue.');
 				delete CurrentEvals.spellAdd[evalName];
@@ -218,7 +238,7 @@ function GetSpellObject(theSpl, theCast, firstCol, noOverrides, tipShortDescr) {
 	//make the tooltip for the description field
 	var spTooltip = "";
 	var ttSpellObj = aSpell.completeRewrite ? aSpell : foundSpell;
-	if (ttSpellObj.descriptionFull || tipShortDescr) {
+	if (ttSpellObj.descriptionFull || tooltipOnly) {
 		spTooltip = toUni(ttSpellObj.name, "bold") + " \u2014 ";
 
 		if (ttSpellObj.school) {
@@ -245,7 +265,7 @@ function GetSpellObject(theSpl, theCast, firstCol, noOverrides, tipShortDescr) {
 		if (ttSpellObj.timeFull) {
 			spTooltip += "\n  Casting Time:  " + ttSpellObj.timeFull;
 		} else if (ttSpellObj.time) {
-			spTooltip += "\n  Casting Time:  " + ttSpellObj.time.replace(/1 a\b/i, '1 action').replace(/1 bns\b/i, '1 bonus action').replace(/1 rea\b/i, '1 reaction').replace(/\b1 min\b/i, '1 minute').replace(/\b1 h\b/i, '1 hour').replace(/\bmin\b/i, 'minutes').replace(/\bh\b/i, 'hours');
+			spTooltip += "\n  Casting Time:  " + ttSpellObj.time.replace(/(1 )?bns\b/i, '1 bonus action').replace(/(act|1 a)\b/i, '1 action').replace(/(1 rea|react)\b/i, '1 reaction').replace(/\b1 min\b/i, '1 minute').replace(/\b1 h\b/i, '1 hour').replace(/\bmin\b/i, 'minutes').replace(/\bh\b/i, 'hours');
 		}
 
 		if (ttSpellObj.range) spTooltip += "\n  Range:  " + ttSpellObj.range.replace(/s: *(.*)/i, "Self ($1)").replace(/rad\b/i, "radius").replace(/(\d+)(ft|m)/i, "$1-$2");
@@ -256,13 +276,13 @@ function GetSpellObject(theSpl, theCast, firstCol, noOverrides, tipShortDescr) {
 
 		if (ttSpellObj.descriptionFull) spTooltip += "\n\n" + formatDescriptionFull(ttSpellObj.descriptionFull);
 
-		if (tipShortDescr) spTooltip += "\n\n__________\n\n" + toUni("Short Description") + '  (how it will appear on the sheet)\n  ' + aSpell.description;
+		if (tooltipOnly) spTooltip += "\n\n__________\n\n" + toUni("Short Description") + '  (how it will appear on the sheet)\n  ' + aSpell.description;
 		
 		if (ObjLength(aSpell.changesObj)) {
 			var txt = [];
 			for (var str in aSpell.changesObj) txt.push(toUni(str) + aSpell.changesObj[str]);
 			spTooltip += "\n\n>>  CHANGES BY FEATURES  <<\nThe above original ";
-			spTooltip += tipShortDescr ? "will be modified when added to the sheet as follows (the short description includes the changes):\n\n" : "has been changed as follows:\n\n";
+			spTooltip += tooltipOnly ? "will be modified when added to the sheet as follows (the short description includes the changes):\n\n" : "has been changed as follows:\n\n";
 			spTooltip += txt.join("\n\n");
 		}
 	};
@@ -307,11 +327,12 @@ function applySpellcastingAbility(oSpell, oCast) {
 	if (theAbi) {
 		var theAbiMod = wasm_character.get_ability_modifier(theAbi);
 		var newSpellDescr = oSpell.description;
-		var spellAbiModRx = /(\+ ?)?(?:my )?(spell)(?:cast)?(?:ing)? (?:abi(?:lity)? )?(mod)(?:ifier)?/i;
-		var spellAbiChkRx = /spell(?:cast)?(?:ing)? (?:abi(?:lity)? )?check/i;
+		var spellAbiModRx = /(\+ ?)?(my )?spell(cast(ing)?)? (abi(lity)? )?mod(ifier)?/i;
 		if (spellAbiModRx.test(newSpellDescr)) { // modifier
 			newSpellDescr = newSpellDescr.replace(spellAbiModRx, (theAbiMod >= 0 ? "+" + theAbiMod : theAbiMod) + " (" + theAbi + ")");
-		} else if (spellAbiChkRx.test(newSpellDescr)) { // check
+		}
+		var spellAbiChkRx = /spell(cast(ing)?)? (abi(lity)? )?check/i;
+		if (spellAbiChkRx.test(newSpellDescr)) { // check
 			var theAbiName = AbilityScores.names[castAbi -1];
 			// Bonus from Jack of All Trades and/or Remarkable Athlete
 			var jackOf = tDoc.getField("Jack of All Trades").isBoxChecked(0) === 1;
@@ -883,7 +904,7 @@ async function SetSpellCheckbox(field, modifier) {
 		var borderWidth = 0;
 		var borderType = border.s;
 		var imageField = tDoc.getField("SaveIMG.FirstCol." + theEV);
-		if (imageField) {
+		if (theEV && imageField) {
 			theIcon = imageField.buttonGetIcon();
 		} else {
 			switch (theEV) {
@@ -3451,9 +3472,10 @@ async function GenerateSpellSheet(GoOn) {
 		var preparingCantrips = spCast.preparedCantrips && spCast.typeList !== 3;
 
 		// Process the extra spells, if any
+		var bookCaster = /book/i.test(spCast.typeSp);
+		var listCaster = /list/i.test(spCast.typeSp);
+		var knownCaster = /known/i.test(spCast.typeSp);
 		if (spCast.extra) {
-			var listCaster = /list/i.test(spCast.typeSp);
-			var bookCaster = /book/i.test(spCast.typeSp);
 			var extraNonconform = listCaster ? !spCast.extraSpecial : spCast.extraSpecial;
 			switch (spCast.typeList) {
 				default: case 1: case 2: // Default
@@ -3559,7 +3581,7 @@ async function GenerateSpellSheet(GoOn) {
 			return firstCols[aSpell] && !/^(atwill|(once[sl]r\+)?markedbox(_used)?)$/i.test(firstCols[aSpell]);
 		});
 		// Get an array of 12 arrays, one for each spell level, and 2 final ones for the psionic talents/disciplines
-		var orderedSpellList = OrderSpells(fullSpellList, "multi", true, allowedDuplicateSpells, maxLvl);
+		var orderedSpellList = OrderSpells(fullSpellList, "multi", true, spCast.selectBo, maxLvl, allowedDuplicateSpells);
 
 		var preparedOnly = spCast.typeList === 3 || (spCast.known && !spCast.known.prepared && spCast.typeList !== 4);
 
@@ -3634,27 +3656,29 @@ async function GenerateSpellSheet(GoOn) {
 				var oSpell = SpellsList[aSpell];
 				if (!oSpell) continue;
 				var preparedCantrip = oSpell.level === 0 && preparingCantrips;
-				var notDupl = y ? aSpell != spArray[y - 1] : true;
-				var bonusBookSpell = bookCaster && notDupl && spCast.selectBo && spCast.selectBo.indexOf(aSpell) !== -1;
+				var isBonusSpell = spCast.selectBo && spCast.selectBo.indexOf(aSpell) !== -1;
+				var isDuplicate = y && aSpell === spArray[y - 1];
+				var isRegularSpell = !isBonusSpell || isDuplicate;
+				var bonusSpellChecked = (bookCaster || knownCaster) && isBonusSpell && !isDuplicate;
 				//check if not at the end of the page and, if so, create a new page
 				if (lineCurrent > lineMax) await AddPage();
 				// Set the first column
 				var toCheck = "##";
-				if (notDupl && alwaysPrepared.indexOf(aSpell) !== -1 && !preparedOnly) {
+				if (isRegularSpell && alwaysPrepared.indexOf(aSpell) !== -1 && !preparedOnly) {
 					// Mark as Always Prepared if set to do so, unless only doing prepared spells or if it's a cantrip and cantrips are not set to be prepared
 					toCheck += oSpell.level === 0 && !preparedCantrip ? "atwill" : "markedbox";
-				} else if (notDupl && firstCols[aSpell] && !(firstCols[aSpell] === "markedbox" && preparedOnly)) {
+				} else if (isBonusSpell && !isDuplicate && firstCols[aSpell] && !(firstCols[aSpell] === "markedbox" && preparedOnly)) {
 					// Use the first column set for a bonus spell, unless it is an always prepared box and currently only doing prepared spells
 					toCheck += firstCols[aSpell];
-				} else if (oSpell.firstCol === undefined && ( isPsionics || preparedCantrip || autoFirstColumn || bonusBookSpell)) {
+				} else if (oSpell.firstCol === undefined && (isPsionics || preparedCantrip || autoFirstColumn || bonusSpellChecked)) {
 					if (spCast.typeList === 4 || preparedCantrip) {
 						// Showing all spells (or cantrips), so mark the prepared ones with a checked box
-						toCheck += bonusBookSpell || knownSpells.indexOf(aSpell) !== -1 ? "checkedbox" : "checkbox";
-					} else { // Default for list/book casters. Known casters have no first column
+						toCheck += bonusSpellChecked || knownSpells.indexOf(aSpell) !== -1 ? "checkedbox" : "checkbox";
+					} else if (!knownCaster) { // Default for list/book casters. Known casters have no first column
 						toCheck += oSpell.level === 0 ? "atwill" : "checkbox";
 					}
 				}
-				Value(prefixCurrent + "spells.remember." + lineCurrent, aSpell + toCheck + "##" + CurrentCasters.incl[i] + (notDupl ? "" : "##stop"));
+				Value(prefixCurrent + "spells.remember." + lineCurrent, aSpell + toCheck + "##" + CurrentCasters.incl[i] + (isDuplicate ? "##isduplicate" : ""));
 				lineCurrent += 1;
 			}
 		}
@@ -3958,11 +3982,12 @@ async function MakeSpellMenu_SpellOptions(MenuSelection) {
 
 //a function that takes an array of spells and orders it by level (and alphabet)
 //outputFormat defines whether to return an Array of Arrays ("multi"), or just one array "single";
-function OrderSpells(inputArray, outputFormat, sepPsionics, bonusSp, maxLvl) {
-	var bonusCount = {};
-	if (bonusSp && isArray(bonusSp)) {
-		bonusSp.forEach(function(spl) {
-			bonusCount[spl] = !bonusCount[spl] ? 1 : bonusCount[spl] + 1;
+function OrderSpells(inputArray, outputFormat, sepPsionics, bonusSpells, maxLvl, allowedDuplicateSpells) {
+	var ignoreMaxLvl = !bonusSpells ? [] : isArray(bonusSpells) ? bonusSpells : [bonusSpells];
+	var duplCount = {};
+	if (allowedDuplicateSpells && isArray(allowedDuplicateSpells)) {
+		allowedDuplicateSpells.forEach(function(spl) {
+			duplCount[spl] = !duplCount[spl] ? 1 : duplCount[spl] + 1;
 		});
 	}
 	if (maxLvl === undefined) maxLvl = 9;
@@ -3978,8 +4003,12 @@ function OrderSpells(inputArray, outputFormat, sepPsionics, bonusSp, maxLvl) {
 		var nxtSpell = inputArray[S];
 		if (!SpellsList[nxtSpell]) continue;
 		var spLvl = SpellsList[nxtSpell].level;
-		if (spLvl > maxLvl && !bonusCount[nxtSpell]) continue;
-		if (!refCount[nxtSpell] || refCount[nxtSpell] < bonusCount[nxtSpell] || (spLvl <= maxLvl && refCount[nxtSpell] <= bonusCount[nxtSpell])) {
+		if (spLvl > maxLvl && ignoreMaxLvl.indexOf(nxtSpell) === -1) continue;
+		if (
+			!refCount[nxtSpell] || // not yet added
+			refCount[nxtSpell] < duplCount[nxtSpell] || // still more allowed duplicates
+			(spLvl <= maxLvl && refCount[nxtSpell] <= duplCount[nxtSpell]) // 1 more than the duplicates, if not max level
+		) {
 			refCount[nxtSpell] = !refCount[nxtSpell] ? 1 : refCount[nxtSpell] + 1;
 			var spName = getSpNm(nxtSpell);
 			if (sepPsionics && SpellsList[nxtSpell].psionic) spLvl += 10;
@@ -5908,7 +5937,7 @@ function testSpellcastingExtra(spArr) {
 			wrongArr.push(sp);
 			return;
 		};
-		var sSrc = stringSource(SpellsList[sp], "").replace(/\d+| /g, "").split(",");
+		var sSrc = stringSource(SpellsList[sp], "page_multi").replace(/, page.*/g, "").split("\n");
 		if (!sSrc || !sSrc[0]) {
 			sourceArr.push("Source excluded: " + sp + " (" + SpellsList[sp].source + ")");
 		} else {
@@ -6001,10 +6030,10 @@ async function testSpellAdd(spellAddArray, useClass, spellKeysArray, bAlsoDuplic
 			Value(prefix+"spells.name."+i, bSetMetric ? "  [cantrip-metric]" : "  [cantrip]");
 			await nextI();
 			// cantrip edited description, run function
-        	CurrentCasters.allowSpellAdd = true;
-            Value(prefix+"spells.remember."+i, aSp + addStr);
-            Value(prefix+"spells.name."+i, bSetMetric ? "  [cantrip-metric-test]" : "  [cantrip-test]");
-            await nextI();
+			CurrentCasters.allowSpellAdd = true;
+			Value(prefix+"spells.remember."+i, aSp + addStr);
+			Value(prefix+"spells.name."+i, bSetMetric ? "  [cantrip-metric-test]" : "  [cantrip-test]");
+			await nextI();
 			if (bAlsoDuplicateAsOnce) {
 				Value(prefix+"spells.remember."+i, aSp + addStr + "##true");
 				Value(prefix+"spells.name."+i, bSetMetric ? "  [cantrip-metric-test-1\xD7]" : "  [cantrip-test-1\xD7]");

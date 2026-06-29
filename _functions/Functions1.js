@@ -900,9 +900,10 @@ async function FindClasses(oldClasses, oldPrimary, newClasses, newPrimary, NotAt
 		var fTrans = {};
 		//add features of the class
 		for (prop in classObj.features) {
+			// skip any features from the class if a subclass is known and has that same feature
+			if (subClObj && subClObj.features && subClObj.features[prop]) continue;
 			var cPropAtt = classObj.features[prop];
-			var fNm = ("0" + cPropAtt.minlevel).slice(-2) + ((/subclassfeature/i).test(prop) ? "" : "()") + cPropAtt.name;
-			//subClObj && subClObj.features[prop]
+			var fNm = ("0" + cPropAtt.minlevel).slice(-2) + (/subclassfeature/i.test(prop) ? "" : "()") + prop;
 			if (fNm.toString().length > 2) {
 				fAB.push(fNm);
 				fTrans[fNm] = {name: prop, list: "ClassList", item: aClass};
@@ -913,7 +914,7 @@ async function FindClasses(oldClasses, oldPrimary, newClasses, newPrimary, NotAt
 		if (subClObj && subClObj.features) {
 			for (prop in subClObj.features) {
 				var csPropAtt = subClObj.features[prop];
-				var fNm = ("0" + csPropAtt.minlevel).slice(-2) + csPropAtt.name;
+				var fNm = ("0" + csPropAtt.minlevel).slice(-2) + (/subclassfeature/i.test(prop) ? "" : "()") + prop;
 				if (fNm.toString().length > 2) {
 					fAB.push(fNm);
 					fTrans[fNm] = {name: prop, list: "ClassSubList", item: subclass};
@@ -925,7 +926,6 @@ async function FindClasses(oldClasses, oldPrimary, newClasses, newPrimary, NotAt
 
 		for (var f = 0; f < fAB.length; f++) {
 			var propAtt = fTrans[fAB[f]];
-			if (subClObj && propAtt.list === "ClassList" && subClObj.features[propAtt.name]) continue; // skip any features from the class if a subclass is known and has that same feature
 			Temps.features[propAtt.name] = tDoc[propAtt.list][propAtt.item].features[propAtt.name];
 			// set the extrachoice attribute of the feature if it is dependent on a choice
 			if (Temps.features[propAtt.name].choiceSetsExtrachoices) {
@@ -3116,19 +3116,14 @@ function CalcMod(name) {
 
 function processRecovery(recovery, additionalRecovery) {
 	var recoveryStr = "";
-	switch (recovery.toLowerCase()) {
-		case "long rest":
-			recoveryStr += "LR";
-			break;
-		case "short rest":
-			recoveryStr += "SR";
-			break;
-		case "dawn":
-			recoveryStr += "Dawn";
-			break;
-		default:
-			recoveryStr += recovery.trim().capitalize();
-			break;
+	if (/\b(long rest|lr)\b/i.test(recovery)) {
+		recoveryStr = "LR";
+	} else if (/\b(short rest|sr)\b/i.test(recovery)) {
+		recoveryStr = "SR";
+	} else if (/\bdawn\b/i.test(recovery)) {
+		recoveryStr = "Dawn";
+	} else {
+		recoveryStr = recovery.trim().capitalize();
 	}
 	if (additionalRecovery) {
 		recoveryStr += "/" + additionalRecovery.trim();
@@ -3136,23 +3131,28 @@ function processRecovery(recovery, additionalRecovery) {
 	return leftpad(recoveryStr, 5);
 }
 
-// Add a limited feature: add (UpdateOrReplace = "replace"), or only update the text (UpdateOrReplace = "update"), or update both the text and the usages (UpdateOrReplace = number of previous usages), or just add the number of usages (UpdateOrReplace = "bonus")
+// Add a limited feature: add (UpdateOrReplace = "replace"), remove previous replace (UpdateOrReplace = "replaceUndo") or only update the text (UpdateOrReplace = "update"), or update both the text and the usages (UpdateOrReplace = number of previous usages), or just add the number of usages (UpdateOrReplace = "bonus")
 function AddFeature(identifier, usages, additionaltxt, recovery, tooltip, UpdateOrReplace, Calc, additionalRecovery) {
 	tooltip = tooltip ? tooltip : "";
 	var additionaltxt = additionaltxt.indexOf(identifier) != -1 ? "" : additionaltxt && What("Unit System") === "metric" ? ConvertToMetric(additionaltxt, 0.5) : additionaltxt;
 	UpdateOrReplace = UpdateOrReplace || UpdateOrReplace === 0 || UpdateOrReplace === "" ? UpdateOrReplace : "replace";
 	var calculation = Calc ? Calc : "";
 	var recovery = (/^(long rest|short rest|dawn)$/i).test(recovery) && !additionalRecovery ? recovery.toLowerCase() : processRecovery(recovery, additionalRecovery);
-	if ((/ ?\bper\b ?/).test(usages)) usages = usages.replace(/ ?\bper\b ?/, "");
+	if (typeof usages === "string") usages = usages.trim().replace(/\xD7? ?\bper\b ?|\xD7$/g, "");
 	for (var n = 1; n <= 2; n++) {
 		for (var i = 1; i <= FieldNumbers.limfea; i++) {
 			var featureFld = tDoc.getField("Limited Feature " + i);
 			var usageFld = tDoc.getField("Limited Feature Max Usages " + i);
 			var recoveryFld = tDoc.getField("Limited Feature Recovery " + i);
 			if (n === 1 && featureFld.value.toLowerCase().indexOf(identifier.toLowerCase()) !== -1) { //if the feature is found
-				if (UpdateOrReplace === "replace" || ((!recoveryFld.value || recoveryFld.value == recovery) && !isNaN(usageFld.value) && !isNaN(UpdateOrReplace) && !isNaN(usages))) {
+				if (UpdateOrReplace === "replace" || UpdateOrReplace === "replaceUndo" || ((!recoveryFld.value || recoveryFld.value == recovery) && !isNaN(usageFld.value) && !isNaN(UpdateOrReplace) && !isNaN(usages))) {
 					featureFld.value = identifier + additionaltxt;
-					if (tooltip && featureFld.userName.indexOf(tooltip) === -1) featureFld.userName += ", " + tooltip;
+					var hasTooltip = tooltip && featureFld.userName.indexOf(tooltip) !== -1
+					if (hasTooltip && UpdateOrReplace === "replaceUndo") {
+						featureFld.userName = featureFld.userName.replace(", " + tooltip, "");
+					} else if (tooltip && !hasTooltip) {
+						featureFld.userName += ", " + tooltip;
+					}
 					usageFld.setAction("Calculate", calculation);
 					usageFld.submitName = calculation; //so it can be referenced later
 					recoveryFld.value = recovery;
@@ -4032,14 +4032,18 @@ function ChangeSpeed(input) {
 // Reset the limited feature uses, buttons on the 1st page
 function resetLimFeaUsed(rxType) {
 	var bResetSpellSlots = false, aFldsToReset = [];
+	var rxRecoverXperSR = false, oFldsRecoverX = [];
 	var sType = !rxType ? 'long rest' : rxType.toString().toLowerCase().replace(/^\/|\/[igm]$/g, "");
 	switch (sType) {
+		case 'lr':
 		case 'long rest':
-			rxType = /\b(long rest|lr)\b/i;
+			rxType = /\b(long rest|lr|short rest|sr)\b/i;
 			bResetSpellSlots = true;
 			break;
+		case 'sr':
 		case 'short rest':
 			rxType = /\b(short rest|sr)\b/i;
+			rxRecoverXperSR = /(?:regain|recharge|recover) (\d+)\/SR/i;
 			break;
 		case 'day':
 		case 'dawn':
@@ -4056,15 +4060,27 @@ function resetLimFeaUsed(rxType) {
 	}
 	for (var i = 1; i <= FieldNumbers.limfea; i++) {
 		var sFldVal = What("Limited Feature Recovery " + i).toString();
-		if (rxType.test(sFldVal)) aFldsToReset.push("Limited Feature Used " + i);
+		var sFldUsed = "Limited Feature Used " + i;
+		var used = Number(What(sFldUsed));
+		if (rxType.test(sFldVal)) {
+			aFldsToReset.push(sFldUsed);
+		} else if (rxRecoverXperSR && used > 0) {
+			var recover = What("Limited Feature " + i).match(rxRecoverXperSR);
+			if (recover && !isNaN(recover[1])) {
+				oFldsRecoverX.push({ fld: sFldUsed, new: used - Number(recover[1]) });
+			}
+		}
 	}
 	if (bResetSpellSlots) {
 		var SSfrontA = What("Template.extras.SSfront").split(",")[1];
 		if (SSfrontA) aFldsToReset.push(SSfrontA + "SpellSlots.Checkboxes");
 	}
-	if (aFldsToReset.length > 0) {
+	if (aFldsToReset.length || oFldsRecoverX.length) {
 		calcStop();
-		tDoc.resetForm(aFldsToReset);
+		if (aFldsToReset.length) tDoc.resetForm(aFldsToReset);
+		for (var i = 0; i < oFldsRecoverX.length; i++) {
+			Value(oFldsRecoverX[i].fld, oFldsRecoverX[i].new);
+		}
 	}
 }
 
@@ -4405,7 +4421,7 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce, classesToUpdate, old
 	}
 
 	// apply class level changes
-	if ((/^(?!=notclass)(all|class).*$/i).test(Typeswitch)) {
+	if (/^(?!=notclass)(all|class).*$/i.test(Typeswitch)) {
 
 		// first see if any wild shapes are in use
 		var WSinUse = false;
@@ -4492,7 +4508,7 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce, classesToUpdate, old
 					);
 
 					// add/remove/update the feature text on the second page
-					if (propFea.description !== undefined) {
+					if (Fea && propFea.description !== undefined) {
 						var FeaOldString = ParseClassFeature(aClass, prop, oldClassLvl[aClass], forceProp, Fea.ChoiceOld, forceProp ? false : Fea, false, oldSubClass);
 						Fea.extFirst = true; // signal that we need the full first line for FeaNewString
 						var FeaNewString = ParseClassFeature(aClass, prop, newClassLvl[aClass], false, Fea.Choice, Fea, false, newSubClass ? newSubClass : oldSubClass);
@@ -4518,12 +4534,19 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce, classesToUpdate, old
 							LastProp = FeaNewString[2];
 						}
 					}
+
+					// See if this is a wild shape feature, overwriting previously set values if the later processed feature is higher level or if it's lower level but the higher level feature is to be removed
+					if (propFea.wildshapePageInfo && Fea && (typeof WSinUse !== "object" || WSinUse.minlevel < propFea.minlevel || (!WSinUse.addIt && Fea.AddFea))) {
+						WSinUse = {
+							addIt: Fea.AddFea,
+							minlevel: propFea.minlevel,
+							lvl: newClassLvl[aClass],
+							info: propFea.wildshapePageInfo,
+						};
+					}
 				} catch (error) {
 					displayError(error, 'The "' + propFea.name + '" feature from the "' + classFullName + '" class produced the error below. Please share this error message with its author so they can correct this issue.');
 				}
-
-				// see if this is a wild shape feature
-				if (prop.indexOf("wild shape") !== -1 && Fea.changed) WSinUse = [newClassLvl[aClass], Fea.Use, Fea.Recov, Fea.Add];
 
 				/* loop through the feature's selected extra options, but only:
 					- during import to set the feature for the first time (!IsNotImport && Fea.AddFea)
@@ -4549,6 +4572,8 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce, classesToUpdate, old
 							var xtrFeaNewString = ParseClassFeatureExtra(aClass, prop, xtrProp, xtrFea, false);
 							// see what type of change we have to do
 							var xtrTextAction = Fea.CheckLVL && !Fea.AddFea ? "remove" : // level dropped below minlevel
+								xtrFea.AddFea && !xtrFea.Display ? "remove" : // new description is undefined
+								xtrFea.AddFea && xtrFea.Display && !xtrFea.DisplayOld ? "insert" : // description at previous level was undefined, but now there is something to insert
 								xtrFea.AddFea && xtrFea.changed && xtrFea.Descr !== xtrFea.DescrOld ? "replace" : // update the whole text after a description change
 								xtrFea.AddFea && xtrFea.changed && xtrFea.Descr === xtrFea.DescrOld ? "first" : // update just header after a usages/recovery/additional change
 								false;
@@ -4565,7 +4590,7 @@ async function UpdateLevelFeatures(Typeswitch, newLvlForce, classesToUpdate, old
 		}
 
 		// (re-)apply and re-calculate all the wild shapes as something might have changed after going level up
-		if (WSinUse) WildshapeUpdate(WSinUse != true ? WSinUse : false);
+		if (WSinUse) WildshapeUpdate(typeof WSinUse === "object" ? WSinUse : false);
 	}
 
 	thermoM(thermoTxt, true); // Stop progress bar
@@ -5917,18 +5942,18 @@ function ConvertToImperial(inputString, rounded, exact, toshorthand) {
 // Change an English string form second to first person
 function ConvertToFirstPerson(inputString, convertFunction, origin) {
 	// First all capitalized words, then the same but lowercase
-	var firstPerson = inputString.replace(/Yours/g, "Mine").replace(/yours/ig, "mine")
-	                  .replace(/Your/g, "My").replace(/your/ig, "my")
-	                  .replace(/you aren['\u2019]t/ig, "I am not")
-	                  .replace(/you are/ig, "I am").replace(/you['\u2019]re/ig, "I'm")
-	                  .replace(/(a)re you\b/ig, "$1m I")
-					  .replace(/(a)ren['\u2019]t you\b/ig, "$1m I not")
-	                  .replace(/you were/ig, "I was")
-					  .replace(/(w)ere(n['\u2019]t)? you\b/ig, "$1as$2 I")
-	                  .replace(/you/ig, "I")
-	                  .replace(/(\d+.?(square |cubic )?)f(oo|ee)t\b/ig, "$1ft");
+	var firstPerson = inputString.replace(/Yours\b/g, "Mine").replace(/yours\b/ig, "mine")
+		.replace(/Your/g, "My").replace(/your/ig, "my")
+		.replace(/you aren['\u2019]t/ig, "I am not")
+		.replace(/you are/ig, "I am").replace(/you['\u2019]re/ig, "I'm")
+		.replace(/(a)re you\b/ig, "$1m I")
+		.replace(/(a)ren['\u2019]t you\b/ig, "$1m I not")
+		.replace(/you were/ig, "I was")
+		.replace(/(w)ere(n['\u2019]t)? you\b/ig, "$1as$2 I")
+		.replace(/\byou\b/ig, "I")
+		.replace(/(\d+.?(square |cubic )?)f(oo|ee)t\b/ig, "$1ft");
 	// Now correct prepositions where "I" should be "me"
-	firstPerson = firstPerson.replace(/\b(at|to|of|for|on|in|with|by|under|over|above|below|into|towards|through|around|past|as|about) I\b/ig, "$1 me");
+	firstPerson = firstPerson.replace(/\b(at|to|of|for|on|in|with|by|under|over|above|below|into|towards?|through|around|past|as|about|near|granting) I\b/ig, "$1 me");
 	// If provided with a convertFunction, run it
 	if (/function|=>/.test(convertFunction)) {
 		try {

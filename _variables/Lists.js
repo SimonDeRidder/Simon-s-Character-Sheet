@@ -77,6 +77,7 @@ function setGlobalVars() {
 	tDoc.semVers = getSemVers(tDoc.info.SheetVersion, tDoc.info.SheetVersionType, tDoc.info.SheetVersionBuild);
 	tDoc.sheetVersion = semVersToNmbr(semVers);
 	tDoc.isWindows = app.platform === "WIN";
+	tDoc.use2024Rules = tDoc.sheetVersion >= 24000000;
 	if (minVer) sentientItemConflictTxt = "";
 }
 setGlobalVars();
@@ -221,7 +222,10 @@ var CurrentCasters = {};
 var CurrentSources = {firstTime : true, globalExcl : [], globalKnown : []};
 var CurrentEvals = {};
 var CurrentScriptFiles = {};
-var CurrentVars = { vislayers : ["rules", "equipment"] };
+var CurrentVars = {
+	vislayers: ["notes", "equipment"],
+	fixRichTextFormatting: !tDoc.isWindows,
+};
 var UpdateSpellSheets = {};
 var CurrentFeatureChoices = {};
 var CurrentAbilitySaveDCs = {};
