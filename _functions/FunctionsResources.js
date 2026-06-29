@@ -133,7 +133,7 @@ function testSource(key, obj, CSatt, concise) {
 			}
 			if (obj.choices.length == exclChoices) theRe = true;
 		}
-	} 
+	}
 	return theRe;
 };
 

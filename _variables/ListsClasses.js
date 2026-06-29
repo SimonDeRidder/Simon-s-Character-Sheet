@@ -123,6 +123,7 @@ var Base_ClassList = {
 			"\n \u2022 An explorer's pack and four javelins." +
 			"\n\nAlternatively, choose 2d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Primal Path", ["barbarian-berserker"]],
+		subclassGainedLevel : 3,
 		attacks : [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
 		features : {
 			"rage" : {
@@ -159,7 +160,7 @@ var Base_ClassList = {
 				minlevel : 1,
 				description : desc("Without armor, my AC is 10 + Dexterity modifier + Constitution modifier + shield"),
 				armorOptions : [{
-					regExpSearch : /justToAddToDropDownAndEffectWildShape/,
+					regExpSearch : /justToAddToDropDownAndAffectWildShape/,
 					name : "Unarmored Defense (Con)",
 					source : [["SRD", 8], ["P", 48]],
 					ac : "10+Con",
@@ -231,7 +232,8 @@ var Base_ClassList = {
 				name : "Relentless Rage",
 				source : [["SRD", 9], ["P", 49]],
 				minlevel : 11,
-				description : " [DC 10 + 5 per try, per short rest]" + desc([
+				additional: "DC 10 + 5 per try, per short rest",
+				description : desc([
 					"If I drop to 0 HP while raging, I can make a DC 10 Constitution save to stay at 1 HP",
 					"The DC increases by 5 for every attempt until I finish a short or long rest"
 				]),
@@ -299,6 +301,7 @@ var Base_ClassList = {
 			"\n \u2022 Leather armor and a dagger." +
 			"\n\nAlternatively, choose 5d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Bard College", ["bard-college of lore"]],
+		subclassGainedLevel : 3,
 		spellcastingFactor : 1,
 		spellcastingKnown : {
 			cantrips : [2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
@@ -455,6 +458,7 @@ var Base_ClassList = {
 			"\n \u2022 A shield and a holy symbol." +
 			"\n\nAlternatively, choose 5d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Divine Domain", ["cleric-life domain"]],
+		subclassGainedLevel : 1,
 		spellcastingFactor : 1,
 		spellcastingKnown : {
 			cantrips : [3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
@@ -525,7 +529,7 @@ var Base_ClassList = {
 	},
 
 	"druid" : {
-		regExpSearch : /(druid|shaman)/i,
+		regExpSearch : /druid/i,
 		name : "Druid",
 		source : [["SRD", 19], ["P", 61]],
 		primaryAbility : "Wisdom",
@@ -553,6 +557,7 @@ var Base_ClassList = {
 			"\n \u2022 Leather armor, an explorer's pack, and a druidic focus." +
 			"\n\nAlternatively, choose 2d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Druid Circle", ["druid-circle of the land"]],
+		subclassGainedLevel : 2,
 		spellcastingFactor : 1,
 		spellcastingKnown : {
 			cantrips : [2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
@@ -600,16 +605,31 @@ var Base_ClassList = {
 					" \u2022 I can choose whether equipment falls to the ground, merges, or stays worn",
 					" \u2022 I revert if out of time or unconscious; if KOd by damage, excess damage carries over"
 				]),
-				usages : [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, "\u221E\xD7 per "],
+				usages : levels.map(function (n) {
+					return n < 2 ? 0 : n < 20 ? 2 : "\u221E\xD7 per ";
+				}),
 				recovery : "short rest",
 				additional : levels.map(function (n) {
 					if (n < 2) return "";
 					var cr = n < 4 ? "1/4" : n < 8 ? "1/2" : 1;
 					var hr = Math.floor(n/2);
-					var restr = n < 4 ? ", no fly/swim" : n < 8 ? ", no fly" : "";
-					return "CR " + cr + restr + "; " + hr + (restr.length ? " h" : " hours");
+					var limits = n < 4 ? ", no fly/swim" : n < 8 ? ", no fly" : "";
+					return "CR " + cr + limits + "; " + hr + (limits.length ? " h" : " hours");
 				}),
-				action : [["action", " (start)"], ["bonus action", " (end)"]]
+				action : [["action", " (start)"], ["bonus action", " (end)"]],
+				wildshapePageInfo: {
+					uses: levels.map(function (n) {
+						return n < 20 ? "2\xD7 per short rest" : "unlimited";
+					}),
+					duration: levels.map(function (n) {
+						return Math.floor(n/2) + " hour" + (n > 3 ? "s" : "");
+					}),
+					limitations: levels.map(function (n) {
+						var CR = n < 4 ? "1/4" : "1/2";
+						var limits = n < 4 ? ", no fly/swim" : ", no fly speed";
+						return n < 8 ? "max CR " + CR + limits : "CR 1 or lower";
+					}),
+				},
 			},
 			"timeless body" : {
 				name : "Timeless Body",
@@ -674,6 +694,7 @@ var Base_ClassList = {
 			"\n \u2022 A dungeoneer's pack -or- an explorer's pack." +
 			"\n\nAlternatively, choose 5d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Martial Archetype", ["fighter-champion"]],
+		subclassGainedLevel : 3,
 		attacks : [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4],
 		features : {
 			"fighting style" : {
@@ -755,6 +776,7 @@ var Base_ClassList = {
 			"\n \u2022 10 darts." +
 			"\n\nAlternatively, choose 5d4 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Monastic Tradition", ["monk-way of the open hand"]],
+		subclassGainedLevel : 3,
 		attacks : [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
 		features : {
 			"unarmored defense" : {
@@ -763,7 +785,7 @@ var Base_ClassList = {
 				minlevel : 1,
 				description : desc("Without armor and no shield, my AC is 10 + Dexterity modifier + Wisdom modifier"),
 				armorOptions : [{
-					regExpSearch : /justToAddToDropDownAndEffectWildShape/,
+					regExpSearch : /justToAddToDropDownAndAffectWildShape/,
 					name : "Unarmored Defense (Wis)",
 					source : [["SRD", 26], ["P", 78]],
 					ac : "10+Wis",
@@ -829,21 +851,24 @@ var Base_ClassList = {
 					name : "Flurry of Blows",
 					extraname : "Ki Feature",
 					source : [["SRD", 27], ["P", 78]],
-					description : " [1 ki point]" + desc("After taking the Attack action, I can make 2 unarmed attacks as a bonus action"),
+					additional: "1 ki point",
+					description : desc("After taking the Attack action, I can make 2 unarmed attacks as a bonus action"),
 					action : [["bonus action", " (after Attack action)"]]
 				},
 				"patient defense" : {
 					name : "Patient Defense",
 					extraname : "Ki Feature",
 					source : [["SRD", 27], ["P", 78]],
-					description : " [1 ki point]" + desc("As a bonus action, I can take the Dodge action"),
+					additional: "1 ki point",
+					description : desc("As a bonus action, I can take the Dodge action"),
 					action : [["bonus action", ""]]
 				},
 				"step of the wind" : {
 					name : "Step of the Wind",
 					extraname : "Ki Feature",
 					source : [["SRD", 27], ["P", 78]],
-					description : " [1 ki point]" + desc("As a bonus action, I can either Dash or Disengage; My jump distance doubles when I do so"),
+					additional: "1 ki point",
+					description : desc("As a bonus action, I can either Dash or Disengage; My jump distance doubles when I do so"),
 					action : [["bonus action", ""]]
 				},
 				autoSelectExtrachoices : [{
@@ -886,7 +911,7 @@ var Base_ClassList = {
 				]),
 				action : [["reaction", ""]],
 				additional : levels.map(function (n) {
-					return n < 3 ? "" : "1d10 + " + n + " + Dexterity modifier; 1 ki to throw";
+					return n < 3 ? "" : "1d10 + " + n + " + Dexterity mod; 1 ki to throw";
 				})
 			},
 			"slow fall" : {
@@ -900,7 +925,8 @@ var Base_ClassList = {
 					name : "Stunning Strike",
 					extraname : "Monk 5",
 					source : [["SRD", 27], ["P", 79]],
-					description : " [1 ki point]" + desc([
+					additional: "1 ki point",
+					description : desc([
 						"After I hit a creature with a melee weapon attack, I can spend a ki point to try to stun it",
 						"It has to succeed on a Constitution save or be stunned until the end of my next turn"
 					])
@@ -944,7 +970,7 @@ var Base_ClassList = {
 				name : "Purity of Body",
 				source : [["SRD", 28], ["P", 79]],
 				minlevel : 10,
-				description : typeA4 ? desc("My mastery of the ki flowing through me makes me immune to poison and disease") : " [" + "I am immune to poison and disease" + "]",
+				description : typeA4 ? desc("My mastery of the ki flowing through me makes me immune to poison and disease") : " [I am immune to poison and disease]",
 				savetxt : { immune : ["poison", "disease"] } //both immune to poison damage and the poisoned condition (see sage advice)
 			},
 			"tongue of the sun and moon" : {
@@ -972,7 +998,7 @@ var Base_ClassList = {
 				source : [["SRD", 28], ["P", 79]],
 				minlevel : 18,
 				description : desc("Be invisible and resist non-force damage for 1 min or cast Astral Projection on self"),
-				additional : "Invisible: 4 ki points; Astral Projection: 8 ki points",
+				additional : "Invisible: 4 ki ; Astral Projection: 8 ki points",
 				action : [["action", ""]],
 				spellcastingBonus : [{
 					name : "Empty Body",
@@ -1027,6 +1053,7 @@ var Base_ClassList = {
 			"\n \u2022 Chain mail and a holy symbol." +
 			"\n\nAlternatively, choose 5d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Sacred Oath", ["paladin-oath of devotion"]],
+		subclassGainedLevel : 3,
 		attacks : [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
 		spellcastingFactor : 2,
 		spellcastingKnown : {
@@ -1181,6 +1208,7 @@ var Base_ClassList = {
 			"\n \u2022 A longbow and a quiver of 20 arrows." +
 			"\n\nAlternatively, choose 5d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Ranger Archetype", ["ranger-hunter"]],
+		subclassGainedLevel : 3,
 		attacks : [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
 		spellcastingFactor : 2,
 		spellcastingKnown : {
@@ -1385,11 +1413,11 @@ var Base_ClassList = {
 				name : "Primeval Awareness",
 				source : [["SRD", 37], ["P", 92]],
 				minlevel : 3,
-				description : desc([
+				description : " [aber./celest./dragon/elem./fey/fiend/undead]" + desc([
 					"As an action, I can use a spell slot to focus my awareness for 1 min per spell slot level",
 					"Out to 1 mile (6 in favored terrain), I sense if certain types of creatures are present"
 				]),
-				additional : "aber./celest./dragon/elem./fey/fiend/undead",
+				additional : false,
 				action : [["action", ""]]
 			},
 			"land's stride" : {
@@ -1468,6 +1496,7 @@ var Base_ClassList = {
 			"\n \u2022 Leather armor, two daggers, and thieves' tools." +
 			"\n\nAlternatively, choose 4d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Roguish Archetype", ["rogue-thief"]],
+		subclassGainedLevel : 3,
 		features : {
 			"expertise" : function() {
 				var a = {
@@ -1525,7 +1554,7 @@ var Base_ClassList = {
 				minlevel : 1,
 				description : desc([
 					"Once per turn, I can add damage to a finesse/ranged weapon attack if I have advantage",
-					"I don't need adv. if the target has a conscious enemy within 5 ft and I don't have disadv."
+					"I don't need adv. if my ally is within 5 ft, is not incapacitated, and I don't have disadv."
 				]),
 				additional : levels.map(function (n) {
 					return Math.ceil(n / 2) + "d6";
@@ -1615,7 +1644,7 @@ var Base_ClassList = {
 	},
 
 	"sorcerer" : {
-		regExpSearch : /sorcerer|witch/i,
+		regExpSearch : /sorcerer/i,
 		name : "Sorcerer",
 		source : [["SRD", 42], ["P", 99]],
 		primaryAbility : "Charisma",
@@ -1637,6 +1666,7 @@ var Base_ClassList = {
 			"\n \u2022 Two daggers." +
 			"\n\nAlternatively, choose 3d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Sorcerous Origin", ["sorcerer-draconic bloodline"]],
+		subclassGainedLevel : 1,
 		spellcastingFactor : 1,
 		spellcastingKnown : {
 			cantrips : [4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
@@ -1699,7 +1729,8 @@ var Base_ClassList = {
 				"careful spell" : {
 					name : "Careful Spell",
 					source : [["SRD", 44], ["P", 102]],
-					description : " [1 sorcery point]" + desc([
+					additional: "1 sorcery point",
+					description : desc([
 						"If the spell allows a saving throw, I can protect Cha modifier number of creatures",
 						"The selected creatures automatically succeed on their saving throws vs. the spell"
 					])
@@ -1707,12 +1738,14 @@ var Base_ClassList = {
 				"distant spell" : {
 					name : "Distant Spell",
 					source : [["SRD", 44], ["P", 102]],
-					description : " [1 sorcery point]" + desc("I double the range of the spell or make the range 30 ft if the range was touch")
+					additional: "1 sorcery point",
+					description : desc("I double the range of the spell or make the range 30 ft if the range was touch")
 				},
 				"empowered spell" : {
 					name : "Empowered Spell",
 					source : [["SRD", 44], ["P", 102]],
-					description : " [1 sorcery point]" + desc([
+					additional: "1 sorcery point",
+					description : desc([
 						"If the spell uses damage dice, I can reroll my Charisma modifier number of damage dice",
 						"I can Empower a spell even if I use another Metamagic option on it"
 					])
@@ -1720,28 +1753,33 @@ var Base_ClassList = {
 				"extended spell" : {
 					name : "Extended Spell",
 					source : [["SRD", 44], ["P", 102]],
-					description : " [1 sorcery point]" + desc("If the spell has a duration of at least 1 min, I can double it, up to 24 hours")
+					additional: "1 sorcery point",
+					description : desc("If the spell has a duration of at least 1 min, I can double it, up to 24 hours")
 				},
 				"heightened spell" : {
 					name : "Heightened Spell",
 					source : [["SRD", 44], ["P", 102]],
-					description : " [3 sorcery points]" + desc("If the spell allows a saving throw, I can have one target get disadv. on their first save")
+					additional: "3 sorcery points",
+					description : desc("If the spell allows a saving throw, I can have one target get disadv. on their first save")
 				},
 				"quickened spell" : {
 					name : "Quickened Spell",
 					source : [["SRD", 44], ["P", 102]],
-					description : " [2 sorcery points]" + desc("If the spell has a casting time of 1 action, I can cast it as a bonus action"),
+					additional: "2 sorcery points",
+					description : desc("If the spell has a casting time of 1 action, I can cast it as a bonus action"),
 					action : [["bonus action", ""]]
 				},
 				"subtle spell" : {
 					name : "Subtle Spell",
 					source : [["SRD", 44], ["P", 102]],
-					description : " [1 sorcery point]" + desc("I can cast the spell without the need to use somatic or verbal components")
+					additional: "1 sorcery point",
+					description : desc("I can cast the spell without the need to use somatic or verbal components")
 				},
 				"twinned spell" : {
 					name : "Twinned Spell",
 					source : [["SRD", 44], ["P", 102]],
-					description : " [1 sorcery point per spell level, minimum 1]" + desc("If spell/cantrip has a target of one and not self, I can aim it at second target within range")
+					additional: "1 sorcery point per spell level, minimum 1",
+					description : desc("If spell/cantrip has a target of one and not self, I can aim it at second target within range")
 				}
 			},
 			"sorcerous restoration" : {
@@ -1781,6 +1819,7 @@ var Base_ClassList = {
 			"\n \u2022 Leather armor, any simple weapon, and two daggers." +
 			"\n\nAlternatively, choose 4d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Otherworldly Patron", ["warlock-the fiend"]],
+		subclassGainedLevel : 1,
 		spellcastingFactor : "warlock1",
 		spellcastingKnown : {
 			cantrips : [2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
@@ -1800,13 +1839,14 @@ var Base_ClassList = {
 					"I can use an arcane focus as a spellcasting focus for my warlock spells",
 					"I regain these spell slots on a short rest"
 				]),
-				additional : levels.map(function (n, idx) {
+				additional: levels.map(function (n, idx) {
 					var cantr = [2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4][idx];
 					var splls = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15][idx];
 					var slots = n < 2 ? 1 : n < 11 ? 2 : n < 17 ? 3 : 4;
-					var sllvl = n < 3 ? 1 : n < 5 ? 2 : n < 7 ? 3 : n < 9 ? 4 : 5;
-					return cantr + " cantrips \u0026 " + splls + " spells known; " + slots + "\xD7 " + Base_spellLevelList[sllvl] + " spell slot";
-				})
+					var slLvl = n < 3 ? 1 : n < 5 ? 2 : n < 7 ? 3 : n < 9 ? 4 : 5;
+					var sltxt = "level " + slLvl;
+					return cantr + " cantrips \x26 " + splls + " spells; " + slots + "\xD7 " + sltxt + " spell slot";
+				}),
 			},
 			"subclassfeature1" : {
 				name : "Otherworldly Patron",
@@ -2423,26 +2463,42 @@ var Base_ClassList = {
 					name : "Mystic Arcanum (6th-level)",
 					"class" : "warlock",
 					level : [6, 6],
-					firstCol : "oncelr"
 				}, {
 					name : "Mystic Arcanum (7th-level)",
 					"class" : "warlock",
 					level : [7, 7],
-					firstCol : "oncelr",
 					times : levels.map(function (n) { return n < 13 ? 0 : 1; })
 				}, {
 					name : "Mystic Arcanum (8th-level)",
 					"class" : "warlock",
 					level : [8, 8],
-					firstCol : "oncelr",
 					times : levels.map(function (n) { return n < 15 ? 0 : 1; })
 				}, {
 					name : "Mystic Arcanum (9th-level)",
 					"class" : "warlock",
 					level : [9, 9],
-					firstCol : "oncelr",
 					times : levels.map(function (n) { return n < 17 ? 0 : 1; })
-				}]
+				}],
+				calcChanges: {
+					spellAdd: [
+						function (spellKey, spellObj, spName, isDuplicate, isBonusSpell) {
+							// Special treatment for Mystic Arcanum spells (any warlock spell level 6 or higher).
+							if (spName === "warlock" && spellObj.level >= 6) {
+								var isMysticArcanumSelection = isBonusSpell && CurrentSpells.warlock.bonus['mystic arcanum'].some(function (n) { return n.selection[0] === spellKey; });
+								// Add Once per Long Rest checkbox for the Mystic Arcanum spells. Put a checked box on a full class list.
+								if (isMysticArcanumSelection && !spellObj.firstCol) {
+									spellObj.firstCol = CurrentSpells.warlock.typeList === 4 ? "checkedbox" : "oncelr";
+								}
+								// Can't upcast Mystic Arcanum spells. Skip bonus spells that are not part of the Mystic Arcanum selection.
+								var notMysticArcanumSpell = isBonusSpell && !isMysticArcanumSelection;
+								if (spellObj.allowUpCasting === undefined && spellObj.level < 9 && !notMysticArcanumSpell) {
+									return removeSpellUpcasting(spellObj);
+								}
+							}
+						},
+						"Mystic Arcanum spells can't be upcast.",
+					],
+				},
 			},
 			"eldritch master" : {
 				name : "Eldritch Master",
@@ -2478,6 +2534,7 @@ var Base_ClassList = {
 			"\n \u2022 A spellbook." +
 			"\n\nAlternatively, choose 4d4 \xD7 10 gp worth of starting equipment instead of both the class' and the background's starting equipment.",
 		subclasses : ["Arcane Tradition", ["wizard-evocation"]],
+		subclassGainedLevel : 2,
 		spellcastingFactor : 1,
 		spellcastingKnown : {
 			cantrips : [3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
@@ -2588,6 +2645,7 @@ var Base_ClassSubList = {
 	"bard-college of lore" : {
 		regExpSearch : /^(?=.*(college|bard|minstrel|troubadour|jongleur))(?=.*lore).*$/i,
 		subname : "College of Lore",
+		subnameshort: "Lore",
 		fullname : "Bard (College of Lore)",
 		source : [["SRD", 13], ["P", 54]],
 		features : {
@@ -2770,6 +2828,7 @@ var Base_ClassSubList = {
 	"druid-circle of the land" : {
 		regExpSearch : /^(?=.*(druid|shaman))(?=.*\b(land|arctic|coast|deserts?|forests?|grasslands?|savannah|steppes?|mountains?|swamps?|underdark)\b).*$/i,
 		subname : "Circle of the Land",
+		subnameshort: "Land",
 		source : [["SRD", 21], ["P", 68]],
 		features : {
 			"subclassfeature2" : {
@@ -2967,6 +3026,7 @@ var Base_ClassSubList = {
 	"monk-way of the open hand" : {
 		regExpSearch : /^(?=.*\bopen\b)(?=.*\bhand\b)((?=.*(monk|monastic))|(((?=.*martial)(?=.*(artist|arts)))|((?=.*spiritual)(?=.*warrior)))).*$/i,
 		subname : "Way of the Open Hand",
+		subnameshort: "Open Hand",
 		source : [["SRD", 28], ["P", 79]],
 		features : {
 			"subclassfeature3" : {
@@ -2985,7 +3045,7 @@ var Base_ClassSubList = {
 				source : [["SRD", 28], ["P", 79]],
 				minlevel : 6,
 				description : desc("As an action, I regain hit points equal to three times my monk level"),
-				additional : levels.map(function (n) { return n < 6 ? "" : (n*3) + " hit points" }),
+				additional : levels.map(function (n) { return n < 6 ? "" : (n*3) + " HP" }),
 				usages : 1,
 				recovery : "long rest",
 				action : [["action", ""]]
@@ -2999,7 +3059,8 @@ var Base_ClassSubList = {
 					name : "Quivering Palm",
 					extraname : "Way of the Open Hand 17",
 					source : [["SRD", 29], ["P", 80]],
-					description : " [3 ki points]" + desc([
+					additional: "3 ki points",
+					description : desc([
 						"When I hit a creature with an unarmed strike, I can start imperceptible vibrations",
 						"Within my monk level in days, I can use an action to have the creature make a Con save",
 						"If it fails, it is reduced to 0 hit points; If it succeeds, it takes 10d10 necrotic damage"
@@ -3015,6 +3076,7 @@ var Base_ClassSubList = {
 	"paladin-oath of devotion" : {
 		regExpSearch : /^(?=.*(devotion|obedience))((?=.*paladin)|((?=.*(exalted|sacred|holy|divine))(?=.*(knight|fighter|warrior|warlord|trooper)))).*$/i,
 		subname : "Oath of Devotion",
+		subnameshort: "Devotion",
 		source : [["SRD", 32], ["P", 86]],
 		features : {
 			"subclassfeature3" : {
@@ -3428,6 +3490,7 @@ var Base_ClassSubList = {
 						"I add my Charisma modifier to one damage roll of a spell if it does lightning damage",
 						"When I do this, I can spend 1 sorcery point to gain lightning resistance for 1 hour"
 					]),
+					additional : "optional: 1 SP",
 					calcChanges : {
 						atkCalc : [
 							function (fields, v, output) {
@@ -3451,6 +3514,7 @@ var Base_ClassSubList = {
 						"I add my Charisma modifier to one damage roll of a spell if it does poison damage",
 						"When I do this, I can spend 1 sorcery point to gain poison resistance for 1 hour"
 					]),
+					additional : "optional: 1 SP",
 					calcChanges : {
 						atkCalc : [
 							function (fields, v, output) {
@@ -3538,8 +3602,9 @@ var Base_ClassSubList = {
 		}
 	},
 	"wizard-evocation" : {
-		regExpSearch : /(evocation|evocer|evoker)/i,
+		regExpSearch : /evocation|evocer|evoker/i,
 		subname : "School of Evocation",
+		subnameshort: "Evocation",
 		fullname : "Evoker",
 		source : [["SRD", 54], ["P", 117]],
 		features : {

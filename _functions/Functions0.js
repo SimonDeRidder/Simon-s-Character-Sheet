@@ -74,7 +74,7 @@ function Checkbox(field, FldValue, tooltip, submitNm) {
 
 function desc(arr, joinStr, preStr) {
 	joinStr = joinStr ? joinStr : "\n   ";
-	if (!preStr) preStr = joinStr;
+	if (preStr === undefined) preStr = joinStr;
 	if (!Array.isArray(arr)) return preStr + arr;
 	return preStr + arr.join(joinStr);
 };
@@ -149,11 +149,66 @@ function setPrototypes() {
 
 	//add stuff otherwise not available in older version of Adobe Acrobat
 	if (!Object.keys) {
-		Object.keys = function(obj) {
-			var arrRe = [];
-			for (var a in obj) arrRe.push(a);
-			return arrRe;
+		Object.keys = function (target) {
+			'use strict';
+			if (target === undefined || target === null) {
+				throw new TypeError('Cannot convert undefined or null to object');
+			}
+			var obj = Object(target);
+			var arr = [];
+			for (var key in obj) {
+				if (Object.prototype.hasOwnProperty.call(obj, key)) arr.push(key);
+			}
+			return arr;
 		}
+	}
+	if (!Object.values) {
+		Object.values = function (target) {
+			'use strict';
+			if (target === undefined || target === null) {
+				throw new TypeError('Cannot convert undefined or null to object');
+			}
+			var obj = Object(target);
+			var arr = [];
+			for (var key in obj) {
+				if (Object.prototype.hasOwnProperty.call(obj, key)) arr.push(obj[key]);
+			}
+			return arr;
+		}
+	}
+	if (!Object.entries) {
+		Object.entries = function (target) {
+			'use strict';
+			if (target === undefined || target === null) {
+				throw new TypeError('Cannot convert undefined or null to object');
+			}
+			var obj = Object(target);
+			var arr = [];
+			for (var key in obj) {
+				if (Object.prototype.hasOwnProperty.call(obj, key)) arr.push([key, obj[key]]);
+			}
+			return arr;
+		}
+	}
+	if (!Object.assign) {
+		Object.assign = function (target) {
+			'use strict';
+			if (target === undefined || target === null) {
+				throw new TypeError('Cannot convert undefined or null to object');
+			}
+			var obj = Object(target);
+			for (var i = 1; i < arguments.length; i++) {
+				var s = arguments[i];
+				if (s === undefined || s === null) continue; // Skip if undefined or null
+				for (var key in s) {
+					// Avoid bugs when hasOwnProperty is shadowed
+					if (Object.prototype.hasOwnProperty.call(s, key)) {
+						obj[key] = s[key];
+					}
+				}
+			}
+			return obj;
+		};
 	}
 
 	//define a way for numbers and regular expressions to return an indexOf(), match(), replace(), search(), slice(), split(), substring(), substr(), toLowerCase(), or toUpperCase() to avoid errors
@@ -413,6 +468,7 @@ function FormatHD(name, value) {
 
 //a field "format" function to add a space at the start and end of the field, to make sure it looks better on the sheet
 function addWhitespace(value) {
+	if (tDoc.getField("Image.calc_lines.CSfront").display === display.visible) return value; // don't do this if the calculation boxes are not being used
 	return " " + value.trim() + " ";
 };
 
@@ -434,13 +490,6 @@ function RoundTo(inputNmbr, roundNmbr, emptyAtZero, applyDec) {
 	} else if (applyDec && result % 1 != 0 && What("Decimal Separator") === "comma") {
 		result = result.replace(".", ",");
 	}
-	return result;
-}
-
-function NormDecimal(dec) {
-	var i = 0;
-	var first = ding.match(/,|\./);
-	var result = dec.replace(/,|\./g, function(all, match) { return i++===0 ? first : ''; });
 	return result;
 }
 
@@ -1370,14 +1419,16 @@ function formatDescriptionFull(sDescFull, bReturnRichTextStyled) {
 			if (isArray(n)) {
 				// Table, every entry in the array is a row, with the first one being the headers
 				var renderTable = n.reduce(function (finalStr, t, idx) {
-					var joinString = bReturnRichTextStyled ? "**\t**" : "\t";
+					var richTextHeader = idx === 0 && bReturnRichTextStyled;
+					var joinString = richTextHeader ? "**\t**" : "\t";
 					var tableRow = typeof t === "string" ? t :
 					               isArray(t) ? t.join(joinString) : false;
 					if (!tableRow) return finalStr;
-					if (idx === 0) {
-						tableRow = bReturnRichTextStyled ? "**" + tableRow + "**" :
-						           bIgnoreUnicode ? tableRow.toUpperCase() :
-						           toUni(tableRow, "**");
+					if (richTextHeader) {
+						tableRow = "**" + tableRow + "**";
+						tableRow = tableRow.replace(/(^|\s)\*{4}|\*{4}(\s|$)/g, "$1"); // Fix for empty header row array entries
+					} else if (idx === 0) {
+						tableRow = bIgnoreUnicode ? tableRow.toUpperCase() : toUni(tableRow, "**");
 					}
 					var lineBreakT = finalStr ? '\n' : '';
 					return finalStr + lineBreakT + tableRow;

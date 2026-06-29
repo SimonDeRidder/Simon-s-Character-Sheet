@@ -846,7 +846,7 @@ ClassList["dragon knight"] = {
 			source : [["RJ:DK", 4]],
 			minlevel : 1,
 			description : desc([
-				'Choose a dragon covenant color using the "Choose Features" button above'
+				'Choose a dragon covenant color using the "Choose Feature" button above'
 			]),
 			languageProfs : ["Draconic"],
 			choices : ["Black", "Blue", "Brass", "Bronze", "Copper", "Gold", "Green", "Red", "Silver", "White"],
@@ -1058,7 +1058,8 @@ ClassList["dragon knight"] = {
 			name : "Dragon's Fury",
 			source : [["RJ:DK", 5]],
 			minlevel : 2,
-			description : " [Dragon's Str mod per short rest]" + desc([
+			additional: "Dragon's Str mod per short rest",
+			description : desc([
 				"My dragon companion can now take the Attack action",
 				"It gains three new attacks, but is limited in how often they can be used"
 			]),
@@ -1164,7 +1165,7 @@ ClassList["dragon knight"] = {
 			source : [["RJ:DK", 6]],
 			minlevel : 11,
 			description : desc([
-				'Choose a benefit using the "Choose Features" button above'
+				'Choose a benefit using the "Choose Feature" button above'
 			]),
 			choices : ["Scales (unarmored AC)", "Eyes (Perception and Investigation)", "Tail (shove as bonus action)"],
 			"scales (unarmored ac)" : {
@@ -1204,7 +1205,7 @@ ClassList["dragon knight"] = {
 			source : [["RJ:DK", 6]],
 			minlevel : 11,
 			description : desc([
-				'Choose a dragon covenant color using the "Choose Features" button above'
+				'Choose a dragon covenant color using the "Choose Feature" button above'
 			]),
 			choices : ["Acid", "Cold", "Fire", "Lightning", "Poison", "Radiant", "Necrotic"],
 			choicesNotInMenu : true,
@@ -1477,7 +1478,7 @@ var dragonKnightElemental = AddSubClass('dragon knight', 'elemental', {
 			description : desc([
 				"When I use a spell slot to cast a spell, I can imbue my weapon until my next turn ends",
 				"While imbued, hits with it deal +1d6 associated damage per spell slot level (max +5d6)",
-				'Choose a dragon covenant color using the "Choose Features" button above'
+				'Choose a dragon covenant color using the "Choose Feature" button above'
 			]),
 			choices : ["Acid", "Cold", "Fire", "Lightning", "Poison"],
 			choicesNotInMenu : true,
@@ -1532,7 +1533,7 @@ var dragonKnightElemental = AddSubClass('dragon knight', 'elemental', {
 			minlevel : 10,
 			description : desc([
 				"When I roll a 1 or 2 on associated damage die, I can reroll it but must use the new roll",
-				'Choose a dragon covenant color using the "Choose Features" button above'
+				'Choose a dragon covenant color using the "Choose Feature" button above'
 			]),
 			choices : ["Acid", "Cold", "Fire", "Lightning", "Poison"],
 			choicesNotInMenu : true,
@@ -1584,7 +1585,7 @@ var dragonKnightElemental = AddSubClass('dragon knight', 'elemental', {
 			description : desc([
 				"When my dragon uses its breath weapon, I can empower its damage " + global_DragonKnight.str.and + " double its area",
 				"It then deals maximum damage and ignores damage resistance",
-				'Choose a dragon covenant color using the "Choose Features" button above'
+				'Choose a dragon covenant color using the "Choose Feature" button above'
 			]),
 			usages : 1,
 			recovery : "long rest",
@@ -1708,7 +1709,7 @@ AddSubClass('dragon knight', 'platinum', {
 			minlevel : 3,
 			description : desc([
 				"My dragon companion becomes a platinum dragon associated with radiant damage",
-				'Choose a dragon covenant color using the "Choose Features" button above'
+				'Choose a dragon covenant color using the "Choose Feature" button above'
 			]),
 			choices : ["Black", "Blue", "Brass", "Bronze", "Copper", "Gold", "Green", "Red", "Silver", "White"],
 			choicesNotInMenu : true,
@@ -1878,7 +1879,7 @@ AddSubClass('dragon knight', 'shadow', {
 			minlevel : 3,
 			description : desc([
 				"My dragon companion becomes a shadow dragon associated with necrotic damage",
-				'Choose a dragon covenant color using the "Choose Features" button above'
+				'Choose a dragon covenant color using the "Choose Feature" button above'
 			]),
 			choices : ["Black", "Blue", "Brass", "Bronze", "Copper", "Gold", "Green", "Red", "Silver", "White"],
 			choicesNotInMenu : true,
