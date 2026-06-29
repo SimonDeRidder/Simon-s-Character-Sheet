@@ -1,6 +1,6 @@
 this.info = {
-	version: "v0.4.0",
-	SheetVersion: "v14.0.5",
+	version: "v0.4.1",
+	SheetVersion: "v14.0.8",
 	SpellsOnly: false,
 };
 const minVer = false;
