@@ -1715,12 +1715,8 @@ async function ApplyWildshape(fldName, value, oldValue) {
 		} else if (oSkill.creature.proficiency === "proficient" || oSkill.character.proficient === "proficient") {
 			skillProf = "proficient";
 		}
-		if (typePF) {
-			Checkbox(skillFldBase + ".Prof", skillProf === "expertise" || skillProf === "proficient");
-			Checkbox(skillFldBase + ".Exp", skillProf === "expertise");
-		} else {
-			Value(skillFldCF_Prof, skillProf);
-		}
+		Checkbox(skillFldBase + ".Prof", skillProf === "expertise" || skillProf === "proficient");
+		Checkbox(skillFldBase + ".Exp", skillProf === "expertise");
 
 		// Calculate modifier
 		if (oWS.calcSetting[0] === "by_the_numbers") {
@@ -1739,14 +1735,14 @@ async function ApplyWildshape(fldName, value, oldValue) {
 			if (oSave.creature.bonus) saveMod += EvalBonus(oSave.creature.bonus, prefix, Fld, creaProfB);
 			if (oSave.character.bonus) saveMod += EvalBonus(oSave.character.bonus, prefix, Fld, charProfB);
 		}
-		Value(skillFldBase + (typePF ? ".Mod" : ""), skillMod);
+		Value(skillFldBase + ".Mod", skillMod);
 	}
 
 	// Passive Perception
 	if (oWS.calcSetting[0] === "by_the_numbers") {
 		var passPerc = Math.max(oWS.skill.passivePerception.creature.value, oWS.skill.passivePerception.character.value);
 	} else {
-		var passPerc = 10 + What(fldBase + "Skills.Perc" + (typePF ? ".Mod" : ""));
+		var passPerc = 10 + What(fldBase + "Skills.Perc.Mod");
 		if (oWS.skill.passivePerception.creature.bonus) {
 			passPerc += EvalBonus(oWS.skill.passivePerception.creature.bonus, prefix, fld, creaProfB);
 		}
@@ -3032,6 +3028,15 @@ async function DoTemplate(tempNm, AddRemove, removePrefix, GoOn) {
 				// grey out the appropriate bookmarks
 				amendBookmarks(BookMarkList[tempNm + "_Bookmarks"], false);
 			}
+
+			//now do some extra actions, depending on the page(s) removed
+			switch (tempNm) {
+			  case "ASfront" :
+				// Reset the conditions as they can no longer be toggled with this page hidden
+				ConditionSet(true, true);
+				break;
+			};
+
 			// Stop progress bar
 			thermoM(thermoTxt, true);
 		} else {
@@ -7039,8 +7044,14 @@ async function SetProf(ProfType, AddRemove, ProfObj, ProfSrc, Extra) {
 					var theVal = oAllMode;
 				}
 				if (!theVal) continue;
-				if (!isNaN(theVal) || !/[xX\*\xD7\/:]/.test(theVal[0])) theVal += " ft";
+				if (!isNaN(theVal) || !/[xX\*\xD7\/:]/.test(theVal[0])) {
+					theVal += " ft";
+				}
 				if (metric) theVal = ConvertToMetric(theVal, 0.5);
+				// Round to two decimal places
+				theVal = theVal.replace(/\d+[.,]\d+/, function (match) {
+					return RoundTo(match, 0.01, false, true);
+				});
 				modArray.push(spMod + " [" + theVal + "]");
 			};
 			// The strings for full speed and encumbered speed
@@ -7059,6 +7070,10 @@ async function SetProf(ProfType, AddRemove, ProfObj, ProfSrc, Extra) {
 						theVal += " ft";
 					};
 					if (metric) theVal = ConvertToMetric(theVal, 0.5);
+					// Round to two decimal places
+					theVal = theVal.replace(/\d+[.,]\d+/, function (match) {
+						return RoundTo(match, 0.01, false, true);
+					});
 					arrs[sV].push(aSpeed + " [" + theVal + "]");
 					goOn = true;
 				};

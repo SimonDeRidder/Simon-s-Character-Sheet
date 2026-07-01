@@ -718,16 +718,15 @@ function ApplyShield(input) {
 }
 
 //Change advantage or disadvantage of saves, skills, checks, attacks, etc. based on condition
-async function ConditionSet(fieldName, isReset) {
-	if (!isReset && !IsNotConditionSet) return;
-	// Start progress bar and stop calculations
-	var thermoTxt = thermoM("Armor stealth disadvantage...");
-	calcStop();
-	IsNotConditionSet = false;
-	var thisChck = !isReset && tDoc.getField("AC Stealth Disadvantage").isBoxChecked(0) ? true : false;
-	await SetProf("advantage", thisChck, ["Ste", false], "Armor");
-	IsNotConditionSet = true;
-	thermoM(thermoTxt, true); // Stop progress bar
+async function ConditionSet(isReset, skipStealthDisadv) {
+	if (!skipStealthDisadv) {
+		// Start progress bar and stop calculations
+		var thermoTxt = thermoM("Armor stealth disadvantage...");
+		calcStop();
+		var thisChck = !isReset && tDoc.getField("AC Stealth Disadvantage").isBoxChecked(0) ? true : false;
+		await SetProf("advantage", thisChck, ["Ste", false], "Armor");
+		thermoM(thermoTxt, true); // Stop progress bar
+	}
 };
 
 // search the string for possible class and subclass
